@@ -1,0 +1,1 @@
+gate-v2.0.2 (2026-10-14): baseline,t00,t10,t20,t30,liquid; 64 subframes; PathTracing; CapSealCam 768x576 -> apply_lens 640x480 (identical to gate-v2.0). Execution fix (v2.0.1): render_keep.py --stage default (NameError HERE). Decision rule frozen in GATE_v2.0.2.md before any render.

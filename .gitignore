@@ -1,0 +1,32 @@
+
+# macOS / Python
+.DS_Store
+__pycache__/
+*.pyc
+.venv/
+venv/
+# Secrets / environment
+.env
+.env.*
+*.pem
+*.key
+# Downloaded CSI data / twins (do not commit)
+*.zip
+*.tar.gz
+csi-vial-fill-dataset/
+csi_digital_twin*/
+data/raw/
+data/downloaded/
+# Generated Twin-to-Line artifacts
+ignite_gate/
+results/
+results*/
+renders/
+outputs/
+generated/
+checkpoints/
+models/
+*.pt
+*.pth
+*.onnx
+.venv

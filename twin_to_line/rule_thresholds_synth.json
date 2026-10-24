@@ -1,0 +1,195 @@
+{
+ "inspector": "rule_yellow_seat",
+ "thresholds": {
+  "t_absent": 0.032,
+  "t_seated": 0.94,
+  "t_offset": 2.0
+ },
+ "features": {
+  "cap_frac_disk_px": 11,
+  "cap_offset_disk_px": 13
+ },
+ "fit_on": {
+  "split": "val",
+  "n_scenes": 113,
+  "n_crops": 3390,
+  "position_offset_px": [
+   0,
+   0
+  ],
+  "crops_csv_sha256": {
+   "data_train/crops.csv": "8071534637a9a70a36a8b498353a52b706ae80877f965d018ef63f9977646cc3",
+   "data_tilt/crops.csv": "4e07190fcc2a2f9ca4ae9978c8771e5a228149d73ba8abdbfac8892e4ab805aa"
+  },
+  "render_sha256": {
+   "tilt_train_00004.png": "f5ea6d1babf65fc87434d2bd57dceb46523da7526370048ea9f0ace3030eb19c",
+   "tilt_train_00009.png": "c25f6f8dcbe93645143bdbe020582d1cd71ed1bad7c19998a47fe500437c2f27",
+   "tilt_train_00014.png": "cebc8bf8c994a7a5d5239f8e1e62b41ac5cf82a20701985d8306754ab82097ef",
+   "tilt_train_00019.png": "f500e09e917e54dc76c90f405a31e03d6e67a5d19ef9a3d14dedbe24d0121e16",
+   "tilt_train_00024.png": "3cd76ec350cdc056912a3cb562f8d31453d4ec446139dbf2472bc3e9d5653849",
+   "tilt_train_00029.png": "efc1670243264b92522a2f25f227172876386eb3689e73536751f744ec9da500",
+   "tilt_train_00034.png": "933d382e1225c1937b412000a2819c9e16d558674bd444927195bb9d1a8b5dd0",
+   "tilt_train_00039.png": "f7d7dbef50517375d69844a815347f0516d5c556693e4f85ea07efe8e35fce3c",
+   "tilt_train_00044.png": "824fc00cc14ae9136a66d21f14143e6be685b8981a414340d43ebe661536e6ec",
+   "train_v1_00004.png": "df3e5fce464bfe84f88738138de323c645803813e8322833e90e7fa6209e27a3",
+   "train_v1_00009.png": "8b9bf3bc0044829c432270479075d50d12fe951ec3d7833df9fb92f3228f0cfd",
+   "train_v1_00014.png": "cd90aa11394f0969d876aa0f4fa95d1915f7781693650ba685edc26940c0c00b",
+   "train_v1_00019.png": "5d83cddcaca56fd0a034d9b21fbfef6f86e8f253d64fabda8f0ea2099d34b93c",
+   "train_v1_00024.png": "21c4612c2a76056335e68670472a6cfdd5d1be16758ba9488ec8bace840a2b74",
+   "train_v1_00029.png": "fdfbec032d7ae301d62008fbde0f083e3962beb8ea3b4045bf69ea0a01d4ca43",
+   "train_v1_00034.png": "c896d000619e4acfaf55a6bdc9e16d8f5a4d70a9ffbff0f77decfacf1b9e01a4",
+   "train_v1_00039.png": "6a04d029e6795c2873e6b8848e003e0e0b9cd23616aaa6c4ef76cb14a0fee2b9",
+   "train_v1_00044.png": "327f0d2017f095340657e7d98b6af682e59c46823b1dd663e53e41b97996fb1f",
+   "train_v1_00049.png": "aa1e5d2c7fd09a558f94fd4d4c2a94d6c33b28d371b7d1170c79226d57f49d67",
+   "train_v1_00054.png": "ca26010ee383c0faa02a9872edb8596ce3f0eb171daeae9d22488d269ddc7d83",
+   "train_v1_00059.png": "f32745e1baf9e5ac2be1735b4627b77348cb97ec1f9f32065c0f08addb34d2be",
+   "train_v1_00064.png": "98e80e2cb71b015603383ebe341ac98e0f9909bc7b1959f934273985afda7ef5",
+   "train_v1_00069.png": "c8eb245b1f7b7739f0bd64a1af62e02766e141978ba1867aad7e5efc504f3d52",
+   "train_v1_00074.png": "207d3d35d03e0b8c3d094fbea211290e6e635b00aa353930e7757da916d2443d",
+   "train_v1_00079.png": "d893769e7d098e565252ffdfeb7a730eca432ea4024371369d30c2c8e7965b1f",
+   "train_v1_00084.png": "465365c50c6f4d0e3c0db8d2b92642ca13a7eed320dbfa64265784534ead112e",
+   "train_v1_00089.png": "87f1ad8ab9650b645d7d600f237ef2b6cba8043020e74314d554b7baa58fa769",
+   "train_v1_00094.png": "83a51c14442ec1d03cc3e46d55393c11fdcfe019eebf308d2ea9f942344c7847",
+   "train_v1_00099.png": "0d91f30c0bd24880c370b422292d7be3b2ce72573fbe5a3c3dc9200370ca71bb",
+   "train_v1_00104.png": "e5137d1d333c0064ab8cff47af168bd4be101e6fea15e22b385962396e8852fd",
+   "train_v1_00109.png": "51334e30f23bab57e5988b80a9a97999d975b5bc53c9d13edac926fcaa94216d",
+   "train_v1_00114.png": "c8620b72c705ee3473a4e48aa2c7c7edcb8e41b771ba22b60b7542efc4a726d3",
+   "train_v1_00119.png": "24590e17f08b71e76a7f94123cbce602d60f04660f127a1b55285ab5c0dbace8",
+   "train_v1_00124.png": "ddfd77cc307c19c02208cb78f0c8c8785f0dd16b60fdfef84c93916fabc5862c",
+   "train_v1_00129.png": "8ace36c70c5265d5dbe1dd84474347c96f97d936bb1fa6dc8df3b1afea9f3651",
+   "train_v1_00134.png": "771f5ac8fa7e52f01c66817e9a5f3dfcc7b03f21f4c8cdeebfd28c9f679267a4",
+   "train_v1_00139.png": "6ed91b9d950db5b2ecf3a5e0daa9c13204f09651da0e2c99d43ba986b38f2451",
+   "train_v1_00144.png": "6ebeb3ed6d998e525727a9352ebadeefa99b092261f241adfbf21d876b45a5f3",
+   "train_v1_00149.png": "300e71bbd5511d3f41bbace2699e718979279d5d74feb853fcaa67cc3031e731",
+   "train_v1_00154.png": "6fce7843ff38c102687020a2de7dc77af35c7521f6248e2429a3dec27faee468",
+   "train_v1_00159.png": "ec8d124dd87f11222c7e1d4854880d8c7d4a86ba2c724c804a9b865706274a5e",
+   "train_v1_00164.png": "d3592b48de14275ecaf7f25210043570f49b735c6b52af28e991397d7fdf0b4b",
+   "train_v1_00169.png": "37787a65acbf9def500daec098064805a11d88c80ec7a163ab663cd95977e563",
+   "train_v1_00174.png": "640d1b702cda13259fcdc637c65d840b89e898522d6d0718d80d513f8cd6d921",
+   "train_v1_00179.png": "11175bdd5a2831b954ae03fb6cd6f8a641496c4672afce0a34f95d829efb9ad6",
+   "train_v1_00184.png": "cb4cbaf3d2c6dfab0e277f92f25eaa3fefc11a274799193d5916461606c72676",
+   "train_v1_00189.png": "5173134f0b4455186c1c3213b31e9b9db2c8cad8fca1a4c7c83ac093793f9ed8",
+   "train_v1_00194.png": "486d3d2657a1f92333360b047bd9aa1c61fa7bb022ed2d574354b0060cf4ec0b",
+   "train_v1_00199.png": "1c4043e59d6ab8cc24ca5954f3bcdede23fb7cfc20a9ef165724b3d305f499c6",
+   "train_v1_00204.png": "ba88bd4e143ed2e9b068e114c8aac40e0d0ecbd9ef0ba8790d90d01c891286b6",
+   "train_v1_00209.png": "1995a7e3236f0cc1cc611299f8b011ab4674e73282edc7e44069454bbca4a836",
+   "train_v1_00214.png": "f0feca45906ebb14cce4707bd68270cc449162af8251d238236ecf0a13ff6376",
+   "train_v1_00219.png": "928a6f4bb1fe429e73e2e0865dea620b4995400504f09278ba07765ff8a23f16",
+   "train_v1_00224.png": "ade4e7ac8ee716d85bbf7eb4d3c7df3caaaea5cd03939467a198bb796b53066d",
+   "train_v1_00229.png": "d565a20dfe5cbeab731cbd6103192e2462fa360f62f95fd6a47aaa8286c9b48d",
+   "train_v1_00234.png": "7f39a28e3f33646026ebc8e6179815b4dd34b010f1a87f4c830c8c830f457e8f",
+   "train_v1_00239.png": "3a6a1162f631b41a958919b7d2c6ef60ce7a8a191f1d78301e7f8042619ac46c",
+   "train_v1_00244.png": "c3ff024e6dfba8913b5d3e03834e7e07af09909c7629f73c4bcc51afc797a427",
+   "train_v1_00249.png": "9460fa019df10ce478a0b52e8cd9aa3156dfd5c383285d09eaf1ccc2131af836",
+   "train_v1_00254.png": "c3ae3cc21e5e945b130f07b0b19af048d29c955fc7c15ad07119a54135f33e0b",
+   "train_v1_00259.png": "31d627bc4d43824ba380c8838c7b488b60cc325f663b1e25f4c74e90b369784f",
+   "train_v1_00264.png": "3264f2cfc060b81e25acca4992052a11e372584d4c01ac9870f6e939bd2c4784",
+   "train_v1_00269.png": "055507ba526c9c53d1813adf141b679ea59251adcaf29b4d556ae41820bb9fc3",
+   "train_v1_00274.png": "bdb057d88dfcee23b1c468a62c1fe48f6bedd3ee3843fada2a214e55f0827ab7",
+   "train_v1_00279.png": "709cb8e39b36e915af027f2118a28a988668dd11a21570b3eb737a8091db1d7e",
+   "train_v1_00284.png": "75420844b6fce61ee2ae0e3b47cf3e2ab3054556ee1a33de67aa89a9fb72619a",
+   "train_v1_00289.png": "4cc4280678c94366984e694ec9a9c7e8dc5b7e3b1170461fd540a45b7943ae8a",
+   "train_v1_00294.png": "0cef9a736b28016aeaec755beafb0d8c1ad4c4b7aaf4d27d17118fef9253195b",
+   "train_v1_00299.png": "ca79aaac090580ad18e75b4523dd11a6bf205126597d5e14eb257d436cb1b3da",
+   "train_v1_00304.png": "fbe1ac20a0a2bde49ff8fac3c3f46f6350ce12806a3507406c2b55ed0ba74b00",
+   "train_v1_00309.png": "bc9961efb37d050bf25b03ae2d5380841812ebab4e2d61f4625bb2a4250b3799",
+   "train_v1_00314.png": "9a126b7935c9680a4fb8ac8446caab63e4c60dff6721f89eb08100e9c03d4901",
+   "train_v1_00319.png": "39892f2575a5f96226024843aed8376f6d6c5d183dba0e72cde9c70518538a88",
+   "train_v1_00324.png": "2cbe0c7d472389e616b46f910283e4ee375c30e4567bc3b42b0b4fbb83ba1404",
+   "train_v1_00329.png": "0b48c2f1db7058a03cc247b849bbdd2a50a6febf02f512584c596de2c822bc27",
+   "train_v1_00334.png": "6e4110f7eadcebafcaca9a2e4d3a6b4a89e9472aa9f20f7bbacecf6b47ed4b3a",
+   "train_v1_00339.png": "06f9bf7041e1d4b20113ac105a66ebc2dc99c31d45ec844e100d76baa3719f05",
+   "train_v1_00344.png": "7e6f851fdecb60b90e7197e90d1a43e5252f913467832f1dc2040215c8f6c752",
+   "train_v1_00349.png": "4b3dc3119a5160928bc26e8d162de7c8b2be515d3b7e0467804c15798890b430",
+   "train_v1_00354.png": "075686faebae40ac20bbbf6c953688f929f1547e42e636beb4c422336132d53d",
+   "train_v1_00359.png": "e4645ac161521f53e0541449112e73ba02a25d8985e7d1201b05e5463fc8b9f3",
+   "train_v1_00364.png": "71e1ee8d6ea2af7a7583614568fd6bf2718bfee7bb79abcc69c3680a01aa6757",
+   "train_v1_00369.png": "8bbe30dd0260df42f1648a4134876b0ae0803fcd008d578690b9cd58f9f09a4f",
+   "train_v1_00374.png": "7961077b8accb65de1dfcdf118184379ef0d1a67e0118e4c38749daff83d2123",
+   "train_v1_00379.png": "f8c1866e8e5da0d6788b9ce0e2f5a9158bf199ef7994042b151c0320898b0bca",
+   "train_v1_00384.png": "6305f4f897b7df459171f2515022b6ef03df02678c661d1a42d2f20b7467805a",
+   "train_v1_00389.png": "ca5cbdb5c1909735bdbf586526c377c4773a6c8f7fcf9ff87c387505a1fd5b87",
+   "train_v1_00394.png": "b399e7b54a274b35a82cf06ce87c84f0598eaeee78a32f16b8cf5470233441c6",
+   "train_v1_00399.png": "953afa68cec44f7020aa4390e3c5a1f493a2278b2d0e896dfb7a4e6257502155",
+   "train_v1_00404.png": "afa11d37746ee049155a8c58f7352c4e96da4992bfa1c6bfa00cd2b285bf416f",
+   "train_v1_00409.png": "154a651efbf6d28f66c5a0e5349f6f351ebd58b0fe30f889361c7e72fdfbe08f",
+   "train_v1_00414.png": "912b63d4b04b8ed1fd32c5d75aa1e9540f5ab24227d8a6d36243d58f618739f9",
+   "train_v1_00419.png": "e8fd4d3d30bc8ec006b101a45dac27b3aec2962bd77ad522bbcf396ab39d638a",
+   "train_v1_00424.png": "3b4cd70aaf5f7e85679c75956b7d34446f4667e2f6f14ff7872bef82a07c118a",
+   "train_v1_00429.png": "054b8debdef1f63779181f001d00035ff5fdd96da1bf953aca8558bdd604fbdf",
+   "train_v1_00434.png": "39f556edb01ca036d423ed21ec1814c9d23329d47415bdaadd78c547953c224d",
+   "train_v1_00439.png": "909a0dc696274a2333cd064ddf8fea839cab6ef34a44d5ea2261588dc8c9ee9c",
+   "train_v1_00444.png": "f46389045bd277237fc60f5fdf3f62ba28115bc9ce3b508ac380268201efc4bb",
+   "train_v1_00449.png": "64c87e9b50b41e9b7eff80bb991e7cebad58284b7957d92df2371723e7b7ebce",
+   "train_v1_00454.png": "e704d1d05e9ca8efbb6ddf53121968f7446e2ec797e48c894e9a05a67cad41a1",
+   "train_v1_00459.png": "5ee1ef8573d383b9b63dc85ba53d3eb01b590251a0d92cf86c00f3e9e0c2edec",
+   "train_v1_00464.png": "6bff3f71400e50ae3260b0a265dfe17e623716e8745d372e49222f40328e40fc",
+   "train_v1_00469.png": "814df6dafd4bdb126df5336604f9f6e76703cd18be416be9b57943c258746501",
+   "train_v1_00474.png": "be7b1b1c72c7c5a46c80fea2d259ab1dca65346617b555c609f0b1c076e2fdc9",
+   "train_v1_00479.png": "2e728cdeb7847e1cbe42ac8e15fb986d60cd12034dabcecc245f2d7ff8243048",
+   "train_v1_00484.png": "2321af064a2154c02a1c371bd37ecded07468b52c2d20634acea9ec1ac1b401f",
+   "train_v1_00489.png": "3e5c07ae7c56050ad17e03ac0f51cbdfa5123e143a7d22674ed1f7f556f42b47",
+   "train_v1_00494.png": "c112ac6905f2a59524e10956678e3fec8436734881b754a0d1358bba756b03c1",
+   "train_v1_00499.png": "03ffc60e9a59b7b4d4fb38421d4027b1d6151d29bbd4e439264d67f9565b1b81",
+   "train_v1_00504.png": "4e662ec9d781e95e57c5e79b2fad31727bfb03beedbabe2aa8fc0adb7fb7f410",
+   "train_v1_00509.png": "9b2fb441537699baf62ffef523a34542aa7655ce1b52e437e782c25d7f9e42bb",
+   "train_v1_00514.png": "f08cfdd2522e39561869a7a9d9d371627253cc05760a5e92b73ecc51f6f5abff",
+   "train_v1_00519.png": "05f54e4152f6eddb7a2c4c0f6056cfc0533d275d857d8f46abc421648022a371"
+  },
+  "real_images_used": 0,
+  "augmentation": "none; original feature-fitting procedure on lens-applied renders"
+ },
+ "per_class_ranges": {
+  "crooked_cap": {
+   "n_observations": 653,
+   "n_arrangement_positions": 653,
+   "cap_frac": [
+    0.6658,
+    0.9231
+   ],
+   "cap_offset": [
+    0.57,
+    3.8
+   ]
+  },
+  "missing_cap": {
+   "n_observations": 547,
+   "n_arrangement_positions": 547,
+   "cap_frac": [
+    0.0,
+    0.0
+   ],
+   "cap_offset": null
+  },
+  "no_vial": {
+   "n_observations": 674,
+   "n_arrangement_positions": 674,
+   "cap_frac": [
+    0.0,
+    0.0
+   ],
+   "cap_offset": null
+  },
+  "pass": {
+   "n_observations": 1516,
+   "n_arrangement_positions": 1516,
+   "cap_frac": [
+    0.0398,
+    0.9735
+   ],
+   "cap_offset": [
+    0.06,
+    8.13
+   ]
+  }
+ },
+ "procedure": {
+  "original_commit": "2e56ab0",
+  "call": "rules.fit(validation_features)",
+  "rules_py_sha256": "6f2ea5a3923cd09932dbec4b946211d0ef70969490a1745490f0a5b86e7b08b9",
+  "positions_py_sha256": "6cb133a74e7fb0cb260baf2bd9c6a400747f0047b380440f11f9937b18d6943d",
+  "position_map_sha256": "7ffaf48cdac852d185d9bf7e5179d2ba542cc8ad45389d049661899ef2722e9d",
+  "fit_rule_synth_py_sha256": "5d1b0e38c14f0fc62ab1901a90fe2fb0a6806991f5bd40ac987c0f4b8930e282"
+ },
+ "note": "D033 arm B: synthetic validation only; twin camera, zero DEV offset; no DEV retuning"
+}

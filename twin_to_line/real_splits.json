@@ -1,0 +1,91 @@
+{
+ "source": "csi-vial-fill-dataset/cap_seal/images + image_index.csv (video_id = run)",
+ "unit": "placement event: the state of each G position in the first arm-clear frame after a placement. Never count near-duplicate frames separately.",
+ "runs": {
+  "1": {
+   "frames": 5,
+   "role": "DEV",
+   "allowed": [
+    "visual inspection",
+    "sim-to-real comparison",
+    "sanity checks",
+    "auto-labeling review",
+    "adaptation ONLY if D014 is triggered: nested predetermined subsets of 5 / 10 / 20 examples"
+   ]
+  },
+  "2": {
+   "frames": 78,
+   "role": "DEV",
+   "allowed": [
+    "visual inspection",
+    "sim-to-real comparison",
+    "sanity checks",
+    "auto-labeling review",
+    "adaptation ONLY if D014 is triggered: nested predetermined subsets of 5 / 10 / 20 examples"
+   ],
+   "notes": "has an uncapped vial (G03 at 19:26:57) and a likely crooked/displaced cap (G07)"
+  },
+  "3": {
+   "frames": 95,
+   "role": "DEV",
+   "allowed": [
+    "visual inspection",
+    "sim-to-real comparison",
+    "sanity checks",
+    "auto-labeling review",
+    "adaptation ONLY if D014 is triggered: nested predetermined subsets of 5 / 10 / 20 examples"
+   ],
+   "notes": "G fixture empty in sampled frames"
+  },
+  "4": {
+   "frames": 157,
+   "role": "MODEL_HOLDOUT",
+   "allowed": [
+    "final model evaluation"
+   ],
+   "never": [
+    "classifier training",
+    "threshold tuning",
+    "prompt examples",
+    "augmentation decisions",
+    "selecting the synthetic-data recipe",
+    "selecting a model because it does better on these runs"
+   ]
+  },
+  "5": {
+   "frames": 845,
+   "role": "MODEL_HOLDOUT",
+   "allowed": [
+    "final model evaluation"
+   ],
+   "notes": "richest run (~20 caps by the end); displaced caps at G09, G12, G13, G16, G19 (unlabeled)",
+   "never": [
+    "classifier training",
+    "threshold tuning",
+    "prompt examples",
+    "augmentation decisions",
+    "selecting the synthetic-data recipe",
+    "selecting a model because it does better on these runs"
+   ]
+  },
+  "unassigned": {
+   "frames": 1,
+   "role": "IGNORE"
+  }
+ },
+ "already_touched_held_out": {
+  "frames": [
+   "cap_seal_20260923_191254_494992.jpg",
+   "cap_seal_20260923_191412_887079.jpg",
+   "cap_seal_20260923_191531_327911.jpg",
+   "cap_seal_20260923_200118_410160.jpg",
+   "cap_seal_20260923_200822_853454.jpg",
+   "cap_seal_20260923_201527_141712.jpg",
+   "cap_seal_20260923_201523_125031.jpg",
+   "cap_seal_20260923_201525_133063.jpg"
+  ],
+  "how": "2026-10-13 twin-to-real registration (geometry only) and a noise estimate; no model, threshold or material decisions. compare_gate.py now uses DEV runs only.",
+  "consequence": "Runs 4-5 are a valid MODEL holdout but not a pristine, untouched end-to-end evaluation source."
+ },
+ "future": "CSI deliberate-defect collection (D016) = preferred final end-to-end evaluation. Any adaptation subset from it is chosen in advance and kept physically/logically separate from the final test portion. Runs 4-5 stay a secondary model holdout."
+}

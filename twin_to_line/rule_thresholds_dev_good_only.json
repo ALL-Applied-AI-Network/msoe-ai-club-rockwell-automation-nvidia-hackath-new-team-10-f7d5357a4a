@@ -1,0 +1,102 @@
+{
+ "inspector": "rule_yellow_seat",
+ "thresholds": {
+  "t_absent": 0.081,
+  "t_seated": 0.22,
+  "t_offset": 4.8
+ },
+ "features": {
+  "cap_frac_disk_px": 11,
+  "cap_offset_disk_px": 13
+ },
+ "fit_on": {
+  "runs": [
+   "1",
+   "2",
+   "3"
+  ],
+  "position_offset_px": [
+   0.9,
+   -1.34
+  ],
+  "n_observations": 551,
+  "classes": {
+   "pass": 112,
+   "no_vial_waiting": 439
+  },
+  "defect_observations": 0,
+  "frames": [
+   "cap_seal_20260922_192609_126406.jpg",
+   "cap_seal_20260923_184630_557477.jpg",
+   "cap_seal_video_1.mp4@t0000.0",
+   "cap_seal_video_1.mp4@t0161.0",
+   "cap_seal_video_1.mp4@t0175.0",
+   "cap_seal_video_1.mp4@t0226.0",
+   "cap_seal_video_1.mp4@t0282.0",
+   "cap_seal_video_1.mp4@t0330.0",
+   "cap_seal_video_1.mp4@t0405.0",
+   "cap_seal_video_1.mp4@t0464.0",
+   "cap_seal_video_1.mp4@t0532.0",
+   "cap_seal_video_1.mp4@t0612.0",
+   "cap_seal_video_1.mp4@t0666.0",
+   "cap_seal_video_1.mp4@t0748.0",
+   "cap_seal_video_1.mp4@t0851.0",
+   "cap_seal_video_1.mp4@t0868.0",
+   "cap_seal_video_1.mp4@t0880.0",
+   "cap_seal_video_1.mp4@t0904.0",
+   "cap_seal_video_1.mp4@t0983.0",
+   "cap_seal_video_1.mp4@t1050.0"
+  ],
+  "git_commit": "470720fd3c7a638943d52237998e5333dad6553f"
+ },
+ "provenance": {
+  "decision": "D041",
+  "started_utc": "2026-10-24T18:17:24.180314+00:00",
+  "git_commit": "470720fd3c7a638943d52237998e5333dad6553f",
+  "labels_sha256": "45c7cad9ab7501b580f360c48c34bc82e51b249d4dee3478ead56c9b32bde334",
+  "event_manifests_sha256": {
+   "events_run1_video.csv": "08dae7d65a12db04e418bb849123b1c6edb965434019bd2b3a18ad2c404ff05d",
+   "events_run2_stills.csv": "3b5805ffa2ab8c3f9d4ce5e0fabf81ffd5263af4832efede553e3c242db798ba",
+   "events_run3_stills.csv": "bb892b3e3f7cb78c7635ef01b8a730965b499c54e168f63bed640dc775ff80e7"
+  },
+  "input_files_sha256": {
+   "cap_seal_video_1.mp4@t0000.0.png": "6ba3f176f15c004cc614714d5f3f0345e7aee5616740c3a3e1671f39614d7918",
+   "cap_seal_video_1.mp4@t0161.0.png": "9bc326ae3df00d94cdea54c64e0668462dc3310d85926398155ae8abe94515d5",
+   "cap_seal_video_1.mp4@t0175.0.png": "9f5d0869f5f01b9589e588c40dde704ef9512670ace627e6abeecea3b213c1cb",
+   "cap_seal_video_1.mp4@t0226.0.png": "4cf07236689ec281a3399b2baf1c94ad6fd77d02ec5f56aaec2e2d1d49df9421",
+   "cap_seal_video_1.mp4@t0282.0.png": "3862981f04fbd35c4507521650bcd25608eb2aed96ab431d1dc50ebd06b1cfff",
+   "cap_seal_video_1.mp4@t0330.0.png": "e303b464dc278c5ef4b740256de119a8210df2cc0da728775cc71706023f2faa",
+   "cap_seal_video_1.mp4@t0405.0.png": "3b33874efb75a3b312adb2344533f92ba13f23a820df24abea6f1d29c98bf8b6",
+   "cap_seal_video_1.mp4@t0464.0.png": "d722a7af0b1ecadf3022681ed87339e2c6338d2d4a2b899f16102d87deb726e3",
+   "cap_seal_video_1.mp4@t0532.0.png": "484b66e1e52fb99586ca1dbeea4001e08ebab12191744aba347334ce3028eb00",
+   "cap_seal_video_1.mp4@t0612.0.png": "41680365810adb0588ea2dfc01af165cb3335b1fadccffa9e819661b3fb5c0f6",
+   "cap_seal_video_1.mp4@t0666.0.png": "5ac35b6487975032759420006af73c930c551efcecb71e0ae9811a3903ab1f89",
+   "cap_seal_video_1.mp4@t0748.0.png": "9b532daa69eb6c753c36e8168932dd881a78882893610fccfe08f04171aa1292",
+   "cap_seal_video_1.mp4@t0851.0.png": "f783eed24d9f953b93b3c11718c9c880aa7177fffd3ec2aef8f7dd376b509e75",
+   "cap_seal_video_1.mp4@t0868.0.png": "a8b1ca773b734807488df88999a63a5c3149808998a89b684fdc7954c26dd8ed",
+   "cap_seal_video_1.mp4@t0880.0.png": "c1a7daacb38cb5439d9d3ad9573fb6e483da401958872935252e6a191b229968",
+   "cap_seal_video_1.mp4@t0904.0.png": "51260b70c836b6f450de8186b5a08afa0aabf1f5f5d644b6eb12d55f7c948de0",
+   "cap_seal_video_1.mp4@t0983.0.png": "35081d5fa54a2086f47a8fcfc0d6a07a2a6d516f27ffa09c7ea11e79dc0898aa",
+   "cap_seal_video_1.mp4@t1050.0.png": "8a14b2bbcd2c161643ada63f26da2f64379450168848923e18be1f52cd37f359",
+   "cap_seal_20260922_192609_126406.jpg": "1adcd343a097f466f313117d6b7bc274e1790cb8f4d7aee29c1f12cba29fba79",
+   "cap_seal_20260923_184630_557477.jpg": "01ed1f53bf5a6dee1759ca3fc3af525c914250f57b97b460552ba54e77e57d15"
+  },
+  "code_sha256": {
+   "rules.py": "6f2ea5a3923cd09932dbec4b946211d0ef70969490a1745490f0a5b86e7b08b9",
+   "positions.py": "6cb133a74e7fb0cb260baf2bd9c6a400747f0047b380440f11f9937b18d6943d",
+   "g3_check.py": "9d52abe906220ba363df0786efae815f2064fe423ce91fcdd85d469cabf3770b",
+   "eval_metrics.py": "8549a47843472ea11d7c6c781f025f4a3a88223add47205b00f8e76fa1926f8f",
+   "real_data.py": "a5b137a4eec3d1cb911661105cb250f29ef6ef4e03992dd8464f1d88a45581cc",
+   "inspect_frame.py": "dc86898a16891c4cd9cb2e8e6e9a944d27014401e2dcfb0f9e75172e3c1daf9f",
+   "fit_rule_dev_good_only.py": "c6a95cb16374e364c8d21c128e1a69d7c53184289f1b07e3b9eb54e78b9ba35f",
+   "ARM_B_DOUBLE_PRIME_PROPOSAL.md": "34982695761a637292c36d7c13526e5240be8a11846327aa53dc61890a041fd5",
+   "DECISIONS.md": "ab04b0adc860aee4d201d85d9de51d6d4258da577fed483f02f0a4f85622c1c9"
+  },
+  "position_map_sha256": "7ffaf48cdac852d185d9bf7e5179d2ba542cc8ad45389d049661899ef2722e9d",
+  "registration_sha256": "6dd0de1bcb42161ef97e6f5bfb5e74bbfe6d6034c1ab8a29f42578a4b5fe3608"
+ },
+ "input_lock_sha256": "77e9ac59efcf9ec2f58010614b8da22e8eacb6dffd3cdb65da99eb4ca90c6094",
+ "feature_rows_sha256": "cfcc6ce28f312600a5df3d18150ee2fc3c9f39e077429700d7cbdbf696310a9d",
+ "procedure": "D041 / ARM_B_DOUBLE_PRIME_PROPOSAL.md; unchanged rules.fit once; empty rows ignored by fitter; crooked constraint vacuous; no retuning",
+ "note": "Arm B double prime: in-sample DEV reference fitted on 112 pass and 439 waiting observations only; organizer question remains open; live inspector stays B prime"
+}
