@@ -1,28 +1,40 @@
 # Twin-to-Line — Handoff (read first)
-Updated: 2026-10-24 (Sat) 2:30 pm CT. Two identical copies: `twin_to_line/HACKATHON_HANDOFF.md` (repo, canonical) and
-the Claude Project doc `claude/hackathon-handoff.md`. Decisions: repo `twin_to_line/DECISIONS.md` (D001–D041,
-canonical). **The Project copy of DECISIONS.md stops at D038**; D039–D041 are summarised below.
-`claude/next-session-plan.md` is superseded except §2 (requirements) and §8 (message style).
-New session: work from `~/code/ignite`, run `git status -sb` first, then go to **NEXT ACTION**. Do not reopen settled
+Updated: 2026-10-24 (Sat) 3:00 pm CT. **All work now lives in the Code Crusaders team repo**: local clone
+`~/code/crusaders`, branch `feat/twin-to-line` (pushed; PR to `main` awaiting Vang's review). Two identical copies of
+this file: `twin_to_line/HACKATHON_HANDOFF.md` in that repo (canonical) and the Claude Project doc
+`claude/hackathon-handoff.md`. Decisions: repo `twin_to_line/DECISIONS.md` (D001–D041, canonical; D042 pending).
+**The Project copy of DECISIONS.md stops at D038**; D039–D041 are summarised below. `claude/next-session-plan.md` is
+superseded except §2 (requirements) and §8 (message style). The Ignite repo (`~/code/ignite`) is the read-only archive
+holding the full commit history.
+New session: work from `~/code/crusaders`, run `git status -sb` first, then go to **NEXT ACTION**. Do not reopen settled
 decisions without new evidence. Replace stale facts; no diary. **Never put passwords, tokens, invitation links, team
 codes or auth URLs in this file or in memory** (that includes the CSI VPN password and the YAAD team code).
 
 ## Standing rules
-- Branches stay **local and unpushed** until Noor authorizes a push. Never self-merge. Don't change `main` of the
-  Ignite repo. Don't modify the frozen gate.
-- Never touch Noor's unstaged edit in `twin_to_line/dose_sets.py`. Stage files by name, never `git add -A` / `-u`.
+- Work on `feat/twin-to-line` in `~/code/crusaders`. Push only with Noor's OK. `main` changes only through a PR that a
+  teammate reviews; never self-merge. Don't modify the frozen gate.
+- Stage files by name, never `git add -A` / `-u`. Always run tests with the path: `pytest twin_to_line/tests`. A bare
+  `pytest` from the repo root fails (ignite_core/tests and twin_to_line/tests share file names).
 - No AI/assistant attribution anywhere (commits, PRs, docs). Tool credits go in the final submission's references.
 - Never commit raw data, the twin, the labeler, renders, results, CSI images or model weights. Never open runs 4–5.
+  New files must not use ignored names (`outputs/`, `models/`, `results*/`, `*.zip`, `*.tar.gz` match at any depth).
 - Ask Noor before spending money. Draft messages for Noor; he sends them. Short, plain language for CSI and organizers.
-- Agents: **Claude Code usage is limited until Wed** (main tasks only); **Codex** does the rest and reviews. One agent
-  per branch: Codex works in worktree `../ignite-fix` on a new branch from `feat/live-runtime`; Noor fast-forwards it
-  (`git merge --ff-only <branch>`, then the full tests). The implementer never reviews its own work. Claude in the
-  Project "hackathon" reviews outputs and writes the prompts. Noor is a Code Crusaders member, not captain.
+- Agents: **Claude Code usage is limited until Wed** (main tasks only); **Codex** does the rest and reviews. Only one
+  agent works at a time, on its own new branch from `feat/twin-to-line` in `~/code/crusaders`; Noor fast-forwards it
+  (`git switch feat/twin-to-line && git merge --ff-only <branch>`, then the full tests). The implementer never
+  reviews its own work. Claude in the Project "hackathon" reviews outputs and writes the prompts. Noor is a Code
+  Crusaders member, not captain.
+- Keep `~/code/ignite` until after Nov 1: `~/code/crusaders/.venv` is a symlink to `~/code/ignite/.venv`.
 
-## State (Sat Oct 24, 2:30 pm)
-Branch `feat/live-runtime` @ `1b49565` (local only). `git status -sb` → `## feat/live-runtime` +
-` M twin_to_line/dose_sets.py`. Full tests: **247 passed**; one test needs the gitignored
-`results/rc_1024/inputs/staged_3/` (3 DEV stills, copied from `../ignite-fix` on Oct 24).
+## State (Sat Oct 24, 3:00 pm)
+`~/code/crusaders`, branch `feat/twin-to-line` @ `8402039` (+ this handoff). `twin_to_line/` is byte-identical to
+Ignite `feat/live-runtime` @ `1a0601e` (folder hash `7a59a199`). Root `.gitignore` = Ignite's rules + `.venv`.
+`twin_to_line/results/` (4 GB, gitignored) was copied from the Ignite clone and checked identical (21,948 files;
+sha256 of the model, threshold files, 1080 still and staged_3 match). Full tests here: **247 passed**.
+Move check by Claude Code (Oct 24): no runtime code assumes the Ignite repo; a package built here has the same 42
+files as the Spark-tested RC, byte-identical runtime files, `ARCHIVE_COMMIT` = this repo's commit, Mac preflight OK; it
+also carries `ignite_core/` and the README, which bootstrap never imports. live_inspect.py and score_sealed.py always
+load twin_to_line's own modules.
 
 ### Arms (all frozen Sun 9 pm; each scored once on the sealed set with `score_sealed.py`, labels locked by sha256 first)
 DEV G3 = runs 1–3, 20 placement events, 32 defect / 551 non-defect observations, LIVE_FILL, no tracker.
@@ -41,6 +53,8 @@ DEV G3 = runs 1–3, 20 placement events, 32 defect / 551 non-defect observation
 - v2 (D040) stopped at its check render (3 tries failed; the rendered hole floor is flatter than the real one): no v2,
   arm A = v1. Finding for the write-up: the main sim-to-real gap for empty holes is the hole floor's lit contrast.
 - Gate gate-v2.0.2: PASS WITH WORK (D037). Training set `train_v1`: 568 scenes, 17,040 crops. Details: repo reports.
+- `score_sealed.py` keeps its once-only lock ledger in the clone's own `results/`: run Monday evening's scoring only
+  from `~/code/crusaders`.
 
 ### Live runtime (`live_inspect.py`) and package
 - Sizes: 640×480 as is; 1920×1080 warped into the DEV 640 grid (D039, `frame_warp_1080.json` sha256 `9837b298…`);
@@ -52,29 +66,36 @@ DEV G3 = runs 1–3, 20 placement events, 32 defect / 551 non-defect observation
 - Each run writes a new `--out`: `predictions.csv` (30 rows per event, flushed before the overlay), `trial_log.csv`,
   `session.json`, `overlay_latest.png` (atomic replace), `overlays/`, `view.html`. The console grid per event is the
   primary operator view.
-- Package: `gb10/build_package.py` → `ttl_gb10_<sha>.tar` (~243 MB): git archive, bundled CPython 3.11 aarch64,
-  wheels cp310/311/312, `bootstrap.sh` (refuses to run over existing results). The RC (`e597c4b`) passed on the YAAD
-  Spark Oct 24: bootstrap 4.9 s → PREFLIGHT OK; replays at 640 and 1080: 0/540 holes differ from the Mac; folder mode
-  1/s and burst OK; 3 staged DEV stills 0/60 differences; mp4 stream 3/540 differ (aarch64 video decode), so the freeze
-  record uses the **Spark** outputs as the stream reference. The system-Python fallback passed in Ubuntu 22.04/24.04
-  arm64 containers.
+- Package: `gb10/build_package.py` → `ttl_gb10_<sha>.tar` (~243 MB): git archive of the repo root, bundled CPython
+  3.11 aarch64, wheels cp310/311/312, `bootstrap.sh` (refuses to run over existing results). The RC (Ignite `e597c4b`)
+  passed on the YAAD Spark Oct 24: bootstrap 4.9 s → PREFLIGHT OK; replays at 640 and 1080: 0/540 holes differ from the
+  Mac; folder mode 1/s and burst OK; 3 staged DEV stills 0/60 differences; mp4 stream 3/540 differ (aarch64 video
+  decode), so the freeze record uses the **Spark** outputs as the stream reference. The system-Python fallback passed
+  in Ubuntu 22.04/24.04 arm64 containers.
 - **Not verified:** real 1080 frames with caps; CSI's own GB10; how CSI's camera delivers frames.
-- Freeze draft: `FREEZE_2026-10-25.md` + `FREEZE.sha256` (83 OK, 0 mismatches on Oct 24); commit, tag and package
-  fields are Sunday placeholders. `score_sealed.py` scores a folder of staged stills once per operating point (A ×2,
-  B, B′, B″) into separate outputs and refuses to run unless the labels file matches a given sha256.
-- `LIVE_RUNBOOK.md` §7 (Monday) is correct but too long to type at CSI's keyboard: it is being turned into 5 scripts
-  (NEXT ACTION 1).
+- Freeze draft: `FREEZE_2026-10-25.md` + `FREEZE.sha256`; commit, tag and package fields are Sunday placeholders.
+  Here it checks 81 OK / 2 FAILED until the evidence below is copied over (expect 83 OK). It still cites Ignite shas:
+  Sunday's record needs the provenance line "Ignite 1a0601e twin_to_line tree 7a59a199 = Crusaders 8402039".
+- **Evidence still only in `~/code/ignite-fix`:** `results/freeze_prep_2/` (2 test logs) and `results/rc_1024/` (RC
+  package, `spark_e597c4b/` = the stream reference, `MAC_VS_SPARK_e597c4b.json`). Copy before 6 pm (NEXT ACTION 1).
+- `LIVE_RUNBOOK.md` §7 (Monday) is correct but too long to type at CSI's keyboard, and lines 3, 27, 121 still say
+  `~/code/ignite`: both fixed by Codex tonight (NEXT ACTION 2).
 
 ### Team
 - **Vang:** "M8" = an operator UI around our checker (reads our output folder; standard library only; 127.0.0.1 only).
-  Code Crusaders repo PR #2 (`feat/m8-operator-ui`). Noor sent a review requesting changes: remove `samples/`
-  (dataset-derived images) and all `__pycache__` from the branch so they never reach main; re-fetch the overlay on
-  every poll (it can show the previous event's picture); "STALE" must not hide an action-required result, default
-  `--stale-after` 30. Vang accepted and is fixing it. Joint test on the Spark **Sun 3 pm**; if it passes, a pinned copy
-  goes into the package with its commit and sha256 in the freeze record, otherwise Monday uses the console grid.
-  On the day: start the checker first, then the UI with the folder path the checker prints; restart the UI whenever
-  the checker restarts into a new folder.
-- Code Crusaders repo `main` already contains PR #1 (`9040ded`).
+  PR #2 (`feat/m8-operator-ui`, adds `ignite_core/operator_ui/`). Noor's review requested changes: remove `samples/`
+  (dataset-derived images) and all `__pycache__`; re-fetch the overlay on every poll; "STALE" must not hide an
+  action-required result, default `--stale-after` 30 (still 5 at `c60bb04`). Vang accepted and is fixing it.
+  - **Merge order matters:** the package archives the whole repo, so whatever is in the freeze commit ships to CSI's
+    GB10. Merge PR #2 only after his fix; then the UI ships automatically under `code/ignite_core/operator_ui` with the
+    freeze sha (no separate pinned copy). If it isn't fixed by the freeze, leave it out; Monday uses the console grid.
+  - PR #2 and our PR both add `.gitignore` (add/add conflict): keep ours and add `.pytest_cache/`.
+  - Run the UI from the package's `code/` folder (not `code/twin_to_line`):
+    `cd <pkg>/code && ../venv/bin/python -m ignite_core.operator_ui --output-dir <checker --out>`. Start the checker
+    first; restart the UI whenever the checker restarts into a new folder. Claude Code checked side by side: his UI
+    served our 1080 preflight output on 127.0.0.1. Add this to §7 after the Sun 3 pm joint test.
+- Code Crusaders `main` contains PR #1 (`9040ded`: `ignite_core/` with older copies of positions, fill_state,
+  eval_metrics). Our runtime never imports them.
 - **Tony** (Anthony Harvey): attends Monday; staging and logging. Still needs the updated staging doc and his brief.
 
 ### CSI and organizers
@@ -97,23 +118,32 @@ DEV G3 = runs 1–3, 20 placement events, 32 defect / 551 non-defect observation
   Sunday; delete them after the event.
 
 ## NEXT ACTION
-1. **Sat 6 pm, Codex (`freeze-prep-3`):** turn §7 into 5 scripts copied to the USB root (`start.sh`, `stage.sh`,
-   `seal.sh`, `live.sh`, `export.sh`). Each ends in one OK/STOP line; `stage.sh` copies the newest camera image to
-   `setup_NN.<ext>` and writes the log row itself; `seal.sh` counts the setups actually staged (skips logged); nothing
-   deletes. Rewrite §7 to these commands with expected outputs; end-to-end test in an arm64 container; record
-   `results/rc_1024/inputs/staged_3` and its sha256 in the freeze manifest. Then Noor fast-forwards and runs the tests.
-2. **Sat night, Noor:** update the staging doc (12:30 confirmed; stills at 1920×1080; GB10 setup inside the slot; cut
+1. **Before 6 pm, Noor (in `~/code/crusaders`):** copy the evidence and re-check the manifest:
+   `rsync -a --ignore-existing --exclude pip_cache ~/code/ignite-fix/twin_to_line/results/freeze_prep_2 ~/code/ignite-fix/twin_to_line/results/rc_1024 twin_to_line/results/`
+   then `cd twin_to_line && shasum -a 256 -c FREEZE.sha256` (expect 83 OK). Commit and push this handoff.
+2. **Sat 6 pm, Codex (`freeze-prep-3`, new branch from `feat/twin-to-line` in `~/code/crusaders`):**
+   - turn §7 into 5 scripts copied to the USB root (`start.sh`, `stage.sh`, `seal.sh`, `live.sh`, `export.sh`). Each
+     ends in one OK/STOP line; `stage.sh` copies the newest camera image to `setup_NN.<ext>` and writes the log row
+     itself; `seal.sh` counts the setups actually staged (skips logged); nothing deletes. Rewrite §7 to these commands
+     with expected outputs; end-to-end test in an arm64 container;
+   - `LIVE_RUNBOOK.md` lines 3, 27, 121: `~/code/ignite` → `~/code/crusaders`; any other Ignite path in docs;
+   - D042 in DECISIONS.md: active work moved to the Code Crusaders repo (supersedes D028); Ignite = archive; identity
+     proven by folder hash `7a59a199`;
+   - FREEZE draft: the provenance line above; record `results/rc_1024/inputs/staged_3` and its sha256.
+   Then Noor fast-forwards, runs the tests, pushes.
+3. **Sat night, Noor:** update the staging doc (12:30 confirmed; stills at 1920×1080; GB10 setup inside the slot; cut
    order: optional live defects, filming, live duration; never labels or backups) and send it to Tony with his role
    and what "??" means. Post the organizer question if it isn't posted.
-3. **Sun:** morning: review Vang's fixed PR · 3 pm: joint Spark test (checker + UI) · ~5 pm: freeze build (final commit
-   + local tag, package rebuilt from it, `FREEZE` completed, Spark dry run) · **6–8 pm: Noor types the 5 commands
-   himself on the Spark from the real USB stick, timed, no agent** · **9 pm: freeze**.
-4. **Mon:** arrive 12:15; ask how frames reach the GB10, USB, screen. Bring an exFAT USB (package `.tar` + `.sha256`,
+4. **Sun:** morning: review Vang's fixed PR #2; merge only if fixed · 3 pm: joint Spark test (checker + UI) · ~5 pm:
+   freeze build (final commit + tag in this repo, package rebuilt from it, `FREEZE` completed, Spark dry run) ·
+   **6–8 pm: Noor types the 5 commands himself on the Spark from the real USB stick, timed, no agent** ·
+   **9 pm: freeze** · then push the branch and the tag.
+5. **Mon:** arrive 12:15; ask how frames reach the GB10, USB, screen. Bring an exFAT USB (package `.tar` + `.sha256`,
    runbook PDF, empty results folder, several GB free), laptop + charger, printed staging list + numbering map, label
    sheet, paper log, phone, pen. Staged images are copied and sealed, never scored on the day; the live run starts
    after the seal, in a fresh folder.
-5. **Mon evening:** adjudicate labels without predictions (two people), lock them by sha256, then run
-   `score_sealed.py` once for all arms.
+6. **Mon evening:** adjudicate labels without predictions (two people), lock them by sha256, then run
+   `score_sealed.py` once for all arms, from `~/code/crusaders`.
 
 ## Milestones
 Oct 25 freeze by 9 pm · **Mon Oct 26 12:30–2 pm CSI** · Oct 26–27 adjudicate, score every arm once · Oct 28–29 backup
@@ -136,6 +166,7 @@ changeover time. Verify any prior-art link before citing it.
   so no v2; arm A stays v1.
 - **D041:** arm B″, rule thresholds fitted once on good DEV observations only; one G3; scored once on the sealed set;
   live stays B′; organizer question still open.
+- **D042 (pending, Codex tonight):** work moved to the Code Crusaders repo; Ignite is the archive (supersedes D028).
 
 ## Real-data boundary (D011, D025, D033, D036)
 Runs 1–3: development/reference only. Runs 4–5: holdout, never for training, thresholds, prompts, recipe or model
@@ -164,22 +195,23 @@ arrangement-position, never a frame. `labels/dev_labels.csv` = draft labels.
   Storoe (`#hackathon-general`) · program: Tom Hershberger.
 
 ## Paths
-- Ignite repo (local clone `~/code/ignite`, project dir `twin_to_line/`, venv `~/code/ignite/.venv`, Python 3.11):
-  https://github.com/ALL-Applied-AI-Network/msoe-ai-club-rockwell-automation-nvidia-hackath-new-team-11-b020278d03
-  · `main` @ `2a935de` unchanged · work branch `feat/live-runtime` (local only). Codex worktree `~/code/ignite-fix`.
-- Code Crusaders repo: ALL-Applied-AI-Network/msoe-ai-club-rockwell-automation-nvidia-hackath-new-team-10-f7d5357a4a.
+- **Code Crusaders repo (active):** https://github.com/ALL-Applied-AI-Network/msoe-ai-club-rockwell-automation-nvidia-hackath-new-team-10-f7d5357a4a
+  · local `~/code/crusaders` · project dir `twin_to_line/` · `.venv` → `~/code/ignite/.venv` (Python 3.11) · branches
+  `feat/twin-to-line` (ours), `feat/m8-operator-ui` (Vang, PR #2), `main` @ `9040ded`.
+- **Ignite repo (archive):** https://github.com/ALL-Applied-AI-Network/msoe-ai-club-rockwell-automation-nvidia-hackath-new-team-11-b020278d03
+  · local `~/code/ignite` (history; `feat/live-runtime` @ `1a0601e`, local only) · old Codex worktree `~/code/ignite-fix`.
 - Data (not in git): twin `~/Downloads/csi_digital_twin/csi_digital_twin_v1/`; real `~/Downloads/csi-vial-fill-dataset/cap_seal/`;
   labeler `~/Downloads/vial-labeler-participants-20261014.zip`.
 - Docs: staging list https://claude.ai/artifact/P1WRYUf2vJb2kUR2XPHTKh (private; update before sharing) · proposal
   https://claude.ai/code/artifact/7e742133-103c-483e-8409-8aca3b5e131e · repo reports `RC_2026-10-24.md`,
   `ARM_B_DOUBLE_PRIME_RESULT.md`, `FREEZE_2026-10-25.md`, `LIVE_RUNBOOK.md`, `GATE_v2.0.2.md`.
 
-## Known-working commands (in `~/code/ignite`)
+## Known-working commands (in `~/code/crusaders`)
 ```bash
-git status -sb                         # expect: ## feat/live-runtime  +  " M twin_to_line/dose_sets.py"
+git status -sb                         # expect: ## feat/twin-to-line...origin/feat/twin-to-line
 IGNITE_TWIN=~/Downloads/csi_digital_twin/csi_digital_twin_v1 .venv/bin/python -m pytest twin_to_line/tests -q   # expect: 247 passed
-git merge --ff-only <codex-branch>     # after Codex reports clean; if it refuses, stop and ask
-cd twin_to_line && shasum -a 256 -c FREEZE.sha256    # expect: all OK
+git switch feat/twin-to-line && git merge --ff-only <agent-branch>   # after the agent reports clean; if it refuses, stop and ask
+cd twin_to_line && shasum -a 256 -c FREEZE.sha256    # expect: all OK (83 after the evidence copy)
 ../.venv/bin/python gb10/build_package.py             # package from HEAD -> results/gb10_pkg/
 ssh yt-codecrusaders6286@172.30.102.94                # YAAD Spark; FortiClient VPN first
 ```
@@ -188,5 +220,6 @@ ssh yt-codecrusaders6286@172.30.102.94                # YAAD Spark; FortiClient 
 - How frames reach our program on CSI's GB10 is unknown; covered by folder / rewritten file / stream / stills-on-request.
 - CSI's GB10 itself is untested (user rights, USB mount, screen). No real 1080 frame with caps yet.
 - B′ is DEV-fit; organizer ruling pending. Every model arm failed G3.
+- PR #2 merged before Vang's fix would ship dataset-derived images to CSI's GB10 inside the package.
 - Staging time is unmeasured (~2 min per setup needed). Cut order: optional live defects, filming, live duration.
 - The rule flags crooked caps as "??" (UNSURE), never as "crooked": brief Tony and explain it to the supervisor.
