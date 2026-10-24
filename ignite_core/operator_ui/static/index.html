@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Twin-to-Line Operator View</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+</head>
+
+<body>
+    <header class="topbar">
+        <div>
+            <h1>Twin-to-Line Inspection</h1>
+            <p id="session-label">Loading session…</p>
+        </div>
+        <div class="status-strip">
+            <span id="source-status" class="status-label">CONNECTING</span>
+            <span id="event-label">No complete event</span>
+            <span id="updated-label">—</span>
+        </div>
+    </header>
+
+    <main>
+        <section id="event-banner" class="event-banner" aria-live="polite">
+            Waiting for a complete inspection event
+        </section>
+
+        <section class="summary" aria-label="Inspection counts">
+            <div><span>Pass</span><strong id="count-pass">0</strong></div>
+            <div><span>Defect</span><strong id="count-defect">0</strong></div>
+            <div><span>Missed</span><strong id="count-missed">0</strong></div>
+            <div><span>Unsure</span><strong id="count-unsure">0</strong></div>
+            <div><span>Waiting</span><strong id="count-waiting">0</strong></div>
+        </section>
+
+        <section class="workspace">
+            <article class="image-panel">
+                <h2>Latest inspection</h2>
+                <div class="image-stage">
+                    <img id="overlay" alt="Latest marked-up inspection frame" hidden>
+                    <p id="image-placeholder">Waiting for the first overlay…</p>
+                </div>
+            </article>
+
+            <aside class="review-panel">
+                <h2>Operator review</h2>
+                <div id="review-list" class="review-list">
+                    <p>No event available.</p>
+                </div>
+                <hr>
+                <h2>Selected position</h2>
+                <dl id="position-details">
+                    <div>
+                        <dt>Position</dt>
+                        <dd>—</dd>
+                    </div>
+                    <div>
+                        <dt>State</dt>
+                        <dd>—</dd>
+                    </div>
+                    <div>
+                        <dt>Visual</dt>
+                        <dd>—</dd>
+                    </div>
+                    <div>
+                        <dt>Score</dt>
+                        <dd>—</dd>
+                    </div>
+                    <div>
+                        <dt>Reason</dt>
+                        <dd>—</dd>
+                    </div>
+                </dl>
+            </aside>
+        </section>
+
+        <section class="fixture-panel">
+            <div class="fixture-heading">
+                <h2>Fixture map</h2>
+                <span id="frontier-label">Fill frontier: —</span>
+            </div>
+            <div id="fixture-grid" class="fixture-grid" aria-label="G01 through G30 fixture positions"></div>
+        </section>
+    </main>
+
+    <script src="/static/app.js"></script>
+</body>
+
+</html>
