@@ -186,8 +186,11 @@ Live rule B′ is DEV-fit; organizer permission remains required. Labels and pap
    No prompts: USB and the single package are found automatically. If the mount differs, use
    `lsblk -o NAME,SIZE,MOUNTPOINT`, then type `bash <mount>/start.sh`.
    Expect checksums **OK → PREFLIGHT OK → BOOTSTRAP OK → SETUP OK**. Check the printed commit against
-   Sunday's attestation. **STOP:** fix the listed package/mount/checksum problem and repeat; every start
-   keeps a new visit. No successful preflight means no live run. Context survives a closed terminal.
+   Sunday's attestation. Repeating start with the same verified package resumes the visit without bootstrap:
+   **SETUP OK: resumed … (N staged, sealed yes/no)**. Missing/failed setup starts a new visit. A different
+   package gives **STOP**; choose `bash /media/$USER/TTL/start.sh --new-visit` for an intentional new visit.
+   Old visits are kept and exported. **STOP:** fix the reported checksum/mount problem before retrying.
+   No successful preflight means no live run. Context survives a closed terminal.
 
 2. **Confirm delivery.** Start staging before CSI's first save. CSI may use the **same camera folder** for
    staging and live, including one repeatedly rewritten filename. Supported sizes: **1920×1080 or 640×480**.
