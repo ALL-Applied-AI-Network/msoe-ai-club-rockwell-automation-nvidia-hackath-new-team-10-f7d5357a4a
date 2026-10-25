@@ -1,0 +1,12 @@
+Command (repository root, exactly as requested):
+IGNITE_TWIN=~/Downloads/csi_digital_twin/csi_digital_twin_v1 .venv/bin/python -m pytest twin_to_line/tests -q
+
+Final full-suite output:
+........................................................................ [ 27%]
+........................................................................ [ 55%]
+........................................................................ [ 83%]
+...........................................                              [100%]
+259 passed in 76.04s (0:01:16)
+
+Earlier validation: 1 failed, 258 passed (missing-context Bash 3.2 EXIT status); fixed with an explicit readability check.
+Intermediate corrected suite: 259 passed in 76.00s.
