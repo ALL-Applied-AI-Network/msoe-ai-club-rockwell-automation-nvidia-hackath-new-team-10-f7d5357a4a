@@ -30,3 +30,4 @@ models/
 *.pth
 *.onnx
 .venv
+.pytest_cache/
