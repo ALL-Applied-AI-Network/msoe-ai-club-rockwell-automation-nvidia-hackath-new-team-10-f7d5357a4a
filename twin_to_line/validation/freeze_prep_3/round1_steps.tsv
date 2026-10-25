@@ -1,0 +1,19 @@
+step	seconds	final line
+start: no typing	6.565	========== SETUP OK: preflight passed; context $HOME/ttl/visit_20261025T003825_gJwpCO/operator.env ==========
+start: again, no typing	6.699	========== SETUP OK: preflight passed; context $HOME/ttl/visit_20261025T003831_H5cqu0/operator.env ==========
+live before seal	0.035	========== STOP: live: seal the staged set before live ==========
+stage: six setups, one skip, one retake, two refusals	4.563	========== STAGING OK: 5 setups staged; skips and retakes logged; no inference ==========
+seal separate visit: zero staged	0.480	========== SEALED USB OK: $USB/sealed_z_hg8yp_; reset fixture before live ==========
+live allowed after zero seal: Enter gate	0.257	========== LIVE OK: stopped cleanly; evidence $HOME/ttl/visit_20261025T003825_gJwpCO/attempts/live_20261025T003843_be6lfcny; export every visit ==========
+seal: final and earlier attempts	0.119	========== SEALED USB OK: $USB/sealed_3tq9nfqv; reset fixture before live ==========
+seal again	0.036	========== STOP: seal: visit already sealed; preserve the existing seal ==========
+stage after seal	0.037	========== STOP: stage: visit already sealed; staging is closed ==========
+live refuses staged	0.039	========== STOP: live: staged/sealed folder (or overlapping folder) refused ==========
+live refuses disk seal	0.039	========== STOP: live: staged/sealed folder (or overlapping folder) refused ==========
+live refuses USB seal	0.039	========== STOP: live: staged/sealed folder (or overlapping folder) refused ==========
+live same camera: Enter gate, 640 + 1080 + rewritten 640, SIGINT	1.165	========== LIVE OK: stopped cleanly; evidence $HOME/ttl/visit_20261025T003831_H5cqu0/attempts/live_20261025T003844_37mgwn0f; export every visit ==========
+live same camera: y gate, 640 + 1080 + rewritten 640, SIGINT	1.345	========== LIVE OK: stopped cleanly; evidence $HOME/ttl/visit_20261025T003831_H5cqu0/attempts/live_20261025T003845_iopzqzkt; export every visit ==========
+export every visit	9.738	========== RESULTS USB OK: 2 visits verified at $USB/visit_export_20261025T003850_8NIH99; keep GB10 files until Mac verification ==========
+re-verify exported archive	1.499	evidence.tar: OK
+start with 0 tars	0.008	========== STOP: expected exactly one ttl_gb10_*.tar beside start.sh; fix the USB package selection and retry ==========
+start with 2 tars	0.004	========== STOP: expected exactly one ttl_gb10_*.tar beside start.sh; fix the USB package selection and retry ==========
