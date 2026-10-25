@@ -2,13 +2,13 @@
 Budget **$10** of instance time at $4.38/hr (D040). **Noor's OK before step 1.** If the instance won't start: stop and
 tell Noor; **never create a new instance**. Stop it as soon as the pack is copied back and its sha256 matches.
 Expected: about 1.6–1.9 h ≈ $7–8.3 (check render 1–3 tries × ~4 min; 568 scenes × 7.1 s ≈ 67 min; crops, pack).
-Mac commands run in `~/code/ignite/twin_to_line`; `I=cc-isaac-gate-2`.
+Mac commands run in `~/code/crusaders/twin_to_line`; `I=cc-isaac-gate-2`.
 
 ## 0. The night before (done)
 ```bash
 U=~/Downloads/isaac_train_v2/upload; mkdir -p $U
-S=$(git -C ~/code/ignite rev-parse --short HEAD)
-git -C ~/code/ignite archive --format=tar.gz -o "$U/code_$S.tar.gz" HEAD twin_to_line      # absolute -o: -C changes the cwd
+S=$(git -C ~/code/crusaders rev-parse --short HEAD)
+git -C ~/code/crusaders archive --format=tar.gz -o "$U/code_$S.tar.gz" HEAD twin_to_line      # absolute -o: -C changes the cwd
 tar -czf $U/twin_fix2.tar.gz -C ~/Downloads/csi_digital_twin twin_fix2
 (cd $U && shasum -a 256 code_*.tar.gz twin_fix2.tar.gz > upload.sha256 && cat upload.sha256)
 ```

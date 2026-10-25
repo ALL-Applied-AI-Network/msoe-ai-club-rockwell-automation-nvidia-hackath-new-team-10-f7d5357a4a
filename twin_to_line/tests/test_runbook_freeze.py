@@ -10,7 +10,7 @@ HERE = Path(__file__).resolve().parents[1]
 
 
 def blocks():
-    section = (HERE / "LIVE_RUNBOOK.md").read_text().split("## 7. Monday Oct 26", 1)[1]
+    section = (HERE / "LIVE_RUNBOOK.md").read_text().split("## Appendix A.", 1)[1]
     return ["\n".join(line[3:] if line.startswith("   ") else line for line in block.splitlines())
             for block in re.findall(r"```bash\n(.*?)```", section, re.S)]
 

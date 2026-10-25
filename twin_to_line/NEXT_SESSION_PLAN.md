@@ -14,7 +14,7 @@ For that, by **Sun Oct 25, 9 pm** we need, all frozen: the camera answer from CS
 a trained and thresholded inspector, and a live runtime tested on saved images. **Today's only job is the GPU gate.**
 
 ## 0. Where to run the next session
-- **Claude Code on Noor's Mac, in `~/code/ignite`**: anything that runs commands (git, tests, Brev CLI, renders,
+- **Claude Code on Noor's Mac, in `~/code/crusaders`**: anything that runs commands (git, tests, Brev CLI, renders,
   training, the runtime). The Claude app in the cloud cannot type into the Mac's Terminal or reach the CSI VPN.
 - **Claude app, Project "hackathon"**: messages to CSI, team and organizers; reviews; doc updates.
 - Start prompt for Claude Code (after step 0):
@@ -121,10 +121,10 @@ pre-filled from the staging list; phone; pen; USB stick; Tony.
 | Fri–Sun Oct 30–Nov 1 | Final write-up; video; one-page summary; **submit by Sun 11:59 pm CT** | Submitted | Team |
 
 ## 4. Step by step
-**Step 0 — Sync docs (Mac, 5 min).** Save the three files Claude sent on Oct 22 into `~/code/ignite/twin_to_line/`
+**Step 0 — Sync docs (Mac, 5 min).** Save the three files Claude sent on Oct 22 into `~/code/crusaders/twin_to_line/`
 (`HACKATHON_HANDOFF.md` and `DECISIONS.md` replace the old ones; `NEXT_SESSION_PLAN.md` is new). Then:
 ```bash
-cd ~/code/ignite && git status -sb   # expect: ## feat/scene-generator, " M twin_to_line/dose_sets.py", the 2 changed docs and 1 new
+cd ~/code/crusaders && git status -sb   # expect: ## feat/scene-generator, " M twin_to_line/dose_sets.py", the 2 changed docs and 1 new
 git add twin_to_line/HACKATHON_HANDOFF.md twin_to_line/DECISIONS.md twin_to_line/NEXT_SESSION_PLAN.md
 git commit -m "docs: Oct 22 handoff, D036, next-session plan"   # local only; dose_sets.py stays unstaged
 ```

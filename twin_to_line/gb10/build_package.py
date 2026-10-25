@@ -13,6 +13,7 @@ Writes <out>/ttl_gb10_<sha>/ and <out>/ttl_gb10_<sha>.tar (+ .sha256), never int
                 equal the commit
   data_index/   filename/timestamp/run metadata only, to refuse protected stills without the real dataset
   bootstrap.sh, README.txt, IMPORTS.txt, FILES.txt, SHA256SUMS
+Beside the tar: start.sh, stage.sh, seal.sh, live.sh, export.sh, operator.py, monday.sha256 (copy all to USB root).
 Only DEV run 1 frames are bundled (real_data refuses anything else).
 """
 import argparse, csv, hashlib, json, os, shutil, subprocess, sys, tarfile, urllib.request
@@ -34,6 +35,7 @@ STILL = os.path.join(HERE, "results", "csi_1080", "csi_1080_empty_G.jpg")
 REPLAY1 = os.path.join(HERE, "results", "live", "replay_run1")
 EVENTS1 = os.path.join(HERE, "results", "prototype", "events", "events_run1_video.csv")
 N_FRAMES = 10
+MONDAY_FILES = ("start.sh", "stage.sh", "seal.sh", "live.sh", "export.sh", "operator.py")
 
 
 def sha256(path):
@@ -114,15 +116,29 @@ def import_trace(pkg):
     return out[-2], out[-1].split()
 
 
+def copy_monday(code_archive, destination):
+    """Put the committed operator kit beside the tar, with its own USB checksum file."""
+    with tarfile.open(code_archive) as archive:
+        for name in MONDAY_FILES:
+            data = archive.extractfile("twin_to_line/monday/" + name).read()
+            with open(os.path.join(destination, name), "xb") as f:
+                f.write(data)
+    with open(os.path.join(destination, "monday.sha256"), "x") as f:
+        for name in MONDAY_FILES:
+            f.write(f"{sha256(os.path.join(destination, name))}  {name}\n")
+
+
 def main():
     ap = argparse.ArgumentParser(description="build the GB10 package from one commit")
     ap.add_argument("--out", default=os.path.join(HERE, "results", "gb10_pkg"))
     a = ap.parse_args()
     a.out = os.path.abspath(a.out)                            # git -C must not reinterpret a caller-relative output
     commit = git("rev-parse", "HEAD"); short = commit[:7]
-    changed = git("status", "--porcelain", "--", *L.RUNTIME_FILES, "replay_1080.py", "gb10", "ARCHIVE_COMMIT", ".gitattributes")
+    changed = git("status", "--porcelain", "--", *L.RUNTIME_FILES, "replay_1080.py", "gb10", "monday", "ARCHIVE_COMMIT", ".gitattributes")
     if changed:
         raise SystemExit(f"uncommitted runtime/package files:\n{changed}\ncommit first (expected results must come from the packaged code)")
+    if any(os.path.lexists(os.path.join(a.out, name)) for name in (*MONDAY_FILES, "monday.sha256")):
+        raise SystemExit("operator kit already exists in output; use a fresh --out folder")
     pkg = os.path.join(a.out, f"ttl_gb10_{short}")
     if os.path.exists(pkg):
         raise SystemExit(f"{pkg} exists; remove it to rebuild")
@@ -164,6 +180,7 @@ def main():
     with tarfile.open(tar, "w") as t:
         t.add(pkg, arcname=os.path.basename(pkg))
     open(tar + ".sha256", "w").write(f"{sha256(tar)}  {os.path.basename(tar)}\n")
+    copy_monday(os.path.join(pkg, "code.tar"), a.out)
     total = sum(os.path.getsize(os.path.join(pkg, p)) for p in files)
     print(f"package {pkg}: {len(files) + 1} files, {total / 1e6:.1f} MB; Mac preflight {status}; imports {mods}")
     print(f"tar {tar}: {os.path.getsize(tar) / 1e6:.1f} MB  sha256 {sha256(tar)}")

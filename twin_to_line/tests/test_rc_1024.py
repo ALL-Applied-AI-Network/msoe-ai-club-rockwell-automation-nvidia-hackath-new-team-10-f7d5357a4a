@@ -112,7 +112,7 @@ def test_unacceptable_version_logs_once_after_three_seconds_then_accepts_repair(
 
 def test_runbook_checksum_failure_stops_setup_without_exiting_terminal(tmp_path):
     doc = (HERE / "LIVE_RUNBOOK.md").read_text()
-    block = doc.split("## 7. Monday Oct 26", 1)[1].split("```bash", 1)[1].split("```", 1)[0]
+    block = doc.split("## Appendix A.", 1)[1].split("```bash", 1)[1].split("```", 1)[0]
     block = "\n".join(line[3:] if line.startswith("   ") else line for line in block.splitlines())
     block = block.replace("$HOME/ttl", str(tmp_path / "ttl"))
     usb = tmp_path / "usb"; usb.mkdir()
