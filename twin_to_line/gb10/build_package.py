@@ -13,7 +13,7 @@ Writes <out>/ttl_gb10_<sha>/ and <out>/ttl_gb10_<sha>.tar (+ .sha256), never int
                 equal the commit
   data_index/   filename/timestamp/run metadata only, to refuse protected stills without the real dataset
   bootstrap.sh, README.txt, IMPORTS.txt, FILES.txt, SHA256SUMS
-Beside the tar: start.sh, stage.sh, seal.sh, live.sh, export.sh, operator.py, monday.sha256 (copy all to USB root).
+Beside the tar: start.sh, stage.sh, seal.sh, live.sh, export.sh, monday_ops.py, monday.sha256 (copy all to USB root).
 Only DEV run 1 frames are bundled (real_data refuses anything else).
 """
 import argparse, csv, hashlib, json, os, shutil, subprocess, sys, tarfile, urllib.request
@@ -35,7 +35,7 @@ STILL = os.path.join(HERE, "results", "csi_1080", "csi_1080_empty_G.jpg")
 REPLAY1 = os.path.join(HERE, "results", "live", "replay_run1")
 EVENTS1 = os.path.join(HERE, "results", "prototype", "events", "events_run1_video.csv")
 N_FRAMES = 10
-MONDAY_FILES = ("start.sh", "stage.sh", "seal.sh", "live.sh", "export.sh", "operator.py")
+MONDAY_FILES = ("start.sh", "stage.sh", "seal.sh", "live.sh", "export.sh", "monday_ops.py")
 
 
 def sha256(path):

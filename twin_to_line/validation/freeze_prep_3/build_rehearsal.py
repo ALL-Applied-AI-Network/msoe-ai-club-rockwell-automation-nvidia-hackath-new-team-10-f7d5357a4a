@@ -29,5 +29,5 @@ def wheels(dst):
 
 B.python_runtime = runtime
 B.wheels = wheels
-sys.argv = ['build_package.py', '--out', str(HERE / 'validation/freeze_prep_3/scratch/usb')]
+sys.argv = ['build_package.py', '--out', sys.argv[1] if len(sys.argv) > 1 else str(HERE / 'validation/freeze_prep_3/scratch/usb')]
 B.main()

@@ -273,19 +273,11 @@ def live(ctx):
     return f'LIVE OK: stopped cleanly; evidence {out}; export every visit'
 
 
-def export(ctx):
-    visits = sorted(p.name for p in ROOT.glob('visit_*') if p.is_dir())
-    require(visits, 'no visit folders to export')
-    path, sha = archive(ROOT, visits, ROOT, 'export_')
-    dest = usb_copy(ctx, path, sha, 'visit_export_')
-    return f'RESULTS USB OK: {len(visits)} visits verified at {dest}; keep GB10 files until Mac verification'
-
-
 def main():
     action = sys.argv[1]
     try:
         ctx = read_context()
-        require(action == 'export' or ctx.get('READY') == '1', 'setup/preflight incomplete; repeat start in a fresh visit')
+        require(ctx.get('READY') == '1', 'setup/preflight incomplete; repeat start in a fresh visit')
         with (ROOT / 'operator.lock').open('a') as lock:
             # One active writer: prevents duplicate setup numbers, sealing during staging, or export during live.
             fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)

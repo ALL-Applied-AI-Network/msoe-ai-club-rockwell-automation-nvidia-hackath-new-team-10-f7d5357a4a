@@ -3,6 +3,7 @@ import csv
 import hashlib
 import json
 import os
+import pty
 from pathlib import Path
 import shutil
 import signal
@@ -24,8 +25,10 @@ PACKAGE = next(USB.glob('ttl_gb10_*.tar')).stem
 class Command:
     def __init__(self, script):
         print('\n$ bash ' + str(script), flush=True)
-        self.proc = subprocess.Popen(['bash', str(script)], stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+        self.keyboard, terminal = pty.openpty()
+        self.proc = subprocess.Popen(['bash', str(script)], stdin=terminal, stdout=subprocess.PIPE,
                                      stderr=subprocess.STDOUT, bufsize=0, start_new_session=True)
+        os.close(terminal)
         self.output = ''
         def read():
             while True:
@@ -47,8 +50,7 @@ class Command:
 
     def send(self, value):
         print(value, flush=True)
-        self.proc.stdin.write((value + '\n').encode())
-        self.proc.stdin.flush()
+        os.write(self.keyboard, (value + '\n').encode())
 
     def finish(self, expected):
         code = self.proc.wait(timeout=180)
@@ -64,7 +66,7 @@ start.finish('SETUP OK')
 visits = sorted((HOME / 'ttl').glob('visit_*'))
 assert len(visits) == 1
 DAY = visits[0]
-CAMERA = Path('/rehearsal/camera with spaces'); CAMERA.mkdir()
+CAMERA = Path('/rehearsal/camera with spaces'); CAMERA.mkdir(exist_ok=True)
 original = {p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in IMAGES}
 # Every script is a fresh process: no terminal's exported variables are shared.
 stage = Command(HOME / 'ttl/stage.sh')
@@ -129,11 +131,27 @@ again.wait_for('independent stills?'); again.send('n')
 again.wait_for('buffered frames?'); again.send('y')
 again.wait_for('watching '); os.kill(again.proc.pid, signal.SIGINT); again.finish('LIVE OK')
 assert len(list((DAY / 'attempts').iterdir())) == 2
-failed = HOME / 'ttl/visit_failed_rehearsal'; failed.mkdir()
-(failed / 'failed_preflight.txt').write_text('simulated failed retry; retain and export\n')
+# A real checksum failure creates a failed visit without Python. Export still works.
+(USB / 'ttl_gb10_deadbeef.tar').write_bytes(b'invalid archive')
+(USB / 'ttl_gb10_deadbeef.tar.sha256').write_text('0' * 64 + '  ttl_gb10_deadbeef.tar\n')
+failed = Command(USB / 'start.sh')
+failed.wait_for('Mounted USB directory:'); failed.send(str(USB))
+failed.wait_for('without .tar:'); failed.send('ttl_gb10_deadbeef')
+assert failed.proc.wait(timeout=15) != 0
+failed.reader.join(timeout=3)
+assert 'STOP:' in failed.output and 'SETUP OK' not in failed.output
+assert len(list((HOME / 'ttl').glob('visit_*'))) == 2
 for _ in range(2):
     export = Command(HOME / 'ttl/export.sh'); export.finish('RESULTS USB OK: 2 visits')
-assert len(list(USB.glob('visit_export_*/evidence.tar'))) == 2
+copies = list(USB.glob('visit_export_*/evidence.tar'))
+assert len(copies) == 2
+import tarfile
+for copy in copies:
+    with tarfile.open(copy) as t:
+        names = t.getnames()
+        assert len({n.split('/')[0] for n in names}) == 2
+        assert any(n.endswith('/records/label_sheet.txt') for n in names)
+        assert any(n.endswith('/install/ttl_gb10_deadbeef.tar') for n in names)
 assert {p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in CAMERA.iterdir()} == original
 print('\nREHEARSAL OK: all five scripts; 3 staged + 1 skip; source hashes unchanged; USB and disk seals; '
       'staged alias refused; 3 live DEV stills; fresh OUT on restart; 2 visits exported twice with verified SHA256.', flush=True)

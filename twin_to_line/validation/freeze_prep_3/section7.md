@@ -1,7 +1,7 @@
 ## 7. Monday Oct 26 on CSI's GB10: USB in to results on USB
 
 **12:30–2:00 only; no installation before the slot.** Bring the Sunday-attested package `.tar`,
-its `.sha256`, all five `.sh` scripts, `operator.py` and `monday.sha256` together at the USB root.
+its `.sha256`, all five `.sh` scripts, `monday_ops.py` and `monday.sha256` together at the USB root.
 Bring printed staging/numbering sheets, label and intervention logs, laptop, charger and pen.
 Confirm CSI's supervisor, screen and approved capture route. Never change cameras, controls or network settings.
 Live uses frozen rule B′; organizer permission for its DEV-fit thresholds remains a condition.

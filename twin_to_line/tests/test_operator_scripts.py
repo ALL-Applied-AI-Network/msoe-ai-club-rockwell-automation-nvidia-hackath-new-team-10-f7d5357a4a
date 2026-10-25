@@ -16,7 +16,7 @@ import numpy as np
 import pytest
 
 HERE = Path(__file__).resolve().parents[1]
-spec = importlib.util.spec_from_file_location('monday_operator', HERE / 'monday/operator.py')
+spec = importlib.util.spec_from_file_location('monday_operator', HERE / 'monday/monday_ops.py')
 M = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(M)
 
@@ -115,16 +115,11 @@ def test_live_refuses_staged_folder_and_symlink_before_output(visit, monkeypatch
     assert not list((Path(ctx['DAY']) / 'attempts').iterdir())
 
 
-def test_export_all_visits_twice_without_overwrite(visit, monkeypatch):
-    ctx, camera = visit; stage_one(ctx, camera, monkeypatch)
-    failed = M.ROOT / 'visit_failed'; failed.mkdir(); (failed / 'failure.txt').write_text('failed bootstrap')
-    for _ in range(2): assert 'RESULTS USB OK: 2 visits' in M.export(ctx)
-    copies = list(Path(ctx['USB']).glob('visit_export_*/evidence.tar'))
-    assert len(copies) == 2
-    for copy in copies:
-        with tarfile.open(copy) as t:
-            assert t.extractfile('visit_failed/failure.txt').read() == b'failed bootstrap'
-            assert t.extractfile('visit_test/staged/setup_00.png').read() == (camera / 'capture.png').read_bytes()
+def test_helper_starts_in_fresh_python_without_shadowing_stdlib(tmp_path):
+    r = subprocess.run([sys.executable, str(HERE / 'monday/monday_ops.py'), 'stage'],
+                       env={**os.environ, 'HOME': str(tmp_path)}, capture_output=True, text=True)
+    assert r.returncode == 1 and 'STOP: stage:' in r.stdout
+    assert 'Traceback' not in r.stderr
 
 
 def test_scripts_parse_and_missing_context_stops(tmp_path):

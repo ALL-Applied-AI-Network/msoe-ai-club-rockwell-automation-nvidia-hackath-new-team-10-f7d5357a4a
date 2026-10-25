@@ -29,7 +29,7 @@ printf 'USB=%q\nPKG=%q\nDAY=%q\nSTAGED=%q\nIN=%q\nINSTALL=%q\nPY=%q\nREADY=0\n' 
 cp "$DAY/operator.env" "$HOME/ttl/operator.env"
 REASON='USB script checksum failed; do not start live'
 (cd "$USB" && sha256sum -c monday.sha256)
-for f in start.sh stage.sh seal.sh live.sh export.sh operator.py; do
+for f in start.sh stage.sh seal.sh live.sh export.sh monday_ops.py; do
     cp "$USB/$f" "$HOME/ttl/$f"
 done
 REASON='package checksum or bootstrap failed; preserve this visit, repeat start for a fresh visit'
