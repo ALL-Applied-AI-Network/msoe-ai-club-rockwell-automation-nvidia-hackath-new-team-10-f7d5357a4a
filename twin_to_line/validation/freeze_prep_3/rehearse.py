@@ -1,10 +1,11 @@
-"""Run inside arm64 Ubuntu as UID 1000. Only three explicitly supplied DEV stills are read."""
+"""Round-1 rehearsal inside non-root arm64 Ubuntu, using bundled DEV captures only."""
 import csv
 import hashlib
 import json
 import os
-import pty
 from pathlib import Path
+import pty
+import shlex
 import shutil
 import signal
 import subprocess
@@ -13,17 +14,20 @@ import time
 
 HOME = Path.home()
 USB = Path('/rehearsal/usb')
-IMAGES = sorted(Path('/dev-stills').glob('*.jpg'))
-assert len(IMAGES) == 3
+STEPS = []
 assert os.getuid() != 0
-print('REHEARSAL: non-root uid=' + str(os.getuid()), flush=True)
+print(f'REHEARSAL: uid={os.getuid()}', flush=True)
 subprocess.run(['uname', '-m'], check=True)
-print(Path('/etc/os-release').read_text(), flush=True)
-PACKAGE = next(USB.glob('ttl_gb10_*.tar')).stem
+print('$ command -v python3', flush=True)
+probe = subprocess.run(['bash', '-c', 'command -v python3'], capture_output=True, text=True)
+print(probe.stdout, end='', flush=True)
+assert not probe.stdout and probe.returncode == 1
+print('(no output; exit 1; before start.sh)', flush=True)
 
 
 class Command:
-    def __init__(self, script):
+    def __init__(self, script, label):
+        self.label, self.started = label, time.monotonic()
         print('\n$ bash ' + str(script), flush=True)
         self.keyboard, terminal = pty.openpty()
         self.proc = subprocess.Popen(['bash', str(script)], stdin=terminal, stdout=subprocess.PIPE,
@@ -33,125 +37,161 @@ class Command:
         def read():
             while True:
                 data = self.proc.stdout.read(1)
-                if not data:
-                    break
+                if not data: break
                 char = data.decode(errors='replace')
                 self.output += char
                 print(char, end='', flush=True)
         self.reader = threading.Thread(target=read, daemon=True)
         self.reader.start()
 
-    def wait_for(self, value, timeout=90):
+    def wait_for(self, value, count=1, timeout=90):
         end = time.monotonic() + timeout
-        while value not in self.output:
+        while self.output.count(value) < count:
             if self.proc.poll() is not None or time.monotonic() > end:
                 raise AssertionError('missing prompt/output: ' + value + '\n' + self.output)
-            time.sleep(.05)
+            time.sleep(.03)
 
     def send(self, value):
         print(value, flush=True)
         os.write(self.keyboard, (value + '\n').encode())
 
-    def finish(self, expected):
+    def finish(self, expected, success=True):
         code = self.proc.wait(timeout=180)
         self.reader.join(timeout=3)
-        assert code == 0, (code, self.output)
+        os.close(self.keyboard)
+        assert (code == 0) == success, (code, self.output)
         assert expected in self.output, self.output
+        final = self.output.strip().splitlines()[-1]
+        assert '========== ' in final and ('OK:' in final or 'STOP:' in final), final
+        step = dict(step=self.label, seconds=round(time.monotonic() - self.started, 3), final=final, exit=code)
+        STEPS.append(step)
+        print('TIMED STEP: ' + json.dumps(step), flush=True)
 
 
-start = Command(USB / 'start.sh')
-start.wait_for('Mounted USB directory:'); start.send(str(USB))
-start.wait_for('without .tar:'); start.send(PACKAGE)
-start.finish('SETUP OK')
-visits = sorted((HOME / 'ttl').glob('visit_*'))
-assert len(visits) == 1
-DAY = visits[0]
-CAMERA = Path('/rehearsal/camera with spaces'); CAMERA.mkdir(exist_ok=True)
-original = {p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in IMAGES}
-# Every script is a fresh process: no terminal's exported variables are shared.
-stage = Command(HOME / 'ttl/stage.sh')
+def run(name, label, expected, success=True):
+    c = Command(USB / name if name == 'start.sh' else HOME / 'ttl' / name, label)
+    c.finish(expected, success)
+    return c
+
+
+def context():
+    result = {}
+    for line in (HOME / 'ttl/operator.env').read_text().splitlines():
+        k, v = line.split('=', 1); result[k] = shlex.split(v)[0]
+    return result
+
+
+# Both starts get no typed input at all, and keep distinct visits.
+run('start.sh', 'start: no typing', 'SETUP OK')
+ZERO = Path(context()['DAY'])
+run('start.sh', 'start: again, no typing', 'SETUP OK')
+ctx = context(); DAY = Path(ctx['DAY'])
+assert DAY != ZERO
+run('live.sh', 'live before seal', 'STOP: live: seal the staged set', success=False)
+CAMERA = Path('/rehearsal/camera'); CAMERA.mkdir()
+frames = sorted((Path(ctx['INSTALL']) / ctx['PKG'] / 'preflight/run1_640').glob('*.png'))
+assert len(frames) >= 6
+PY = ctx['PY']
+# Make a synthetic unsupported image, without resizing any CSI/DEV frame.
+subprocess.run([PY, '-c', "import cv2,numpy as np; cv2.imwrite('/rehearsal/small.png',np.zeros((240,320,3),np.uint8))"], check=True)
+stage = Command(HOME / 'ttl/stage.sh', 'stage: six setups, one skip, one retake, two refusals')
 stage.wait_for('Camera folder'); stage.send(str(CAMERA))
-for setup, image in [('00', IMAGES[0]), ('01', None), ('02', IMAGES[1]), ('03', IMAGES[2])]:
-    stage.wait_for('setup ' + setup + ': Enter')
-    if image is None:
-        stage.send('s')
-    else:
-        shutil.copy2(image, CAMERA / image.name)
-        stage.send('')
-stage.wait_for('setup 04: Enter'); stage.send('q'); stage.finish('STAGING OK: 3 setups staged')
-with (DAY / 'records/staging_log.csv').open() as f:
-    log = list(csv.DictReader(f))
-assert [r['status'] for r in log] == ['staged', 'skipped', 'staged', 'staged']
-for row in log:
-    if row['status'] == 'staged':
-        assert hashlib.sha256((DAY / 'staged' / row['copy_name']).read_bytes()).hexdigest() == row['sha256']
-assert {p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in CAMERA.iterdir()} == original
-(DAY / 'records/label_sheet.txt').write_text('DEV rehearsal only; no Monday labels.\n')
-seal = Command(HOME / 'ttl/seal.sh'); seal.finish('SEALED USB OK')
-# Missing USB: a verified local seal must explicitly permit live, without claiming USB success.
-USB.rename(USB.with_name('usb_disconnected'))
-seal = Command(HOME / 'ttl/seal.sh'); seal.finish('SEALED DISK OK: USB FAILED')
-USB.with_name('usb_disconnected').rename(USB)
-# A symlink to staged must fail without creating a live attempt.
-alias = Path('/rehearsal/staged_alias'); alias.symlink_to(DAY / 'staged')
-refuse = Command(HOME / 'ttl/live.sh')
-refuse.wait_for('stream URL:'); refuse.send(str(alias))
-assert refuse.proc.wait(timeout=15) != 0
-refuse.reader.join(timeout=3)
-assert 'STOP:' in refuse.output and 'refused' in refuse.output
-assert not list((DAY / 'attempts').iterdir())
-LIVE = DAY / 'live_in'
-live = Command(HOME / 'ttl/live.sh')
-live.wait_for('stream URL:'); live.send(str(LIVE))
-live.wait_for('independent stills?'); live.send('y')
-live.wait_for('buffered frames?'); live.send('y')
-live.wait_for('watching ')
-out = next((DAY / 'attempts').iterdir())
-for i, image in enumerate(IMAGES):
-    shutil.copy2(image, LIVE / image.name)
-    deadline = time.monotonic() + 20
-    while True:
-        with (out / 'trial_log.csv').open() as f:
-            trial = list(csv.DictReader(f))
-        if len(trial) == i + 1:
-            break
-        assert time.monotonic() < deadline, trial
-        time.sleep(.1)
-os.kill(live.proc.pid, signal.SIGINT)
-live.finish('LIVE OK')
-session = json.loads((out / 'session.json').read_text())
-assert session['stop_reason'] == 'ctrl-c' and session['frames'] == 3, session
-with (out / 'predictions.csv').open() as f:
-    predictions = list(csv.DictReader(f))
-print(f'LIVE VERIFIED: {len(trial)} DEV stills, {len(predictions)} prediction rows, stop_reason=ctrl-c', flush=True)
-# Restart creates a second OUT; empty fresh watcher stops cleanly.
-again = Command(HOME / 'ttl/live.sh')
-again.wait_for('stream URL:'); again.send(str(LIVE))
-again.wait_for('independent stills?'); again.send('n')
-again.wait_for('buffered frames?'); again.send('y')
-again.wait_for('watching '); os.kill(again.proc.pid, signal.SIGINT); again.finish('LIVE OK')
-assert len(list((DAY / 'attempts').iterdir())) == 2
-# A real checksum failure creates a failed visit without Python. Export still works.
-(USB / 'ttl_gb10_deadbeef.tar').write_bytes(b'invalid archive')
-(USB / 'ttl_gb10_deadbeef.tar.sha256').write_text('0' * 64 + '  ttl_gb10_deadbeef.tar\n')
-failed = Command(USB / 'start.sh')
-failed.wait_for('Mounted USB directory:'); failed.send(str(USB))
-failed.wait_for('without .tar:'); failed.send('ttl_gb10_deadbeef')
-assert failed.proc.wait(timeout=15) != 0
-failed.reader.join(timeout=3)
-assert 'STOP:' in failed.output and 'SETUP OK' not in failed.output
-assert len(list((HOME / 'ttl').glob('visit_*'))) == 2
-for _ in range(2):
-    export = Command(HOME / 'ttl/export.sh'); export.finish('RESULTS USB OK: 2 visits')
-copies = list(USB.glob('visit_export_*/evidence.tar'))
-assert len(copies) == 2
+source = CAMERA / 'capture.png'
+
+def save(frame, response, next_output, count=1):
+    shutil.copyfile(frame, source)
+    stage.send(response)
+    stage.wait_for(next_output, count)
+    assert source.read_bytes() == frame.read_bytes()
+
+stage.wait_for('setup 00: Enter'); save(frames[0], '', 'setup 01: Enter')
+stage.send('s'); stage.wait_for('setup 02: Enter')
+save(frames[1], '', 'setup 03: Enter')
+save(frames[2], 'r', 'setup 03: Enter', 2)
+save(frames[2], '', 'REFUSED: duplicate')
+stage.wait_for('setup 03: Enter', 3)
+save(Path('/rehearsal/small.png'), '', 'REFUSED: unsupported size 320x240')
+stage.wait_for('setup 03: Enter', 4)
+save(frames[3], '', 'setup 04: Enter')
+save(frames[4], '', 'setup 05: Enter')
+save(frames[5], '', 'setup 06: Enter')
+stage.send('q'); stage.finish('STAGING OK: 5 setups staged')
+with (DAY / 'records/staging_log.csv').open() as f: log = list(csv.DictReader(f))
+assert len(log) == 7 and [r['status'] for r in log] == ['staged','skipped','staged','retake','staged','staged','staged']
+assert len(list((DAY / 'staged').iterdir())) == 6
+assert (DAY / 'staged/setup_02.png').read_bytes() == frames[1].read_bytes()
+assert (DAY / 'staged/setup_02_r1.png').read_bytes() == frames[2].read_bytes()
+
+# Select the separate first visit to prove an empty seal is useful without any camera context.
+shutil.copyfile(ZERO / 'operator.env', HOME / 'ttl/operator.env')
+zero = run('seal.sh', 'seal separate visit: zero staged', 'SEALED USB OK')
+assert 'WARNING: 0 staged' in zero.output and 'RECONCILED: 0 setups actually staged; 0 skipped' in zero.output
+
+
+def live_run(label, answer, feed=False):
+    c = Command(HOME / 'ttl/live.sh', label)
+    c.wait_for('stream URL:'); c.send(str(CAMERA))
+    c.wait_for('Enter = n (continuous camera feed); y only for stills CSI saves on request.'); c.send(answer)
+    c.wait_for('buffered frames?'); c.send('y')
+    c.wait_for('watching ')
+    out = Path(context()['OUT'])
+    if feed:
+        for frame, target in [(frames[0], source), (Path('/csi1080/csi_1080_empty_G.jpg'), CAMERA / 'live1080.jpg'), (frames[1], source)]:
+            with (out / 'trial_log.csv').open() as f: before = len(list(csv.DictReader(f)))
+            shutil.copyfile(frame, target)
+            end = time.monotonic() + 15
+            while True:
+                with (out / 'trial_log.csv').open() as f: trial = list(csv.DictReader(f))
+                if len(trial) > before: break
+                assert time.monotonic() < end, trial
+                time.sleep(.05)
+        assert len(trial) == 3 and {r['path'] for r in trial} == {'640', '1080->640'}, trial
+        assert all(r['status'] not in {'unreadable', 'wrong_size', 'error'} for r in trial), trial
+        print('LIVE INPUT CHECK: ' + json.dumps([{'status': r['status'], 'path': r['path']} for r in trial]), flush=True)
+    os.kill(c.proc.pid, signal.SIGINT)
+    c.finish('LIVE OK')
+    session = json.loads((out / 'session.json').read_text())
+    assert session['stop_reason'] == 'ctrl-c'
+    return out
+
+
+live_run('live allowed after zero seal: Enter gate', '', feed=False)
+shutil.copyfile(DAY / 'operator.env', HOME / 'ttl/operator.env')
+seal = run('seal.sh', 'seal: final and earlier attempts', 'SEALED USB OK')
+assert 'EARLIER ATTEMPT: setup 02: setup_02.png' in seal.output
+assert 'FINAL: setup 02: setup_02_r1.png' in seal.output
+selected = json.loads((DAY / 'records/seal_selection.json').read_text())
+assert len(selected['final']) == 5 and len(selected['earlier_attempts']) == 1
+run('seal.sh', 'seal again', 'already sealed', success=False)
+run('stage.sh', 'stage after seal', 'already sealed', success=False)
+
+# Every protected location is rejected before an OUT is created.
+ctx = context()
+for label, folder in [('staged', Path(ctx['STAGED'])), ('disk seal', Path(ctx['SEALED']).parent), ('USB seal', Path(ctx['SEALED_USB']))]:
+    c = Command(HOME / 'ttl/live.sh', 'live refuses ' + label)
+    c.wait_for('stream URL:'); c.send(str(folder)); c.finish('refused', success=False)
+first = live_run('live same camera: Enter gate, 640 + 1080 + rewritten 640, SIGINT', '', feed=True)
+second = live_run('live same camera: y gate, 640 + 1080 + rewritten 640, SIGINT', 'y', feed=True)
+assert first != second
+run('export.sh', 'export every visit', 'RESULTS USB OK: 2 visits')
+copy = next(USB.glob('visit_export_*/evidence.tar'))
+t0 = time.monotonic()
+r = subprocess.run(['sha256sum', '-c', 'evidence.tar.sha256'], cwd=copy.parent, capture_output=True, text=True)
+assert r.returncode == 0, r.stderr
+print(r.stdout, end='', flush=True)
+STEPS.append(dict(step='re-verify exported archive', seconds=round(time.monotonic()-t0,3), final=r.stdout.strip(), exit=r.returncode))
 import tarfile
-for copy in copies:
-    with tarfile.open(copy) as t:
-        names = t.getnames()
-        assert len({n.split('/')[0] for n in names}) == 2
-        assert any(n.endswith('/records/label_sheet.txt') for n in names)
-        assert any(n.endswith('/install/ttl_gb10_deadbeef.tar') for n in names)
-assert {p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in CAMERA.iterdir()} == original
-print('\nREHEARSAL OK: all five scripts; 3 staged + 1 skip; source hashes unchanged; USB and disk seals; '
-      'staged alias refused; 3 live DEV stills; fresh OUT on restart; 2 visits exported twice with verified SHA256.', flush=True)
+with tarfile.open(copy) as t:
+    assert len({n.split('/')[0] for n in t.getnames()}) == 2
+    assert t.extractfile(DAY.name+'/staged/setup_02.png').read() == frames[1].read_bytes()
+    assert t.extractfile(DAY.name+'/staged/setup_02_r1.png').read() == frames[2].read_bytes()
+# Package discovery failures: no operator input and no visit created.
+for count in (0, 2):
+    folder = Path('/rehearsal') / ('discovery_' + str(count)); folder.mkdir()
+    shutil.copyfile(USB / 'start.sh', folder / 'start.sh')
+    for i in range(count): (folder / f'ttl_gb10_abc{i}.tar').write_bytes(b'placeholder')
+    c = Command(folder / 'start.sh', f'start with {count} tars')
+    c.finish('expected exactly one', success=False)
+    assert f'Packages found ({count})' in c.output
+Path('/rehearsal/steps.json').write_text(json.dumps(STEPS, indent=2))
+print('REHEARSAL OK: round 1; all requested cases verified.', flush=True)

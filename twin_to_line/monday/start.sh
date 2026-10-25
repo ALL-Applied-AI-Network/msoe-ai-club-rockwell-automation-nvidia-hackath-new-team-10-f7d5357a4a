@@ -4,9 +4,14 @@ set -Eeuo pipefail
 REASON='setup failed; preserve the visit and do not start live'
 trap 'rc=$?; if (( rc )); then printf "\n========== STOP: %s ==========\n" "$REASON" >&2; fi' EXIT
 trap 'exit 130' INT TERM
-read -r -p 'Mounted USB directory: ' USB
-USB=$(cd "$USB" && pwd -P)
-read -r -p 'Sunday package basename, without .tar: ' PKG
+USB=$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")" && pwd -P)
+shopt -s nullglob
+PACKAGES=("$USB"/ttl_gb10_*.tar)
+printf 'USB: %s\nPackages found (%s):\n' "$USB" "${#PACKAGES[@]}"
+if (( ${#PACKAGES[@]} )); then printf '  %s\n' "${PACKAGES[@]##*/}"; else printf '  (none)\n'; fi
+REASON='expected exactly one ttl_gb10_*.tar beside start.sh; fix the USB package selection and retry'
+test "${#PACKAGES[@]}" -eq 1
+PKG=$(basename "${PACKAGES[0]}" .tar)
 [[ "$PKG" =~ ^ttl_gb10_[0-9a-f]+$ ]]
 test -w "$USB"
 mkdir -p "$HOME/ttl"

@@ -63,65 +63,87 @@ def rows(ctx):
         return list(csv.DictReader(f))
 
 
-def reconcile(ctx, minimum=1):
+def reconcile(ctx):
+    """Check every retained attempt; return only the final capture for each setup."""
     log = rows(ctx)
-    setups = [r['setup'] for r in log]
-    require(setups == [f'{i:02d}' for i in range(len(log))], 'setup log has missing/duplicate/out-of-order entries')
-    require(all(r['status'] in {'staged', 'skipped'} for r in log), 'invalid staging status')
-    staged = [r for r in log if r['status'] == 'staged']
-    require(len(staged) >= minimum, 'at least one staged setup is required')
-    names = [r['copy_name'] for r in staged]
-    folder = Path(ctx['STAGED'])
-    require(len(names) == len(set(names)), 'duplicate copy names in log')
-    require(set(names) == {p.name for p in folder.iterdir()}, 'staged files do not match log; preserve files and reconcile')
-    for r in log:
-        if r['status'] == 'skipped':
-            require(not any(r[k] for k in ('source_name', 'copy_name', 'sha256')), 'skipped setup has a capture')
+    final, attempts, capture_rows = {}, {}, []
+    for row in log:
+        setup, status = row['setup'], row['status']
+        require(status in {'staged', 'skipped', 'retake'}, 'invalid staging status')
+        if status == 'retake':
+            require(final and setup == next(reversed(final)), 'retake must belong to the last setup')
+            attempts[setup] += 1
+            stem = f'setup_{setup}_r{attempts[setup]}'
+        else:
+            require(setup == f'{len(final):02d}', 'setup log has missing/duplicate/out-of-order entries')
+            attempts[setup] = 0
+            stem = 'setup_' + setup
+        final[setup] = row
+        if status == 'skipped':
+            require(not any(row[k] for k in ('source_name', 'copy_name', 'sha256')), 'skipped setup has a capture')
             continue
-        p = folder / r['copy_name']
-        require(p.name == r['copy_name'] and p.stem == 'setup_' + r['setup'] and p.suffix in EXTENSIONS,
+        path = Path(ctx['STAGED']) / row['copy_name']
+        require(path.name == row['copy_name'] and path.stem == stem and path.suffix in EXTENSIONS,
                 'invalid setup filename')
-        require(not p.is_symlink() and p.is_file() and p.stat().st_size > 0, 'missing/empty/symlink staged image')
-        require(digest(p) == r['sha256'], f'{p.name}: SHA256 differs from staging log')
-    return staged
+        require(not path.is_symlink() and path.is_file() and path.stat().st_size > 0,
+                'missing/empty/symlink staged image')
+        require(digest(path) == row['sha256'], f'{path.name}: SHA256 differs from staging log')
+        capture_rows.append(row)
+    names = [r['copy_name'] for r in capture_rows]
+    require(len(names) == len(set(names)), 'duplicate copy names in log')
+    require(set(names) == {p.name for p in Path(ctx['STAGED']).iterdir()},
+            'staged files do not match log; preserve files and reconcile')
+    return [row for row in final.values() if row['status'] != 'skipped']
 
 
 def camera_snapshot(folder):
-    return {p.name: digest(p) for p in sorted(folder.iterdir())
+    return {p.name: [digest(p), p.stat().st_size, p.stat().st_mtime_ns] for p in sorted(folder.iterdir())
             if p.is_file() and not p.name.startswith('.') and p.suffix.lower() in EXTENSIONS}
+
+
+def save_seen(path, seen):
+    with tempfile.NamedTemporaryFile(mode='w', dir=path.parent, prefix='camera_seen_', delete=False) as f:
+        json.dump(seen, f)
+        f.flush()
+        os.fsync(f.fileno())
+    os.replace(f.name, path)
 
 
 def stage(ctx):
     require(not ctx.get('SEALED'), 'visit already sealed; staging is closed')
-    reconcile(ctx, minimum=0)
+    reconcile(ctx)
     state_path = Path(ctx['DAY']) / 'records/camera_seen.json'
     if not ctx.get('CAMERA'):
         folder = Path(input('Camera folder (ask CSI; before the first save): ').strip()).expanduser().resolve(strict=True)
         require(folder.is_dir(), 'camera path must be a folder')
         staged = Path(ctx['STAGED']).resolve()
         require(folder != staged and staged not in folder.parents and folder not in staged.parents,
-                'camera folder must be separate from the staged folder')
-        state_path.write_text(json.dumps(camera_snapshot(folder)))
+                'camera folder must be separate from the staged copies')
+        save_seen(state_path, camera_snapshot(folder))
         ctx['CAMERA'] = str(folder)
         save_context(ctx)
         print('Existing camera images ignored. Ask CSI to save setup 00 now.', flush=True)
     folder = Path(ctx['CAMERA'])
     seen = json.loads(state_path.read_text())
     while True:
-        setup = f'{len(rows(ctx)):02d}'
-        answer = input(f'setup {setup}: Enter after CSI saves it, s = skip, q = done: ').strip().lower()
+        log = rows(ctx)
+        setup = f'{len({r["setup"] for r in log}):02d}'
+        answer = input(f'setup {setup}: Enter after CSI saves it, s = skip, r = retake the last setup, q = done: ').strip().lower()
         if answer == 'q':
-            return f'STAGING OK: {len(reconcile(ctx, minimum=0))} setups staged; skips logged; no inference'
-        if answer not in ('', 's'):
-            print('Use Enter, s, or q.', flush=True)
+            return f'STAGING OK: {len(reconcile(ctx))} setups staged; skips and retakes logged; no inference'
+        if answer not in ('', 's', 'r'):
+            print('Use Enter, s, r, or q.', flush=True)
+            continue
+        if answer == 'r' and not log:
+            print('No previous setup to retake.', flush=True)
             continue
         current = camera_snapshot(folder)
         row = dict.fromkeys(FIELDS, '')
         row.update(setup=setup, status='skipped', time=now())
-        if answer == '':
-            candidates = [folder / n for n, sha in current.items() if seen.get(n) != sha]
+        if answer != 's':
+            candidates = [folder / n for n, version in current.items() if seen.get(n) != version]
             if not candidates:
-                print('No new image yet; ask CSI to finish saving, then press Enter again.', flush=True)
+                print('No new image yet; ask CSI to finish saving, then try again.', flush=True)
                 continue
             source = max(candidates, key=lambda p: (p.stat().st_mtime_ns, p.name))
             before = source.stat()
@@ -129,32 +151,45 @@ def stage(ctx):
             data = source.read_bytes()
             after = source.stat()
             sha = hashlib.sha256(data).hexdigest()
-            if (before.st_size, before.st_mtime_ns) != (after.st_size, after.st_mtime_ns) or sha != current[source.name]:
-                print('Image still changing; wait for CSI, then press Enter again.', flush=True)
+            if (before.st_size, before.st_mtime_ns) != (after.st_size, after.st_mtime_ns) or sha != current[source.name][0]:
+                print('Image still changing; wait for CSI, then try again.', flush=True)
                 continue
-            # Decode dimensions only: no runtime/model/threshold modules imported.
+            # Decode dimensions only; no inspector, thresholds or scoring modules.
             import cv2
             import numpy as np
             image = cv2.imdecode(np.frombuffer(data, dtype=np.uint8), cv2.IMREAD_COLOR)
-            require(image is not None, 'newest image cannot be decoded; source left untouched')
-            target = Path(ctx['STAGED']) / f'setup_{setup}{source.suffix.lower()}'
+            reason = None
+            if sha in {r['sha256'] for r in log if r['sha256']}:
+                reason = 'duplicate image SHA256 already logged'
+            elif image is None:
+                reason = 'image cannot be decoded'
+            elif (image.shape[1], image.shape[0]) not in {(640, 480), (1920, 1080)}:
+                reason = f'unsupported size {image.shape[1]}x{image.shape[0]}; need 640x480 or 1920x1080'
+            if reason:
+                print(f'REFUSED: {reason}; source untouched; setup unchanged.', flush=True)
+                seen = current
+                save_seen(state_path, seen)
+                continue
+            suffix = ''
+            if answer == 'r':
+                setup = log[-1]['setup']
+                count = sum(r['setup'] == setup and r['status'] == 'retake' for r in log) + 1
+                suffix = f'_r{count}'
+            target = Path(ctx['STAGED']) / f'setup_{setup}{suffix}{source.suffix.lower()}'
             with target.open('xb') as f:
                 f.write(data)
                 f.flush()
                 os.fsync(f.fileno())
             require(digest(target) == sha, 'staged copy checksum failed')
-            row.update(status='staged', source_name=source.name, copy_name=target.name, sha256=sha)
-            h, w = image.shape[:2]
-            print(f'{target.name}: {w}x{h}; sha256 {sha}', flush=True)
-            if (w, h) not in {(640, 480), (1920, 1080)}:
-                print('Unsupported live size; preserve this capture and ask CSI for supported stills.', flush=True)
+            row.update(setup=setup, status='retake' if answer == 'r' else 'staged',
+                       source_name=source.name, copy_name=target.name, sha256=sha)
+            print(f'{target.name}: {image.shape[1]}x{image.shape[0]}; sha256 {sha}', flush=True)
         with (Path(ctx['DAY']) / 'records/staging_log.csv').open('a', newline='') as f:
             csv.DictWriter(f, fieldnames=FIELDS).writerow(row)
             f.flush()
             os.fsync(f.fileno())
-        # Consume all images visible at this setup, including skipped captures.
         seen = current
-        state_path.write_text(json.dumps(seen))
+        save_seen(state_path, seen)
         print(f"setup {setup}: {row['status']}", flush=True)
 
 
@@ -176,6 +211,7 @@ def usb_copy(ctx, path, sha, prefix):
     usb = Path(ctx['USB'])
     require(usb.is_dir(), 'USB directory is missing; restore the mount')
     dest = Path(tempfile.mkdtemp(prefix=prefix, dir=usb))
+    ctx['SEALED_USB'] = str(dest)  # Protect partial USB seals too if a later write/check fails.
     for src in (path, path.with_suffix('.tar.sha256')):
         with src.open('rb') as source, (dest / src.name).open('xb') as out:
             shutil.copyfileobj(source, out)
@@ -188,16 +224,33 @@ def usb_copy(ctx, path, sha, prefix):
 
 
 def seal(ctx):
-    staged = reconcile(ctx)
-    print(f'RECONCILED: {len(staged)} setups actually staged; {len(rows(ctx)) - len(staged)} skipped', flush=True)
+    require(not ctx.get('SEALED'), 'visit already sealed; preserve the existing seal')
+    final = reconcile(ctx)
+    log = rows(ctx)
+    count = len({r['setup'] for r in log})
+    print(f'RECONCILED: {len(final)} setups actually staged; {count - len(final)} skipped; '
+          f'{sum(r["status"] == "retake" for r in log)} retakes', flush=True)
+    if not final:
+        print('WARNING: 0 staged setups; no staged evaluation images collected; live is allowed after this seal.', flush=True)
+    final_names = {r['copy_name'] for r in final}
+    earlier = [r for r in log if r['copy_name'] and r['copy_name'] not in final_names]
+    for row in earlier:
+        print(f'EARLIER ATTEMPT: setup {row["setup"]}: {row["copy_name"]} (retained, not final)', flush=True)
+    for row in final:
+        print(f'FINAL: setup {row["setup"]}: {row["copy_name"]}', flush=True)
+    # Selection is recorded alongside all retained bytes; no attempt is overwritten or discarded.
+    selection = Path(ctx['DAY']) / 'records/seal_selection.json'
+    with selection.open('x') as f:
+        json.dump({'final': final, 'earlier_attempts': earlier, 'skipped': count - len(final)}, f, indent=2)
     path, sha = archive(Path(ctx['DAY']), ['staged', 'records'], Path(ctx['DAY']), 'seal_')
     with tarfile.open(path) as t:
-        for row in staged:
+        for row in [r for r in log if r['copy_name']]:
             require(hashlib.sha256(t.extractfile('staged/' + row['copy_name']).read()).hexdigest() == row['sha256'],
                     'archived capture differs from staging log')
     reconcile(ctx)
     try:
         dest = usb_copy(ctx, path, sha, 'sealed_')
+        ctx['SEALED_USB'] = str(dest)
         result = f'SEALED USB OK: {dest}; reset fixture before live'
     except (OSError, ValueError, subprocess.CalledProcessError) as e:
         result = f'SEALED DISK OK: USB FAILED ({e}); verified GB10 copy {path}; live may start; retry USB at export'
@@ -206,9 +259,27 @@ def seal(ctx):
     return result
 
 
-def yes_no(prompt):
+def live_folder(ctx, source):
+    folder = Path(source).expanduser().resolve(strict=True)
+    require(folder.is_dir(), 'live input must be a folder or RTSP/HTTP(S) URL')
+    protected = [Path(ctx['STAGED']).resolve(), Path(ctx['SEALED']).resolve().parent]
+    if ctx.get('SEALED_USB'):
+        protected.append(Path(ctx['SEALED_USB']).resolve())
+    for item in protected:
+        require(folder != item and item not in folder.parents and folder not in item.parents,
+                'staged/sealed folder (or overlapping folder) refused')
+    # The camera originals are allowed. A link to a staged copy still refers to protected evidence.
+    staged = list(Path(ctx['STAGED']).iterdir())
+    require(not any(p.is_file() and any(p.samefile(s) for s in staged) for p in folder.iterdir()),
+            'live folder contains a link to a staged copy')
+    return folder
+
+
+def yes_no(prompt, default_no=False):
     while True:
         value = input(prompt + ' [y/n]: ').strip().lower()
+        if default_no and not value:
+            return False
         if value in ('y', 'yes', 'n', 'no'):
             return value in ('y', 'yes')
         print('Type y or n.', flush=True)
@@ -218,22 +289,14 @@ def live(ctx):
     require(ctx.get('SEALED'), 'seal the staged set before live')
     reconcile(ctx)
     require(digest(ctx['SEALED']) == ctx['SEALED_SHA256'], 'GB10 sealed archive checksum changed')
-    source = input('Fresh live folder or approved RTSP/HTTP(S) stream URL: ').strip()
+    source = input('Live camera folder or approved RTSP/HTTP(S) stream URL: ').strip()
     if source.startswith(('rtsp://', 'http://', 'https://')):
         src = 'stream:' + source
     else:
-        folder = Path(source).expanduser().resolve(strict=True)
-        require(folder.is_dir(), 'live input must be a folder or RTSP/HTTP(S) URL')
-        for protected in (Path(ctx['STAGED']).resolve(), Path(ctx['CAMERA']).resolve()):
-            require(folder != protected and protected not in folder.parents and folder not in protected.parents,
-                    'staged/camera collection folder (or ancestor/descendant) refused; use a fresh live folder')
-        # Refuse symlinks/hardlinks to any staged capture, too.
-        staged = list(Path(ctx['STAGED']).iterdir())
-        require(not any(p.is_file() and any(p.samefile(s) for s in staged) for p in folder.iterdir()),
-                'live folder contains a link to a staged capture')
+        folder = live_folder(ctx, source)
         src = 'folder:' + str(folder)
         ctx['IN'] = str(folder)
-    each = yes_no('Use --gate each for independent stills?')
+    each = yes_no('Enter = n (continuous camera feed); y only for stills CSI saves on request.', default_no=True)
     require(yes_no('CSI reset the fixture and cleared staged/buffered frames?'), 'fixture reset not confirmed')
     out = Path(tempfile.mkdtemp(prefix='live_' + datetime.now().strftime('%Y%m%dT%H%M%S') + '_',
                                 dir=Path(ctx['DAY']) / 'attempts'))

@@ -79,11 +79,10 @@ def test_stage_newest_skip_resume_and_rewritten_name(visit, monkeypatch):
     assert len(M.reconcile(ctx)) == 2
 
 
-@pytest.mark.parametrize('change', ['extra', 'missing', 'changed', 'duplicate', 'empty'])
+@pytest.mark.parametrize('change', ['extra', 'missing', 'changed', 'duplicate'])
 def test_seal_reconciliation_rejects_bad_evidence(visit, monkeypatch, change):
     ctx, camera = visit
-    if change != 'empty':
-        stage_one(ctx, camera, monkeypatch)
+    stage_one(ctx, camera, monkeypatch)
     p = Path(ctx['STAGED']) / 'setup_00.png'
     if change == 'extra': (p.parent / 'unlogged.png').write_bytes(p.read_bytes())
     if change == 'missing': p.rename(p.parent.parent / 'retained.png')
@@ -144,3 +143,80 @@ def test_builder_copies_kit_from_archive_and_refuses_overwrite(tmp_path):
         assert (out / name).read_bytes() == (HERE / 'monday' / name).read_bytes()
     assert len((out / 'monday.sha256').read_text().splitlines()) == 6
     with pytest.raises(FileExistsError): B.copy_monday(code, out)
+
+
+def test_zero_staged_seals_warns_and_cannot_reseal(visit, capsys):
+    ctx, camera = visit
+    assert 'SEALED USB OK' in M.seal(ctx)
+    assert 'WARNING: 0 staged' in capsys.readouterr().out
+    assert M.live_folder(ctx, str(camera)) == camera
+    with pytest.raises(ValueError, match='already sealed'): M.seal(ctx)
+    with pytest.raises(ValueError, match='already sealed'): M.stage(ctx)
+
+
+def test_retakes_preserve_all_attempts_and_seal_last(visit, monkeypatch):
+    ctx, camera = visit
+    stage_one(ctx, camera, monkeypatch)
+    original = (Path(ctx['STAGED']) / 'setup_00.png').read_bytes()
+    answers = iter(['r', 'r', 'q'])
+    def reply(prompt):
+        answer = next(answers)
+        if answer == 'r':
+            value = 1 + sum(r['status'] == 'retake' for r in M.rows(ctx))
+            cv2.imwrite(str(camera / 'capture.png'), np.full((480, 640, 3), value, np.uint8))
+        return answer
+    monkeypatch.setattr('builtins.input', reply)
+    M.stage(ctx)
+    assert [r['status'] for r in M.rows(ctx)] == ['staged', 'retake', 'retake']
+    assert M.reconcile(ctx)[0]['copy_name'] == 'setup_00_r2.png'
+    assert (Path(ctx['STAGED']) / 'setup_00.png').read_bytes() == original
+    M.seal(ctx)
+    selected = json.loads((Path(ctx['DAY']) / 'records/seal_selection.json').read_text())
+    assert [r['copy_name'] for r in selected['earlier_attempts']] == ['setup_00.png', 'setup_00_r1.png']
+    assert selected['final'][0]['copy_name'] == 'setup_00_r2.png'
+
+
+def test_duplicate_and_wrong_size_refused_without_advancing(visit, monkeypatch, capsys):
+    ctx, camera = visit
+    stage_one(ctx, camera, monkeypatch)
+    captures = iter([np.zeros((480, 640, 3), np.uint8), np.ones((240, 320, 3), np.uint8), None])
+    def reply(prompt):
+        assert prompt.startswith('setup 01')
+        image = next(captures)
+        if image is None: return 'q'
+        cv2.imwrite(str(camera / 'capture.png'), image)
+        return ''
+    monkeypatch.setattr('builtins.input', reply)
+    M.stage(ctx)
+    output = capsys.readouterr().out
+    assert 'REFUSED: duplicate' in output and 'REFUSED: unsupported size 320x240' in output
+    assert len(M.rows(ctx)) == 1 and len(list(Path(ctx['STAGED']).iterdir())) == 1
+
+
+def test_camera_folder_allowed_sealed_folders_and_overlaps_refused(visit, monkeypatch):
+    ctx, camera = visit; stage_one(ctx, camera, monkeypatch); M.seal(ctx)
+    assert M.live_folder(ctx, str(camera)) == camera
+    protected = [Path(ctx['STAGED']), Path(ctx['SEALED']).parent, Path(ctx['SEALED_USB'])]
+    for folder in protected:
+        child = folder / 'nested'; child.mkdir()
+        for candidate in (folder, folder.parent, child):
+            with pytest.raises(ValueError, match='refused'): M.live_folder(ctx, str(candidate))
+    alias = camera.parent / 'camera_alias'; alias.symlink_to(camera)
+    assert M.live_folder(ctx, str(alias)) == camera
+
+
+def test_gate_enter_defaults_to_continuous_and_live_requires_seal(visit, monkeypatch):
+    ctx, camera = visit
+    monkeypatch.setattr('builtins.input', lambda _: '')
+    assert M.yes_no('gate', default_no=True) is False
+    with pytest.raises(ValueError, match='seal the staged set'): M.live(ctx)
+
+
+@pytest.mark.parametrize('count', [0, 2])
+def test_start_discovers_usb_and_rejects_ambiguous_package_without_input(tmp_path, count):
+    script = tmp_path / 'start.sh'; shutil.copy2(HERE / 'monday/start.sh', script)
+    for i in range(count): (tmp_path / f'ttl_gb10_abc{i}.tar').write_text('placeholder')
+    result = subprocess.run(['bash', str(script)], stdin=subprocess.DEVNULL, capture_output=True, text=True)
+    assert result.returncode and f'Packages found ({count})' in result.stdout
+    assert 'STOP:' in result.stderr
+    for i in range(count): assert f'ttl_gb10_abc{i}.tar' in result.stdout
