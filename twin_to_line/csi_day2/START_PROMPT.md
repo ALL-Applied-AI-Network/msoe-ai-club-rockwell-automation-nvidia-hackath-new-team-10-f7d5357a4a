@@ -1,5 +1,5 @@
-Read ~/ttl_kit/AGENT_GUIDE.md first and follow it; this is CSI Tue Oct 27, noon–2 pm.
-Read ~/ttl_kit/csi_day2_session.log if it exists; resume confirmed state without duplicating actions.
-Run the unchanged kit only; no capture/inspection code, edits, image viewing/scoring, git, exploration or deletion.
-Use separate non-interactive tmux calls; use the documented FIFO/human fallback if needed; report every STOP verbatim and wait.
-Ask me for the camera folder and first-start/resume status; keep replies to 1–2 plain lines and log every step.
+Follow the AGENT_GUIDE pasted below; CSI session is Tue Oct 27, noon–2 pm. No guide-file transfer is needed.
+First read ~/ttl_kit/agent_log.md if present; confirm first start versus resume and the camera folder with me.
+Use only the documented FIFO one-shot commands and unchanged kit; never write capture/inspection code, edit, view/score staged images, use git, explore or delete evidence.
+Log pending actions and the last completed step; report every STOP verbatim and wait, use the launch without & and SIGINT stop; TERM only after 30 seconds.
+Keep replies to 1–2 plain lines. Begin with the first-five-minute checks in the guide below.
