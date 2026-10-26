@@ -1,198 +1,169 @@
 # CSI Tue Oct 27 · noon–2 pm · FIFO only
-This guide is pasted with the start prompt; no guide file is needed on the GB10.
-Reply to Noor in 1–2 plain lines. Run EACH command line below as a separate tool call.
+Paste this guide with START_PROMPT; no guide file is needed on the GB10.
+Reply in 1–2 plain lines. Each command line below is ONE tool call, including
+its answer, wait, tail and log append. Never send multiple answers together.
 
-## Rules and first five minutes
-Run the supplied kit scripts as written. Never write capture/inspection code,
+## Hard rules and first five minutes
+Run only the supplied kit scripts as written. Never write capture/inspection code,
 edit code/thresholds/settings, open or score staged images, touch robot/camera/PLC/
 network, use git, or explore the repo. Noor/Tony move vials; CSI delivers images.
 Preserve everything, including Monday's trial-only `codecrusaders/data`; never use
-those pictures. Only the temporary FIFO may be unlinked, after its script exits.
-On STOP: report the full line verbatim, log it, and wait. A fallback TERM stop
-can produce STOP instead of LIVE OK; Noor must acknowledge it before export.
+those pictures. Only the temporary FIFO may be unlinked after its script exits.
+On STOP: report the full line verbatim, log it and wait. Fallback TERM can cause
+STOP instead of LIVE OK; Noor must acknowledge it before export.
 ```bash
-ls -ld ~/ttl_kit ~/ttl
-command -v bash mkfifo setsid nohup tail pkill flock sha256sum
-cat ~/ttl_kit/agent_log.md
+ls -ld ~/ttl_kit ~/ttl; command -v bash mkfifo setsid nohup tail pkill pgrep flock sha256sum; cat ~/ttl_kit/agent_log.md
 ```
-Expected: kit and tools present; `ttl/` and log may be absent before first setup.
-Missing kit: ask Noor for the download command. Missing tools: report and wait.
-Ask Noor for camera folder, continuous/requested-still mode, and first start versus
-resume. Never use the trial folder. No shell variable survives between tool calls.
-Record pending actions BEFORE issuing them, and completion ONLY after reading output:
-```bash
-printf '%s %s\n' "$(date -Is)" 'PENDING setup; first Tuesday start confirmed' >> ~/ttl_kit/agent_log.md
-```
-Use this same append command with observed state after every step: last completed
-step, next action/prompt, setup, filename/bytes/time, skip reason, paths and PIDs.
+Expected: kit/tools present; ttl/log may be absent before first setup. Missing kit:
+ask Noor for the download command. Missing tools: report and wait. Ask Noor for
+camera folder, continuous/requested-still mode, and first start versus resume.
+No shell variable survives calls. Replace NN, REASON and camera path before sending;
+quote supplied text safely. Only setup/seal/live launch/stop/export get PENDING
+lines. Each staging action appends ONE observed-result line in the same call.
+That result is completed only when it contains staged/retake/skipped/STAGING OK;
+otherwise the last completed step stays unchanged. Read output before advancing.
+
 ## Setup — once only for Tuesday
 ```bash
-bash ~/ttl_kit/start.sh --new-visit >> ~/ttl_kit/setup.log 2>&1
-tail -n 30 ~/ttl_kit/setup.log
+printf '%s PENDING setup; first Tuesday start confirmed\n' "$(date -Is)" >> ~/ttl_kit/agent_log.md; bash ~/ttl_kit/start.sh --new-visit >> ~/ttl_kit/setup.log 2>&1; tail -n 20 ~/ttl_kit/setup.log; printf '%s setup result=%s\n' "$(date -Is)" "$(tail -n 1 ~/ttl_kit/setup.log)" >> ~/ttl_kit/agent_log.md
 ```
-Expected: `SETUP OK: preflight passed; context .../operator.env`. Log exact context
-and `COMPLETED setup; NEXT stage`. Explicit new visit preserves Monday. Plain
-`start.sh` resumes READY=1 regardless of date; never use it to begin Tuesday.
-On resume only, if no writer runs: `bash ~/ttl_kit/start.sh` → `SETUP OK: resumed ...`.
-## Stage — create FIFO and persistent holder
-If `~/ttl_in` already exists, inspect resume state; do not replace it blindly.
+Expected: `SETUP OK: preflight passed; context .../operator.env`. Explicit new
+visit preserves Monday; record the context shown. Plain start resumes READY=1
+regardless of date. Never repeat --new-visit on Tuesday resume. If no writer runs:
+```bash
+bash ~/ttl_kit/start.sh >> ~/ttl_kit/setup.log 2>&1; tail -n 6 ~/ttl_kit/setup.log
+```
+Expected on resume: `SETUP OK: resumed ...`.
+
+## Stage — FIFO and persistent holder
+If ~/ttl_in already exists, inspect resume state; never replace it blindly.
 ```bash
 mkfifo ~/ttl_in
 nohup setsid bash -c 'exec 3<> "$HOME/ttl_in"; exec sleep 10800' </dev/null >> ~/ttl_kit/fifo_holder.log 2>&1 & echo $! > ~/ttl_kit/fifo_holder.pid
-cat ~/ttl_kit/fifo_holder.pid
-kill -0 "$(cat ~/ttl_kit/fifo_holder.pid)"
-nohup setsid bash ~/ttl/stage.sh < ~/ttl_in >> ~/ttl_kit/stage.log 2>&1 & echo $! > ~/ttl_kit/stage.pid
-tail -n 30 ~/ttl_kit/stage.log
+kill -0 "$(cat ~/ttl_kit/fifo_holder.pid)" && cat ~/ttl_kit/fifo_holder.pid
+nohup setsid bash ~/ttl/stage.sh < ~/ttl_in >> ~/ttl_kit/stage.log 2>&1 & echo $! > ~/ttl_kit/stage.pid; sleep 3; tail -n 6 ~/ttl_kit/stage.log
 ```
-Expected: holder PID, exit 0, then `Camera folder (ask CSI; before the first save):`.
-The holder opens read/write, preventing EOF when individual answer writers close.
-All prompts use stdin; no terminal is required. Do not send multiple answers together.
-Replace only the path below with Noor's confirmed camera folder (quote it safely):
+Expected: holder PID, then `Camera folder (ask CSI; before the first save):`.
+Holder opens read/write, preventing EOF between answers. Every prompt uses stdin.
+Send Noor's confirmed folder:
 ```bash
-printf '%s\n' '/CAMERA/FOLDER/FROM/NOOR' > ~/ttl_in
-tail -n 30 ~/ttl_kit/stage.log
+printf '%s\n' '/CAMERA/FOLDER/FROM/NOOR' > ~/ttl_in; sleep 3; tail -n 6 ~/ttl_kit/stage.log
 ```
 Expected: `Existing camera images ignored. Ask CSI to save setup 00 now.` and
 `setup 00: Enter after CSI saves it, s = skip, r = retake the last setup, q = done:`.
-Noor says “setup NN saved”: verify NN is the current prompt, then send:
+Noor says “setup NN saved”: check NN matches the prompt, then ONE call:
 ```bash
-printf '\n' > ~/ttl_in
-tail -n 12 ~/ttl_kit/stage.log
+printf '\n' > ~/ttl_in; sleep 3; tail -n 6 ~/ttl_kit/stage.log; printf '%s setup=NN action=save result=%s\n' "$(date -Is)" "$(tail -n 3 ~/ttl_kit/stage.log | tr '\n' ' ')" >> ~/ttl_kit/agent_log.md
 ```
-Expected: `setup_NN.EXT: WIDTHxHEIGHT; sha256 ...`, then `setup NN: staged` and next
-prompt. “retake”: first confirm a NEW save for the LAST setup, then:
+Expected: `setup_NN.EXT: WIDTHxHEIGHT; sha256 ...`, `setup NN: staged`, next prompt.
+“retake”: confirm a NEW save for the LAST setup; NN below is that preceding setup:
 ```bash
-printf 'r\n' > ~/ttl_in
-tail -n 12 ~/ttl_kit/stage.log
+printf 'r\n' > ~/ttl_in; sleep 3; tail -n 6 ~/ttl_kit/stage.log; printf '%s setup=NN action=retake result=%s\n' "$(date -Is)" "$(tail -n 3 ~/ttl_kit/stage.log | tr '\n' ' ')" >> ~/ttl_kit/agent_log.md
 ```
-Expected: `setup_NN_r1.EXT: ...`, `setup NN: retake`; earlier copy retained.
-The displayed prompt is the NEXT setup; `r` retakes the preceding one.
-“skip: REASON”: append reason to agent_log.md BEFORE sending:
+Expected: `setup_NN_r1.EXT: ...`, `setup NN: retake`; earlier attempt retained.
+“skip: REASON”: NN is the CURRENT prompt; include Noor's reason in the same call:
 ```bash
-printf 's\n' > ~/ttl_in
-tail -n 12 ~/ttl_kit/stage.log
+printf 's\n' > ~/ttl_in; sleep 3; tail -n 6 ~/ttl_kit/stage.log; printf '%s setup=NN action=skip reason=REASON result=%s\n' "$(date -Is)" "$(tail -n 2 ~/ttl_kit/stage.log | tr '\n' ' ')" >> ~/ttl_kit/agent_log.md
 ```
 Expected: `setup NN: skipped`, next prompt. “done”:
 ```bash
-printf 'q\n' > ~/ttl_in
-tail -n 20 ~/ttl_kit/stage.log
+printf 'q\n' > ~/ttl_in; sleep 3; tail -n 6 ~/ttl_kit/stage.log; printf '%s stage done result=%s\n' "$(date -Is)" "$(tail -n 1 ~/ttl_kit/stage.log)" >> ~/ttl_kit/agent_log.md
 ```
 Expected: `STAGING OK: N setups staged; skips and retakes logged; no inference`.
-If no new image/still changing/REFUSED: report it; setup has not advanced.
-After each successful capture, read metadata only (replace EXACT_FILENAME):
+No new image/still changing/REFUSED: report it; setup has not advanced. If output
+is still pending after 3 seconds, wait/tail; do not resend the answer blindly.
+Reply using the same observed line: setup, filename, size in pixels, timestamp,
+status. stage.log has dimensions/hash, not bytes; do not add a stat tool call.
+The appended result contains filename/dimensions/hash/status/next prompt and time.
+Spark verified this combined call for save/retake/skip/done through STAGING OK.
+Staging ends by **1:20 pm**. Plan omissions in priority 18, 15, 17, 16; decide
+this set early, then send s at each selected numeric prompt. Never skip 00, 01,
+06, 19–21. Reserve time for 19–21; warn Noor early of any coverage/deadline conflict.
+After STAGING OK, no writer, clean ONLY holder/FIFO in one call:
 ```bash
-bash -c 'source ~/ttl/operator.env; stat -c "%n | %s bytes | %y" "$STAGED/EXACT_FILENAME"; tail -n 2 "$DAY/records/staging_log.csv"'
+flock -n ~/ttl/operator.lock true && kill -TERM "$(cat ~/ttl_kit/fifo_holder.pid)" && unlink ~/ttl_in
 ```
-Reply and append one line: `setup=NN file=NAME bytes=N time=CSV_TIME status=staged
-COMPLETED setup NN; NEXT NN`. For retake include attempt; skip uses file=none,
-bytes=0, reason and current time. Do not open/decode images yourself.
-Staging ends by **1:20 pm**. Plan omissions in priority 18, 15, 17, 16; the script
-is sequential, so decide early and send `s` at each selected numeric prompt.
-Never skip 00, 01, 06, 19–21. Reserve time for 19–21; warn Noor early of any
-coverage/deadline conflict. Do not silently skip requirements or overrun 1:20.
-After STAGING OK, verify no operator writer, then clean only holder and FIFO:
-```bash
-flock -n ~/ttl/operator.lock true
-kill -TERM "$(cat ~/ttl_kit/fifo_holder.pid)"
-unlink ~/ttl_in
-```
-Expected: exit 0 each. Preserve PID files/logs; log `COMPLETED stage; NEXT seal`.
+Expected: exit 0. Retain logs/PID files; last completed result is STAGING OK.
+
 ## Seal
 ```bash
-bash ~/ttl/seal.sh >> ~/ttl_kit/seal.log 2>&1
-tail -n 30 ~/ttl_kit/seal.log
+printf '%s PENDING seal\n' "$(date -Is)" >> ~/ttl_kit/agent_log.md; bash ~/ttl/seal.sh >> ~/ttl_kit/seal.log 2>&1; tail -n 20 ~/ttl_kit/seal.log; printf '%s seal result=%s\n' "$(date -Is)" "$(tail -n 1 ~/ttl_kit/seal.log)" >> ~/ttl_kit/agent_log.md
 ```
-Expected: `RECONCILED: ...`, `FINAL: ...`, `SEALED USB OK: ...; reset fixture before live`.
+Expected: RECONCILED, FINAL, then `SEALED USB OK: ...; reset fixture before live`.
 `SEALED DISK OK: USB FAILED ...`: tell Noor; keep disk seal, do not reseal. Zero
-staged gives WARNING. Log seal destination and `COMPLETED seal; NEXT live reset`.
-Seal checks all retained capture hashes/names/log order/exact staged membership,
-archive capture bytes and archive copy hashes. Never put logs in `staged/`.
-## Live — fresh FIFO and holder; launch WITHOUT &
-Get CSI reset/cleared-buffer confirmation through Noor; never invent it.
+staged gives WARNING. Seal verifies capture names/order/hashes/exact membership,
+archived capture bytes and archive-copy hashes. Never put logs in staged/.
+
+## Live — fresh FIFO/holder; launch WITHOUT &
+Ask Noor for CSI's reset/cleared-buffer confirmation; never invent it.
 ```bash
 mkfifo ~/ttl_in
 nohup setsid bash -c 'exec 3<> "$HOME/ttl_in"; exec sleep 10800' </dev/null >> ~/ttl_kit/fifo_holder.log 2>&1 & echo $! > ~/ttl_kit/fifo_holder.pid
 kill -0 "$(cat ~/ttl_kit/fifo_holder.pid)"
-setsid -f nohup bash ~/ttl/live.sh < ~/ttl_in >> ~/ttl_kit/live_console.log 2>&1
-pgrep -f '[m]onday_ops.py live$' > ~/ttl_kit/live.pid
-tail -n 20 ~/ttl_kit/live_console.log
+printf '%s PENDING live launch\n' "$(date -Is)" >> ~/ttl_kit/agent_log.md; setsid -f nohup bash ~/ttl/live.sh < ~/ttl_in >> ~/ttl_kit/live_console.log 2>&1; sleep 3; pgrep -f '[m]onday_ops.py live$' > ~/ttl_kit/live.pid; tail -n 6 ~/ttl_kit/live_console.log
 ```
 Expected: `Live camera folder or approved RTSP/HTTP(S) stream URL:`. Send folder:
 ```bash
-printf '%s\n' '/CAMERA/FOLDER/FROM/NOOR' > ~/ttl_in
-tail -n 20 ~/ttl_kit/live_console.log
+printf '%s\n' '/CAMERA/FOLDER/FROM/NOOR' > ~/ttl_in; sleep 3; tail -n 6 ~/ttl_kit/live_console.log
 ```
-Same camera source allowed; never staged/sealed copies. Expected gate question:
+Same camera source allowed; never staged/sealed copies. Expected gate prompt:
 `Enter = n (continuous camera feed); y only for stills CSI saves on request. [y/n]:`.
-For continuous send `printf '\n' > ~/ttl_in`; for requested stills send:
+For continuous:
 ```bash
-printf 'y\n' > ~/ttl_in
-tail -n 20 ~/ttl_kit/live_console.log
+printf '\n' > ~/ttl_in; sleep 3; tail -n 6 ~/ttl_kit/live_console.log
+```
+For requested stills instead:
+```bash
+printf 'y\n' > ~/ttl_in; sleep 3; tail -n 6 ~/ttl_kit/live_console.log
 ```
 Expected: `CSI reset the fixture and cleared staged/buffered frames? [y/n]:`.
 ONLY after Noor confirms reset:
 ```bash
-printf 'y\n' > ~/ttl_in
-tail -n 40 ~/ttl_kit/live_console.log
+printf 'y\n' > ~/ttl_in; sleep 3; tail -n 10 ~/ttl_kit/live_console.log; printf '%s live launch gate=CONFIRMED_MODE reset=confirmed result=%s\n' "$(date -Is)" "$(tail -n 5 ~/ttl_kit/live_console.log | tr '\n' ' ')" >> ~/ttl_kit/agent_log.md
 ```
-Expected: `LIVE OUT: ...`, `watching ... new images only`, then grids on new images.
-Log OUT path, gate/reset confirmation and `COMPLETED live launch; NEXT stop`.
+Replace CONFIRMED_MODE with each/events. Expected: LIVE OUT path and
+`watching ... new images only`, then grids. Log result confirms completed launch.
 `ok` PASS; `DEF` DEFECT; `MISS` MISSED; `??` UNSURE; `.` WAITING.
-Prompts/staging lines flush explicitly; live child uses `-u`, wrapper flushes lines.
-Python `-I` ignores PYTHONUNBUFFERED. Spark proof: prompts/confirmations appeared
-while stage stayed alive; clean INT stop retained 600 prediction and 21 trial rows.
-On Noor's stop instruction, ask CSI to finish the current save and pause delivery.
-Then run this standalone command (never put it inside a launch wrapper):
+Prompts/staging lines flush explicitly; live child uses -u and wrapper flushes.
+Python -I ignores PYTHONUNBUFFERED. Spark proof: stage results visible while
+alive; clean INT stop retained 600 prediction/21 trial rows and finalized metadata.
+On stop, ask CSI to finish current save and pause delivery. Run ONE standalone call:
 ```bash
-pkill -INT -f live_inspect.py
-tail -n 8 ~/ttl_kit/live_console.log
+printf '%s PENDING live stop INT\n' "$(date -Is)" >> ~/ttl_kit/agent_log.md; pkill -INT -f '[l]ive_inspect.py'; sleep 3; tail -n 8 ~/ttl_kit/live_console.log; printf '%s live stop result=%s\n' "$(date -Is)" "$(tail -n 2 ~/ttl_kit/live_console.log | tr '\n' ' ')" >> ~/ttl_kit/agent_log.md
 ```
-Expected: `N frames, M events, {...} -> ...`, then
-`LIVE OK: stopped cleanly; evidence ...; export every visit`.
-Launching WITHOUT `&` preserves SIGINT handling; `setsid -f` detaches and returns.
-Do not replace this with an asynchronous shell launch or send a Ctrl-C byte to FIFO.
-If not stopped within **30 seconds**, use the fallback in a separate call:
+Expected: frame/event summary and `LIVE OK: stopped cleanly; evidence ...; export every visit`.
+WITHOUT & preserves SIGINT handling; setsid -f detaches/returns. Never substitute
+an asynchronous live launch or a Ctrl-C byte. If still running after **30 seconds**:
 ```bash
-pkill -TERM -f live_inspect.py
-tail -n 15 ~/ttl_kit/live_console.log
+printf '%s PENDING live stop TERM fallback\n' "$(date -Is)" >> ~/ttl_kit/agent_log.md; pkill -TERM -f '[l]ive_inspect.py'; sleep 3; tail -n 15 ~/ttl_kit/live_console.log; printf '%s live fallback result=%s\n' "$(date -Is)" "$(tail -n 2 ~/ttl_kit/live_console.log | tr '\n' ' ')" >> ~/ttl_kit/agent_log.md
 ```
-Fallback can give `STOP: live: live runtime failed (-15); preserve ...` instead of
-LIVE OK, with incomplete final metadata/in-flight frame. Report verbatim and wait
-for Noor's acknowledgement before export. Do not start another live run.
-After wrapper exits (lock test succeeds), clean holder/FIFO, retaining every log:
+Fallback may give `STOP: live: live runtime failed (-15); preserve ...`, incomplete
+metadata/in-flight frame. Report verbatim and wait for Noor before export.
+After wrapper exits, clean holder/FIFO and verify metadata in one call:
 ```bash
-flock -n ~/ttl/operator.lock true
-kill -TERM "$(cat ~/ttl_kit/fifo_holder.pid)"
-unlink ~/ttl_in
+flock -n ~/ttl/operator.lock true && kill -TERM "$(cat ~/ttl_kit/fifo_holder.pid)" && unlink ~/ttl_in && bash -c 'source ~/ttl/operator.env; grep -E "ended_utc|stop_reason|frames|events" "$OUT/session.json"; tail -n 1 "$DAY/records/live_status.txt"'
 ```
-After LIVE OK, check metadata (no image viewing):
-```bash
-bash -c 'source ~/ttl/operator.env; grep -E "ended_utc|stop_reason|frames|events" "$OUT/session.json"; tail -n 1 "$DAY/records/live_status.txt"'
-```
-Expected: end time, `stop_reason: "ctrl-c"`, counts and `live exit=0`.
-Log `COMPLETED live INT stop; LIVE OK; OUT=...; NEXT export` only after verification.
+After LIVE OK expect end time, stop_reason ctrl-c, counts and live exit=0.
+
 ## Export and handoff
 ```bash
-bash ~/ttl/export.sh >> ~/ttl_kit/export.log 2>&1
-tail -n 20 ~/ttl_kit/export.log
+printf '%s PENDING export\n' "$(date -Is)" >> ~/ttl_kit/agent_log.md; bash ~/ttl/export.sh >> ~/ttl_kit/export.log 2>&1; tail -n 10 ~/ttl_kit/export.log; printf '%s export result=%s\n' "$(date -Is)" "$(tail -n 1 ~/ttl_kit/export.log)" >> ~/ttl_kit/agent_log.md
 ```
 Expected: `RESULTS USB OK: N visits verified at ...; keep GB10 files until Mac verification`.
-Log destination and `COMPLETED export; NEXT CSI copy`. Export hashes all visit_*
-archives locally and at destination; keep the separate live-stop evidence.
-Extra kit-root logs are safe and travel with the whole-folder copy, outside the
-visit archives. Monday visits stay separate; external trial pictures stay untouched.
-Say exactly: “CSI, please copy the entire ~/ttl_kit/ folder for us, including the
-sealed folders, visit_export folders and session logs; please keep the GB10 files
-until we verify the copy on our Mac.” Leave time to finish before 2 pm.
+Retain destination from that result. Export hashes all visit_* archives locally and
+at destination. Kit-root logs are safe, outside visit archives; Monday visits stay
+separate. Say exactly: “CSI, please copy the entire ~/ttl_kit/ folder for us,
+including the sealed folders, visit_export folders and session logs; please keep
+the GB10 files until we verify the copy on our Mac.” Finish before 2 pm.
+
 ## Resume after usage limit
-Fresh agent reads this pasted guide plus `cat ~/ttl_kit/agent_log.md`, then tails
-stage.log/live_console.log/export.log as appropriate. Check saved PID with `ps -p PID`.
-Do not recreate FIFO/holder while active; continue answering the current prompt.
-Inspect current visit metadata, never images:
+Read this pasted guide and agent_log.md; tail the applicable script log. Last
+confirmed successful result is the last completed step; PENDING alone is not success.
+Check saved PID with ps -p PID. Do not recreate an active FIFO/holder or resend an
+uncertain answer. Inspect metadata only:
 ```bash
 bash -c 'source ~/ttl/operator.env; printf "DAY=%s\nSEALED=%s\nOUT=%s\n" "$DAY" "${SEALED:-}" "${OUT:-}"; tail -n 5 "$DAY/records/staging_log.csv"; cat "$DAY/records/live_status.txt"'
 ```
-If an action is pending, reconcile its result before resending. Never repeat
---new-visit, reseal, duplicate live, or export while a writer runs. If stage died,
-log that fact and repeat its FIFO launch only after confirming the prior writer
-exited; CAMERA/next setup persist. If uncertain, tell Noor the last completed step.
+Never repeat --new-visit/reseal/duplicate live or export with a writer running.
+If stage died, confirm no prior writer, then repeat its FIFO launch; CAMERA/next
+setup persist. If uncertain, tell Noor the last confirmed result and wait.
