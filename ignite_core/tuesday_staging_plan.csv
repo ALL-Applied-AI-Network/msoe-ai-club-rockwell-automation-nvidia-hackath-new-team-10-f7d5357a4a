@@ -1,0 +1,23 @@
+setup,setup_type,what_to_stage,targets,last_filled,inspection_mode,priority,notes
+00,Orientation check,One capped vial only,G01|orientation_check||,G01,live_fill,must_run,G01 must appear at the top-right of the camera view
+01,All good,"All 30 vials, caps fully seated",all|all_pass||,G30,final_inspection,must_run,
+02,Crooked cap,3 tilted caps,G01|crooked_cap||20;G13|crooked_cap||30;G30|crooked_cap||20,G30,final_inspection,standard,
+03,Crooked cap,3 tilted caps,G05|crooked_cap||30;G17|crooked_cap||20;G26|crooked_cap||30,G30,final_inspection,standard,
+04,Crooked cap,3 tilted caps,G08|crooked_cap||20;G19|crooked_cap||30;G22|crooked_cap||20,G30,final_inspection,standard,
+05,Crooked cap,3 tilted caps,G03|crooked_cap||30;G15|crooked_cap||20;G28|crooked_cap||30,G30,final_inspection,standard,
+06,"Crooked, below 20°",3 slightly tilted caps,G07|crooked_cap||10;G20|crooked_cap||15;G29|crooked_cap||15,G30,final_inspection,must_run,Report separately as the overhead camera limit
+07,Missing cap,"Vial in place, no cap",G02|missing_cap||;G14|missing_cap||;G27|missing_cap||,G30,final_inspection,standard,
+08,Missing cap,"Vial in place, no cap",G06|missing_cap||;G18|missing_cap||;G25|missing_cap||,G30,final_inspection,standard,
+09,Missing cap,"Vial in place, no cap",G04|missing_cap||;G12|missing_cap||;G30|missing_cap||,G30,final_inspection,standard,
+10,Missing cap,"Vial in place, no cap",G01|missing_cap||;G09|missing_cap||;G23|missing_cap||,G30,final_inspection,standard,
+11,Missed placement,"Hole empty, no vial",G04|no_vial|missed|;G15|no_vial|missed|;G27|no_vial|missed|,G30,final_inspection,standard,
+12,Missed placement,"Hole empty, no vial",G07|no_vial|missed|;G19|no_vial|missed|;G21|no_vial|missed|,G30,final_inspection,standard,
+13,Missed placement,"Hole empty, no vial",G01|no_vial|missed|;G12|no_vial|missed|;G28|no_vial|missed|,G30,final_inspection,standard,
+14,Lean (should pass),"Vial leaning, cap fully seated",G02|lean_seated||;G16|lean_seated||;G29|lean_seated||,G30,final_inspection,standard,Skip a hole and note it if the vial will not stay leaning
+15,Lean (should pass),"Vial leaning, cap fully seated",G09|lean_seated||;G23|lean_seated||;G30|lean_seated||,G30,final_inspection,skip_2,Skip a hole and note it if the vial will not stay leaning
+16,Mixed,"Tilted cap, missing cap, empty hole",G11|crooked_cap||30;G29|missing_cap||;G05|no_vial|missed|,G30,final_inspection,skip_4,
+17,Mixed,"Tilted cap, missing cap, empty hole",G24|crooked_cap||20;G17|missing_cap||;G10|no_vial|missed|,G30,final_inspection,skip_3,
+18,All good,Lift and re-seat every vial first,all|all_pass||,G30,final_inspection,skip_1,
+19,Partial fill,"G01-G25 filled except G22; G26-G30 empty",G22|no_vial|missed|;G26-G30|no_vial|waiting|,G25,live_fill,must_run,Trailing empty holes are waiting and not defects
+20,Partial fill,"G01-G18 filled except G13; G19-G30 empty",G13|no_vial|missed|;G19-G30|no_vial|waiting|,G18,live_fill,must_run,Trailing empty holes are waiting and not defects
+21,Partial fill,"G01-G10 filled except G06; G11-G30 empty",G06|no_vial|missed|;G11-G30|no_vial|waiting|,G10,live_fill,must_run,Trailing empty holes are waiting and not defects
