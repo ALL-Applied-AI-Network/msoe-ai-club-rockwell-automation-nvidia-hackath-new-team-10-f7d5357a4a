@@ -6,7 +6,10 @@ never use them. No code/settings edits, image opening/scoring, git or deletion.
 Never touch camera, robot, PLC or network. Every STOP: report verbatim and wait.
 
 1. `ls -ld ~/ttl_kit ~/ttl` → kit directory; ttl may not exist before first setup.
-   Missing kit: ask Noor for the download command.
+   Missing kit: curl command from the printout, then `sha256sum ~/ttl_kit.tar`
+   → `c5374bae…0b71a`; only then `cd ~ && tar -xf ttl_kit.tar`.
+   Camera check (before stage.sh): CSI saves one test picture, then
+   `ls -lt CAMERA_FOLDER | head -n 4` → newest is a .jpg/.png file from just now.
 2. FIRST Tuesday start only:
    `bash ~/ttl_kit/start.sh --new-visit`
    → `SETUP OK: preflight passed; context .../operator.env`.
@@ -44,10 +47,4 @@ Never touch camera, robot, PLC or network. Every STOP: report verbatim and wait.
    folders, visit_export folders and session logs; please keep the GB10 files until
    we verify the copy on our Mac.” Finish before 2 pm; retain everything.
 
-Keep PENDING log lines only for setup, seal, live launch, stop and export.
-For each setup append ONE line after the result, including filename, pixel size,
-hash, time, status/next setup or skip reason, copied from the console:
-`printf '%s %s\n' "$(date -Is)" 'OBSERVED_RESULT' >> ~/ttl_kit/agent_log.md` → exit 0.
-No per-capture stat call. The kit keeps staging CSV, seal selection, live console,
-predictions/trial logs and live status. Report every STOP and wait. Resume from
-confirmed state; export success verifies copied bytes, not live completeness.
+Tony's paper log is the record; the kit keeps its own logs. No extra logging needed.

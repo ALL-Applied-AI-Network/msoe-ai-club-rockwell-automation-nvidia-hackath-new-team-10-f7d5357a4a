@@ -9,19 +9,43 @@ edit code/thresholds/settings, open or score staged images, touch robot/camera/P
 network, use git, or explore the repo. Noor/Tony move vials; CSI delivers images.
 Preserve everything, including Monday's trial-only `codecrusaders/data`; never use
 those pictures. Only the temporary FIFO may be unlinked after its script exits.
-On STOP: report the full line verbatim, log it and wait. Fallback TERM can cause
+On STOP: report the full line verbatim, log it and wait. If it says another
+operator command is active, run `pgrep -af '[m]onday_ops.py'` and report that too. Fallback TERM can cause
 STOP instead of LIVE OK; Noor must acknowledge it before export.
 ```bash
 ls -ld ~/ttl_kit ~/ttl; command -v bash mkfifo setsid nohup tail pkill pgrep flock sha256sum; cat ~/ttl_kit/agent_log.md
 ```
-Expected: kit/tools present; ttl/log may be absent before first setup. Missing kit:
-ask Noor for the download command. Missing tools: report and wait. Ask Noor for
-camera folder, continuous/requested-still mode, and first start versus resume.
+Expected: kit/tools present; ttl/log may be absent before first setup. Missing
+tools or a permission/sandbox error: report verbatim and wait (you cannot fix it).
+Ask Noor for the camera folder and first start versus resume.
 No shell variable survives calls. Replace NN, REASON and camera path before sending;
 quote supplied text safely. Only setup/seal/live launch/stop/export get PENDING
 lines. Each staging action appends ONE observed-result line in the same call.
 That result is completed only when it contains staged/retake/skipped/STAGING OK;
 otherwise the last completed step stays unchanged. Read output before advancing.
+Missing kit only: ask Noor for the download command (on his printout), run it, then:
+```bash
+sha256sum ~/ttl_kit.tar
+```
+Expected exactly `c5374baebdb47a75e1ca2a4ca31a625f735675babb4e974359eefd479e0eb71a`.
+Different: download again; never unpack a mismatch. Match only:
+```bash
+cd ~ && tar -xf ttl_kit.tar && ls ~/ttl_kit
+```
+Expected: 10 kit files (a tar "unknown extended header keyword" warning is harmless).
+
+## Camera check — BEFORE stage.sh (file listing only, never open images)
+Ask Noor to have CSI save ONE test picture now (staging ignores it later). Then:
+```bash
+ls -lt --time-style=full-iso '/CAMERA/FOLDER/FROM/NOOR' | head -n 4; sleep 10; ls -lt --time-style=full-iso '/CAMERA/FOLDER/FROM/NOOR' | head -n 3
+```
+Expected: newest entry is a FILE ending .jpg/.jpeg/.png, timed within the last
+minute, directly in that folder. Staging sees only such files at the folder's top
+level: if the newest item is a subfolder or another file type, tell Noor to ask
+CSI for the exact folder the pictures land in, and do not start stage.sh.
+Live mode: if the second listing shows a newer file with nobody saving, the camera
+writes continuously → live gate Enter; otherwise → gate y (stills on request).
+Tell Noor the folder is OK and which live mode, in one line.
 
 ## Setup — once only for Tuesday
 ```bash
