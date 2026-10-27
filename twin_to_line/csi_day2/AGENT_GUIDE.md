@@ -6,7 +6,8 @@ its answer, wait, tail and log append. Never send multiple answers together.
 ## Hard rules and first five minutes
 Run only the supplied kit scripts as written. Never write capture/inspection code,
 edit code/thresholds/settings, open or score staged images, touch robot/camera/PLC/
-network, use git, or explore the repo. Noor/Tony move vials; CSI delivers images.
+network, use git, or explore the repo. Tony/Matthew move vials and tell Noor;
+the cap_seal camera writes pictures into its folder by itself; you run the rest.
 Preserve everything, including Monday's trial-only `codecrusaders/data`; never use
 those pictures. Only the temporary FIFO may be unlinked after its script exits.
 On STOP: report the full line verbatim, log it and wait. If it says another
@@ -35,17 +36,17 @@ cd ~ && tar -xf ttl_kit.tar && ls ~/ttl_kit
 Expected: 10 kit files (a tar "unknown extended header keyword" warning is harmless).
 
 ## Camera check — BEFORE stage.sh (file listing only, never open images)
-Ask Noor to have CSI save ONE test picture now (staging ignores it later). Then:
+The camera writes pictures into its folder continuously; nobody presses save.
 ```bash
-ls -lt --time-style=full-iso '/CAMERA/FOLDER/FROM/NOOR' | head -n 4; sleep 10; ls -lt --time-style=full-iso '/CAMERA/FOLDER/FROM/NOOR' | head -n 3
+F='/CAMERA/FOLDER/FROM/NOOR'; ls "$F" | wc -l; ls -lt --time-style=full-iso "$F" | head -n 4; sleep 10; ls -lt --time-style=full-iso "$F" | head -n 4
 ```
-Expected: newest entry is a FILE ending .jpg/.jpeg/.png, timed within the last
-minute, directly in that folder. Staging sees only such files at the folder's top
-level: if the newest item is a subfolder or another file type, tell Noor to ask
-CSI for the exact folder the pictures land in, and do not start stage.sh.
-Live mode: if the second listing shows a newer file with nobody saving, the camera
-writes continuously → live gate Enter; otherwise → gate y (stills on request).
-Tell Noor the folder is OK and which live mode, in one line.
+Expected: newest entries are FILES ending .jpg/.jpeg/.png directly in that folder,
+and the second listing has newer files than the first. Note the interval between
+files and set WAIT = 2 x interval, minimum 3 s (staging takes the newest picture,
+so waiting WAIT after "ready" guarantees no hands in it). Subfolders, another file
+type or no new file in 10 s: tell Noor, do not start stage.sh. Over 5,000 files:
+tell Noor each capture may take longer (the script fingerprints the whole folder).
+Tell Noor in one line: folder OK, interval, WAIT, live mode = continuous.
 
 ## Setup — once only for Tuesday
 ```bash
@@ -75,14 +76,16 @@ printf '%s\n' '/CAMERA/FOLDER/FROM/NOOR' > ~/ttl_in; sleep 3; tail -n 6 ~/ttl_ki
 ```
 Expected: `Existing camera images ignored. Ask CSI to save setup 00 now.` and
 `setup 00: Enter after CSI saves it, s = skip, r = retake the last setup, q = done:`.
-Noor says “setup NN saved”: check NN matches the prompt, then ONE call:
+Noor says “setup NN ready” (hands are out): check NN matches the prompt, then ONE
+call (WAIT from the camera check). Any note Noor adds goes into the log line:
 ```bash
-printf '\n' > ~/ttl_in; sleep 3; tail -n 6 ~/ttl_kit/stage.log; printf '%s setup=NN action=save result=%s\n' "$(date -Is)" "$(tail -n 3 ~/ttl_kit/stage.log | tr '\n' ' ')" >> ~/ttl_kit/agent_log.md
+sleep WAIT; printf '\n' > ~/ttl_in; sleep 3; tail -n 6 ~/ttl_kit/stage.log; printf '%s setup=NN action=save note=NOTE result=%s\n' "$(date -Is)" "$(tail -n 3 ~/ttl_kit/stage.log | tr '\n' ' ')" >> ~/ttl_kit/agent_log.md
 ```
 Expected: `setup_NN.EXT: WIDTHxHEIGHT; sha256 ...`, `setup NN: staged`, next prompt.
-“retake”: confirm a NEW save for the LAST setup; NN below is that preceding setup:
+“retake” (hand in view or setup wrong; fixed and hands out again); NN below is the
+LAST setup:
 ```bash
-printf 'r\n' > ~/ttl_in; sleep 3; tail -n 6 ~/ttl_kit/stage.log; printf '%s setup=NN action=retake result=%s\n' "$(date -Is)" "$(tail -n 3 ~/ttl_kit/stage.log | tr '\n' ' ')" >> ~/ttl_kit/agent_log.md
+sleep WAIT; printf 'r\n' > ~/ttl_in; sleep 3; tail -n 6 ~/ttl_kit/stage.log; printf '%s setup=NN action=retake result=%s\n' "$(date -Is)" "$(tail -n 3 ~/ttl_kit/stage.log | tr '\n' ' ')" >> ~/ttl_kit/agent_log.md
 ```
 Expected: `setup_NN_r1.EXT: ...`, `setup NN: retake`; earlier attempt retained.
 “skip: REASON”: NN is the CURRENT prompt; include Noor's reason in the same call:
@@ -94,7 +97,8 @@ Expected: `setup NN: skipped`, next prompt. “done”:
 printf 'q\n' > ~/ttl_in; sleep 3; tail -n 6 ~/ttl_kit/stage.log; printf '%s stage done result=%s\n' "$(date -Is)" "$(tail -n 1 ~/ttl_kit/stage.log)" >> ~/ttl_kit/agent_log.md
 ```
 Expected: `STAGING OK: N setups staged; skips and retakes logged; no inference`.
-No new image/still changing/REFUSED: report it; setup has not advanced. If output
+`Image still changing`: send the same call again once. No new image/REFUSED:
+report it; setup has not advanced. If output
 is still pending after 3 seconds, wait/tail; do not resend the answer blindly.
 Reply using the same observed line: setup, filename, size in pixels, timestamp,
 status. stage.log has dimensions/hash, not bytes; do not add a stat tool call.
@@ -119,7 +123,7 @@ staged gives WARNING. Seal verifies capture names/order/hashes/exact membership,
 archived capture bytes and archive-copy hashes. Never put logs in staged/.
 
 ## Live — fresh FIFO/holder; launch WITHOUT &
-Ask Noor for CSI's reset/cleared-buffer confirmation; never invent it.
+Ask Noor to confirm the fixture is empty and the robot is ready; never invent it.
 ```bash
 mkfifo ~/ttl_in
 nohup setsid bash -c 'exec 3<> "$HOME/ttl_in"; exec sleep 10800' </dev/null >> ~/ttl_kit/fifo_holder.log 2>&1 & echo $! > ~/ttl_kit/fifo_holder.pid
@@ -148,10 +152,15 @@ printf 'y\n' > ~/ttl_in; sleep 3; tail -n 10 ~/ttl_kit/live_console.log; printf 
 Replace CONFIRMED_MODE with each/events. Expected: LIVE OUT path and
 `watching ... new images only`, then grids. Log result confirms completed launch.
 `ok` PASS; `DEF` DEFECT; `MISS` MISSED; `??` UNSURE; `.` WAITING.
+During live, Noor reports what the team sees ("G13 ?? = cap tilted"). One call each:
+```bash
+printf '%s OBSERVATION live: %s\n' "$(date -Is)" 'NOOR_TEXT' >> ~/ttl_kit/agent_log.md; tail -n 12 ~/ttl_kit/live_console.log
+```
+On "show grid": `tail -n 12 ~/ttl_kit/live_console.log` and give Noor a one-line summary of non-ok holes.
 Prompts/staging lines flush explicitly; live child uses -u and wrapper flushes.
 Python -I ignores PYTHONUNBUFFERED. Spark proof: stage results visible while
 alive; clean INT stop retained 600 prediction/21 trial rows and finalized metadata.
-On stop, ask CSI to finish current save and pause delivery. Run ONE standalone call:
+On Noor's “stop live”, run ONE standalone call:
 ```bash
 printf '%s PENDING live stop INT\n' "$(date -Is)" >> ~/ttl_kit/agent_log.md; pkill -INT -f '[l]ive_inspect.py'; sleep 3; tail -n 8 ~/ttl_kit/live_console.log; printf '%s live stop result=%s\n' "$(date -Is)" "$(tail -n 2 ~/ttl_kit/live_console.log | tr '\n' ' ')" >> ~/ttl_kit/agent_log.md
 ```
@@ -176,9 +185,8 @@ printf '%s PENDING export\n' "$(date -Is)" >> ~/ttl_kit/agent_log.md; bash ~/ttl
 Expected: `RESULTS USB OK: N visits verified at ...; keep GB10 files until Mac verification`.
 Retain destination from that result. Export hashes all visit_* archives locally and
 at destination. Kit-root logs are safe, outside visit archives; Monday visits stay
-separate. Say exactly: “CSI, please copy the entire ~/ttl_kit/ folder for us,
-including the sealed folders, visit_export folders and session logs; please keep
-the GB10 files until we verify the copy on our Mac.” Finish before 2 pm.
+separate. Tell Noor: “Done. Ask Shamar to copy the whole ~/ttl_kit/ folder for us
+and keep the GB10 files until we verify the copy.” Finish before 2 pm.
 
 ## Resume after usage limit
 Read this pasted guide and agent_log.md; tail the applicable script log. Last

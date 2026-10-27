@@ -8,8 +8,8 @@ Never touch camera, robot, PLC or network. Every STOP: report verbatim and wait.
 1. `ls -ld ~/ttl_kit ~/ttl` → kit directory; ttl may not exist before first setup.
    Missing kit: curl command from the printout, then `sha256sum ~/ttl_kit.tar`
    → `c5374bae…0b71a`; only then `cd ~ && tar -xf ttl_kit.tar`.
-   Camera check (before stage.sh): CSI saves one test picture, then
-   `ls -lt CAMERA_FOLDER | head -n 4` → newest is a .jpg/.png file from just now.
+   Camera check (before stage.sh): `ls -lt CAMERA_FOLDER | head -n 4` twice, 10 s apart
+   → new .jpg/.png files keep appearing (camera writes by itself).
 2. FIRST Tuesday start only:
    `bash ~/ttl_kit/start.sh --new-visit`
    → `SETUP OK: preflight passed; context .../operator.env`.
@@ -18,7 +18,7 @@ Never touch camera, robot, PLC or network. Every STOP: report verbatim and wait.
 3. `bash ~/ttl/stage.sh`
    → camera-folder prompt on first use. Type CSI's confirmed path, Enter.
    → `Existing camera images ignored. Ask CSI to save setup 00 now.`
-   After each fresh save: Enter → filename/dimensions/hash, `setup NN: staged`.
+   After each setup, hands out, wait 3 s: Enter → filename/dimensions/hash, `setup NN: staged`.
    Fresh save for LAST setup: r, Enter → `setup NN: retake`; prior copy retained.
    Skip CURRENT setup: log reason, s, Enter → `setup NN: skipped`.
    Finish by **1:20 pm**. Plan omissions 18, 15, 17, 16 in that priority; send
@@ -33,7 +33,6 @@ Never touch camera, robot, PLC or network. Every STOP: report verbatim and wait.
    → gate: Enter for continuous; y, Enter only for requested stills.
    → reset: y, Enter ONLY after CSI confirms reset and cleared buffered frames.
    → `LIVE OUT: ...`, `watching ... new images only`, then grid on new frames.
-   On stop instruction, have CSI finish the current save and pause delivery.
    In a SECOND terminal run `pkill -INT -f '[l]ive_inspect.py'`.
    → summary, then `LIVE OK: stopped cleanly; evidence ...; export every visit`.
    If still running after 30 seconds: `pkill -TERM -f '[l]ive_inspect.py'`.
