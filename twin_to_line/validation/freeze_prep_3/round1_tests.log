@@ -1,0 +1,5 @@
+Command (repo root):
+IGNITE_TWIN=~/Downloads/csi_digital_twin/csi_digital_twin_v1 .venv/bin/python -m pytest twin_to_line/tests -q
+
+Final result:
+265 passed in 79.83s (0:01:19)

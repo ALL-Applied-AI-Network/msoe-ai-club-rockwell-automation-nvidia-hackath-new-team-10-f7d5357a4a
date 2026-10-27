@@ -1,0 +1,79 @@
+{
+ "meta": {
+  "generated_by": "register_1080.py",
+  "date": "2026-10-23",
+  "method": "similarity, masked ECC-criterion Gauss-Newton (gain + bias), resampled with frame_warp.warp; both images smoothed sigma 1.0 px (640 grid); start = size-only relation",
+  "still": {
+   "file": "csi_1080_empty_G.jpg",
+   "sha256": "673a76a6084992b758fd17cdaa8ea1cf6b529991fa611980bee7f550bfedff88",
+   "bytes": 478310
+  },
+  "reference": {
+   "frame": "cap_seal_20260923_184630_557477.jpg",
+   "run": "3",
+   "sha256": "01ed1f53bf5a6dee1759ca3fc3af525c914250f57b97b460552ba54e77e57d15"
+  },
+  "mask": {
+   "station_xyxy": [
+    [
+     0,
+     0,
+     206,
+     290
+    ],
+    [
+     150,
+     0,
+     206,
+     440
+    ]
+   ],
+   "s_plate_xyxy": [
+    404,
+    233,
+    567,
+    414
+   ],
+   "g_plate": "position_map_G.json plate polygon + DEV offset, dilated 7 px"
+  },
+  "fit": {
+   "iterations": 7,
+   "converged": true,
+   "pixels": 133018,
+   "zncc": 0.9698,
+   "gain_bias": [
+    0.9918,
+    0.92
+   ]
+  },
+  "forward_640_to_1080": {
+   "scale": 2.249184,
+   "rotation_deg": 0.009,
+   "offset_px": [
+    239.825,
+    -5.393
+   ]
+  },
+  "note": "applied by frame_warp.py to every 1920x1080 frame; then the 640 path with position_map_G.json + registration_dev.json offset. Numbers: results/csi_1080/register_1080_report.json"
+ },
+ "size_in": [
+  1920,
+  1080
+ ],
+ "size_out": [
+  640,
+  480
+ ],
+ "matrix_in_to_out": [
+  [
+   0.4446057596,
+   6.96417e-05,
+   -106.6271655126
+  ],
+  [
+   -6.96417e-05,
+   0.4446057596,
+   2.4146810807
+  ]
+ ]
+}

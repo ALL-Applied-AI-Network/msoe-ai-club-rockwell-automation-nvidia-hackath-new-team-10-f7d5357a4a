@@ -1,0 +1,10 @@
+twin_to_line/GATE_v2.0.2.md:123:cd ~/code/ignite/twin_to_line && shasum -a 256 -c MANIFEST.sha256          # 8 x OK
+twin_to_line/HACKATHON_HANDOFF.md:7:superseded except §2 (requirements) and §8 (message style). The Ignite repo (`~/code/ignite`) is the read-only archive
+twin_to_line/HACKATHON_HANDOFF.md:27:- Keep `~/code/ignite` until after Nov 1: `~/code/crusaders/.venv` is a symlink to `~/code/ignite/.venv`.
+twin_to_line/HACKATHON_HANDOFF.md:79:- **Evidence still only in `~/code/ignite-fix`:** `results/freeze_prep_2/` (2 test logs) and `results/rc_1024/` (RC
+twin_to_line/HACKATHON_HANDOFF.md:82:  `~/code/ignite`: both fixed by Codex tonight (NEXT ACTION 2).
+twin_to_line/HACKATHON_HANDOFF.md:90:    GB10. Merge PR #2 only after his fix; then the UI ships automatically under `code/ignite_core/operator_ui` with the
+twin_to_line/HACKATHON_HANDOFF.md:122:   `rsync -a --ignore-existing --exclude pip_cache ~/code/ignite-fix/twin_to_line/results/freeze_prep_2 ~/code/ignite-fix/twin_to_line/results/rc_1024 twin_to_line/results/`
+twin_to_line/HACKATHON_HANDOFF.md:129:   - `LIVE_RUNBOOK.md` lines 3, 27, 121: `~/code/ignite` → `~/code/crusaders`; any other Ignite path in docs;
+twin_to_line/HACKATHON_HANDOFF.md:199:  · local `~/code/crusaders` · project dir `twin_to_line/` · `.venv` → `~/code/ignite/.venv` (Python 3.11) · branches
+twin_to_line/HACKATHON_HANDOFF.md:202:  · local `~/code/ignite` (history; `feat/live-runtime` @ `1a0601e`, local only) · old Codex worktree `~/code/ignite-fix`.

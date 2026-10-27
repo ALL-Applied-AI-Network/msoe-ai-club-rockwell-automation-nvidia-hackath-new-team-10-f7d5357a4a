@@ -1,0 +1,5 @@
+# Twin-to-Line runtime prototype (laptop). usd-core is only needed by export_position_map.py / gate scripts.
+numpy
+opencv-python-headless
+usd-core
+pytest

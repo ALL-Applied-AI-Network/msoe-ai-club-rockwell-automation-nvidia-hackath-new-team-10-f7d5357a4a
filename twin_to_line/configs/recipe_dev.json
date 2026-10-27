@@ -1,0 +1,343 @@
+{
+ "source": "DEV runs 1-3 only (real_data guard); render model = gate run 2 renders (work1 twin, ACES)",
+ "render_dir": "results/isaac_gate/run2",
+ "render_baseline_sha256": "09312acd9c6f66d20e2fd18708456275ea3b05576b7eb681f63134a85443aa3e",
+ "calibrate_recipe_sha256": "816679495f27ce8149abd0eebaceba7da58bb6c7654eb10503e202e1782b1633",
+ "dev": {
+  "frames": {
+   "1": 212,
+   "2": 78,
+   "3": 95
+  },
+  "wall_Lab_p2.5_50_97.5": {
+   "L": [
+    59.2,
+    71.0,
+    79.6
+   ],
+   "a": [
+    -7.0,
+    0.0,
+    1.0
+   ],
+   "b": [
+    10.0,
+    14.0,
+    18.0
+   ]
+  },
+  "wall_L_median_by_run": {
+   "1": 71.0,
+   "2": 68.6,
+   "3": 74.5
+  },
+  "plate_Lab_p2.5_50_97.5": {
+   "L": [
+    88.6,
+    90.6,
+    92.9
+   ],
+   "a": [
+    -5.0,
+    1.0,
+    2.0
+   ],
+   "b": [
+    9.0,
+    12.0,
+    15.0
+   ]
+  },
+  "caps": [
+   {
+    "run": "1",
+    "position": "G02",
+    "Lab": [
+     82.5,
+     -6.0,
+     81.0
+    ]
+   },
+   {
+    "run": "1",
+    "position": "G03",
+    "Lab": [
+     84.7,
+     -10.0,
+     73.0
+    ]
+   },
+   {
+    "run": "1",
+    "position": "G04",
+    "Lab": [
+     81.6,
+     -10.5,
+     75.0
+    ]
+   },
+   {
+    "run": "1",
+    "position": "G05",
+    "Lab": [
+     81.6,
+     -10.0,
+     82.0
+    ]
+   },
+   {
+    "run": "1",
+    "position": "G06",
+    "Lab": [
+     92.4,
+     -14.0,
+     41.0
+    ]
+   },
+   {
+    "run": "1",
+    "position": "G08",
+    "Lab": [
+     85.5,
+     -7.5,
+     77.0
+    ]
+   },
+   {
+    "run": "1",
+    "position": "G09",
+    "Lab": [
+     83.5,
+     -7.0,
+     78.0
+    ]
+   },
+   {
+    "run": "1",
+    "position": "G10",
+    "Lab": [
+     81.8,
+     -8.0,
+     80.0
+    ]
+   },
+   {
+    "run": "1",
+    "position": "G11",
+    "Lab": [
+     89.8,
+     -13.0,
+     53.0
+    ]
+   },
+   {
+    "run": "1",
+    "position": "G16",
+    "Lab": [
+     90.0,
+     -13.0,
+     54.5
+    ]
+   },
+   {
+    "run": "1",
+    "position": "G17",
+    "Lab": [
+     89.8,
+     -12.0,
+     61.0
+    ]
+   },
+   {
+    "run": "2",
+    "position": "G02",
+    "Lab": [
+     85.9,
+     -6.0,
+     74.0
+    ]
+   },
+   {
+    "run": "2",
+    "position": "G04",
+    "Lab": [
+     79.6,
+     -3.0,
+     80.0
+    ]
+   },
+   {
+    "run": "2",
+    "position": "G05",
+    "Lab": [
+     80.8,
+     -10.0,
+     77.0
+    ]
+   },
+   {
+    "run": "2",
+    "position": "G06",
+    "Lab": [
+     92.2,
+     -15.0,
+     56.0
+    ]
+   },
+   {
+    "run": "2",
+    "position": "G08",
+    "Lab": [
+     85.1,
+     -7.0,
+     75.0
+    ]
+   }
+  ],
+  "caps_pale": {
+   "rule": "b* < 65.0",
+   "n": 5,
+   "of": 16
+  },
+  "noise_sigma_8bit_p5_50_95": [
+   2.6,
+   2.7,
+   2.8
+  ],
+  "noise_pairs": 171,
+  "jpeg_quality_p5_50_95": [
+   95.0,
+   95.0,
+   95.0
+  ],
+  "position_error_px": "empty-hole check run 3 (registration_dev.json): median 1.68, p90 2.53"
+ },
+ "render_model_at_work1": {
+  "wall_Lab": [
+   70.2,
+   2.0,
+   5.0
+  ],
+  "plate_Lab": [
+   82.4,
+   1.0,
+   5.0
+  ],
+  "cap_Lab_disk_median": [
+   85.3,
+   -13.0,
+   59.0
+  ]
+ },
+ "derived": {
+  "exposure_ev": {
+   "range": [
+    -0.608,
+    0.599
+   ],
+   "mid": 0.042,
+   "rule": "both lights x 2^ev on top of work1; ev maps DEV wall L* p2.5..p97.5 (at T mid)"
+  },
+  "color_temperature_k": {
+   "range": [
+    4795.0,
+    5569.0
+   ],
+   "mid": 5141.0,
+   "rule": "UsdLux colour temperature on both lights; maps DEV wall b* p97.5..p2.5 (at ev mid)"
+  },
+  "plate_val_scale": {
+   "range": [
+    1.476,
+    2.169
+   ],
+   "mid": 1.704,
+   "rule": "plate diffuseColor x scale; maps DEV plate L* p2.5..p97.5 (at ev, T mid)"
+  },
+  "cap_saturated": {
+   "box": {
+    "hue_shift": [
+     -0.03,
+     0.02
+    ],
+    "sat": [
+     0.95,
+     1.0
+    ],
+    "val": [
+     0.75,
+     1.0
+    ],
+    "spec_scale": [
+     0.2,
+     0.75
+    ]
+   },
+   "grid_hits": 171,
+   "box_samples_inside_dev_envelope": 0.47,
+   "n_dev_caps": 11,
+   "dev_Lab_min": [
+    79.6,
+    -10.5,
+    73.0
+   ],
+   "dev_Lab_max": [
+    85.9,
+    -3.0,
+    82.0
+   ]
+  },
+  "cap_pale": {
+   "box": {
+    "hue_shift": [
+     0.01,
+     0.03
+    ],
+    "sat": [
+     0.9,
+     1.0
+    ],
+    "val": [
+     0.9,
+     1.0
+    ],
+    "spec_scale": [
+     1.5,
+     2.0
+    ]
+   },
+   "grid_hits": 17,
+   "box_samples_inside_dev_envelope": 0.43,
+   "n_dev_caps": 5,
+   "dev_Lab_min": [
+    89.8,
+    -15.0,
+    41.0
+   ],
+   "dev_Lab_max": [
+    92.4,
+    -12.0,
+    61.0
+   ]
+  },
+  "cap_rule": "diffuse = HSV(work1 hue + hue_shift, sat, val); ior = ior_for_spec(spec_scale) (F0 = 0.04 x spec_scale); groups split at DEV b* 65",
+  "cap_pale_fraction": 0.312,
+  "image_aug": {
+   "green_gain": [
+    1.101,
+    1.321
+   ],
+   "noise_sigma_8bit": [
+    2.6,
+    2.8
+   ],
+   "jpeg_quality": [
+    95.0,
+    95.0
+   ],
+   "translate_px": 3,
+   "rule": "applied to crops at training time; green gain maps DEV wall a* p2.5..p97.5; translate covers the run 3 empty-hole p90 (2.53 px)"
+  },
+  "wall_a_at_mid": 4.0
+ }
+}

@@ -1,0 +1,12 @@
+{
+ "schema": 1,
+ "name": "tilt_sweep",
+ "purpose": "Crooked-cap visibility vs tilt angle and direction: 0-40 deg in 5 deg steps, 8 world directions, checkerboard so no two side-by-side caps tilt at once; both parities cover every position. Twin's own lights and materials.",
+ "mode": "tilt_sweep",
+ "fixture": "G",
+ "angles_deg": [0, 5, 10, 15, 20, 25, 30, 35, 40],
+ "directions_deg": [0, 45, 90, 135, 180, 225, 270, 315],
+ "pattern": "checkerboard",
+ "lighting": null,
+ "materials": null
+}

@@ -1,0 +1,16 @@
+{
+ "name": "aug_v2",
+ "decision": "D040",
+ "base": "configs/recipe_dev.json derived.image_aug: green gain, JPEG quality 95 and the +-3 px window shift are unchanged",
+ "L_shift": [-12.0, 3.0],
+ "L_contrast": [0.9, 1.25],
+ "b_shift": [-8.0, 2.0],
+ "noise_sigma_8bit": [0.0, 2.8],
+ "blur_sigma": [0.0, 0.7],
+ "probes": {
+  "L_shift / L_contrast": "v2_cue.py: real seated crops' L* mean/std moved to synthetic+aug: 75 -> 45 read crooked; ranges cover real crop L* means 67.5-83.8 and stds 20.1-25.4 (DEV runs 1-3)",
+  "b_shift": "b* mean/std moved: 75 -> 68 crooked, 166 -> 148 empty read uncapped",
+  "noise_sigma_8bit": "noise sigma 2.7 added to real crops: 75 -> 68, 166 -> 159",
+  "blur_sigma": "v2_analysis.py: sharpened real crops 75 -> 62; seated-cap blur match sigma 0.5"
+ }
+}

@@ -1,0 +1,91 @@
+{
+  "outer_package": {
+    "added": [],
+    "removed": [],
+    "changed": [
+      "FILES.txt",
+      "README.txt",
+      "SHA256SUMS",
+      "code.tar",
+      "preflight/expected/mac.json"
+    ]
+  },
+  "code.tar": {
+    "added": [
+      "ignite_core/eval_metrics.py",
+      "ignite_core/fill_state.py",
+      "ignite_core/position_map_G.json",
+      "ignite_core/positions.py",
+      "ignite_core/requirements.txt",
+      "ignite_core/tests/test_eval.py",
+      "ignite_core/tests/test_fill_state.py",
+      "ignite_core/tests/test_positions.py",
+      "twin_to_line/ARM_B_DOUBLE_PRIME_RESULT.md",
+      "twin_to_line/fit_rule_dev_good_only.py",
+      "twin_to_line/monday/MONDAY_ONE_PAGE.pdf",
+      "twin_to_line/monday/export.sh",
+      "twin_to_line/monday/live.sh",
+      "twin_to_line/monday/monday_ops.py",
+      "twin_to_line/monday/seal.sh",
+      "twin_to_line/monday/stage.sh",
+      "twin_to_line/monday/start.sh",
+      "twin_to_line/rule_thresholds_dev_good_only.json",
+      "twin_to_line/score_sealed.py",
+      "twin_to_line/tests/test_fit_rule_dev_good_only.py",
+      "twin_to_line/tests/test_operator_scripts.py",
+      "twin_to_line/tests/test_runbook_freeze.py",
+      "twin_to_line/tests/test_score_sealed.py",
+      "twin_to_line/validation/freeze_prep_3/README.md",
+      "twin_to_line/validation/freeze_prep_3/build_rehearsal.py",
+      "twin_to_line/validation/freeze_prep_3/manifest_check.log",
+      "twin_to_line/validation/freeze_prep_3/package_diff.py",
+      "twin_to_line/validation/freeze_prep_3/print_runbook.py",
+      "twin_to_line/validation/freeze_prep_3/rehearse.py",
+      "twin_to_line/validation/freeze_prep_3/section7.md",
+      "twin_to_line/validation/freeze_prep_3/tests.log"
+    ],
+    "removed": [],
+    "changed": [
+      ".gitignore",
+      "twin_to_line/ARCHIVE_COMMIT",
+      "twin_to_line/ARM_B_DOUBLE_PRIME_PROPOSAL.md",
+      "twin_to_line/DECISIONS.md",
+      "twin_to_line/FREEZE.sha256",
+      "twin_to_line/FREEZE_2026-10-25.md",
+      "twin_to_line/HACKATHON_HANDOFF.md",
+      "twin_to_line/LIVE_RUNBOOK.md",
+      "twin_to_line/NEXT_SESSION_PLAN.md",
+      "twin_to_line/RC_2026-10-24.md",
+      "twin_to_line/README.md",
+      "twin_to_line/V2_RENDER.md",
+      "twin_to_line/gb10/build_package.py",
+      "twin_to_line/tests/test_rc_1024.py"
+    ]
+  },
+  "USB_root_additions": [
+    "start.sh",
+    "stage.sh",
+    "seal.sh",
+    "live.sh",
+    "export.sh",
+    "monday_ops.py",
+    "monday.sha256"
+  ],
+  "runtime_files_compared": [
+    "live_inspect.py",
+    "inspect_frame.py",
+    "positions.py",
+    "fill_state.py",
+    "rules.py",
+    "events.py",
+    "real_data.py",
+    "position_map_G.json",
+    "registration_dev.json",
+    "rule_thresholds.json",
+    "resnet_inspector.py",
+    "train_resnet.py",
+    "frame_warp.py",
+    "frame_warp_1080.json"
+  ],
+  "runtime_files_differing": []
+}

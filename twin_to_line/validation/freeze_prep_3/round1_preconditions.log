@@ -1,0 +1,98 @@
+Round-0 evidence, with provenance. No historical command output is invented.
+
+Current Crusaders object query: git ls-tree 8402039 twin_to_line
+040000 tree 7a59a199b1d9507b5ba3140166c5156378b04542	twin_to_line
+Ignite feat/live-runtime 1a0601e: tree 7a59a199, as recorded in HACKATHON_HANDOFF.md and D042.
+No direct Ignite-repo query was run: that repo remains protected from access. Its commit object is absent here.
+
+Baseline manifest reconstructed from feat/twin-to-line Git bytes and existing ignored evidence; checked now:
+$ shasum -a 256 -c FREEZE.sha256
+ARM_B_DOUBLE_PRIME_PROPOSAL.md: OK
+ARM_B_DOUBLE_PRIME_RESULT.md: OK
+DECISIONS.md: OK
+FREEZE_2026-10-25.md: OK
+LIVE_RUNBOOK.md: OK
+RC_2026-10-24.md: OK
+calibrate_recipe.py: OK
+configs/recipe_dev.json: OK
+configs/tilt_train.json: OK
+configs/train_v1.json: OK
+cut_train_crops.py: OK
+eval_metrics.py: OK
+events.py: OK
+fill_state.py: OK
+fit_rule_dev_good_only.py: OK
+fit_rule_synth.py: OK
+frame_warp.py: OK
+frame_warp_1080.json: OK
+g3_check.py: OK
+gb10/bootstrap.sh: OK
+gb10/build_package.py: OK
+gen_scenes.py: OK
+inspect_frame.py: OK
+labels/dev_labels.csv: OK
+live_inspect.py: OK
+position_map_G.json: OK
+positions.py: OK
+real_data.py: OK
+real_splits.json: OK
+registration_dev.json: OK
+render_batch.py: OK
+replay_1080.py: OK
+resnet_inspector.py: OK
+results/freeze_prep_2/runbook_tests.log: OK
+results/freeze_prep_2/tests.log: OK
+results/g3/resnet18_v1/g3_report.json: OK
+results/g3/resnet18_v1/predictions_resnet_d038.csv: OK
+results/g3/resnet18_v1/predictions_resnet_preregistered.csv: OK
+results/g3/resnet18_v1/predictions_rule.csv: OK
+results/g3/rule_dev_good_only/g3_report.json: OK
+results/g3/rule_dev_good_only/predictions_rule.csv: OK
+results/g3/rule_dev_good_only_fit/features.csv: OK
+results/g3/rule_dev_good_only_fit/input_lock.json: OK
+results/g3/rule_synthetic_v1/g3_report.json: OK
+results/g3/rule_synthetic_v1/predictions_rule.csv: OK
+results/train/resnet18_v1/model.pt: OK
+results/train/resnet18_v1/run.json: OK
+results/train/resnet18_v1/thresholds.json: OK
+results/train/resnet18_v1/thresholds_d038.json: OK
+results/train/resnet18_v1/train_log.csv: OK
+results/train/resnet18_v1/val_predictions.csv: OK
+results/train_v1/data_tilt/crops.csv: OK
+results/train_v1/data_tilt/scenes.tar.gz: OK
+results/train_v1/data_train/crops.csv: OK
+results/train_v1/data_train/scenes.tar.gz: OK
+rule_thresholds.json: OK
+rule_thresholds_dev_good_only.json: OK
+rule_thresholds_synth.json: OK
+rules.py: OK
+score_sealed.py: OK
+tests/test_dose_sets.py: OK
+tests/test_eval.py: OK
+tests/test_events.py: OK
+tests/test_fill_state.py: OK
+tests/test_fit_rule_dev_good_only.py: OK
+tests/test_frame_warp.py: OK
+tests/test_freeze_prep.py: OK
+tests/test_gen_scenes.py: OK
+tests/test_live_inspect.py: OK
+tests/test_map_1080.py: OK
+tests/test_monday.py: OK
+tests/test_organizer_grid.py: OK
+tests/test_positions.py: OK
+tests/test_rc_1024.py: OK
+tests/test_real_data.py: OK
+tests/test_resnet_inspector.py: OK
+tests/test_rules.py: OK
+tests/test_runbook_freeze.py: OK
+tests/test_runtime_review.py: OK
+tests/test_score_sealed.py: OK
+tests/test_v2.py: OK
+train_resnet.py: OK
+twin_fix.py: OK
+83 OK; 0 mismatches; exit 0
+
+Inherited part-2 logs (not a new round-0 test execution):
+results/freeze_prep_2/tests.log: 245 passed in 67.63s (0:01:07)
+results/freeze_prep_2/runbook_tests.log: 2 passed in 0.40s
+Total: 247 passed; handoff also records 247 after the repo move. No single original 247-test transcript is present.

@@ -1,0 +1,66 @@
+{
+ "decision": "D040",
+ "what": "check render: these train_v1 scene indices re-rendered with work2 and the train_v2 floor block, compared with the same scenes' train_v1 renders (frozen below) and the real DEV ranges; v2_check.py evaluates it",
+ "scenes_from": "configs/train_v1.json (data_train); scene i of train_v2 has the same definition except the floor",
+ "selection": "train_v1 train/val scenes with >= 8 empty holes, >= 3 uncapped vials and >= 2 empty top-row holes, sorted by exposure, 6 evenly spaced",
+ "indices": [
+  419,
+  207,
+  307,
+  76,
+  378,
+  233
+ ],
+ "rules": {
+  "E1_empty_core_L_median": [
+   13.0,
+   33.0
+  ],
+  "E2_empty_lit_floor_L_median": [
+   41.0,
+   65.0
+  ],
+  "E3_empty_b_median": [
+   13.0,
+   18.0
+  ],
+  "U12_uncapped_no_worse_tolerance": 3.0,
+  "U3": "uncapped lit-floor (hole_Lp90) median > empty hole_Lp90 90th percentile"
+ },
+ "train_v1_baseline_same_scenes": {
+  "empty": {
+   "hole_L": 14.84,
+   "hole_Lp90": 21.33,
+   "hole_b": 7.36,
+   "hole_Lp90_p90": 30.75,
+   "n": 87
+  },
+  "uncapped": {
+   "mouth_L": 20.37,
+   "mouth_b": 5.45,
+   "hole_Lp90": 75.45,
+   "n": 27
+  }
+ },
+ "real_dev_report_only": {
+  "empty_all_p10_p90": "core L* 13-33, lit floor 41-65 (misread holes), b* 13-18",
+  "uncapped": {
+   "mouth_L": [
+    43.4,
+    48.0
+   ],
+   "mouth_b": [
+    11.3,
+    15.0
+   ],
+   "source": "12 views of 2 vials (run 1 G07, run 2 G03)"
+  }
+ },
+ "calibration": {
+  "max_tries": 3,
+  "knobs": "floor val_scale range x f and blue_scale only",
+  "f": "min(Y(53) / Y(measured empty lit-floor L* median), Y(32) / Y(measured empty core L* median)), Y(L) = ((L + 16) / 116)^3, limited to 0.25-4: the lit floor (E2, the probe's cue) drives the value, the core L* (E1) only caps it; E1's range already holds train_v1's dark holes",
+  "blue": "x0.85 if empty b* median < 13, x1.15 if > 18"
+ },
+ "measures": "v2_analysis.features on raw crops (positions.PositionMap offset 0), as for the real DEV numbers"
+}

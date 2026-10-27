@@ -1,0 +1,94 @@
+{
+ "inspector": "rule_yellow_seat",
+ "thresholds": {
+  "t_absent": 0.081,
+  "t_seated": 0.22,
+  "t_offset": 4.4
+ },
+ "features": {
+  "cap_frac_disk_px": 11,
+  "cap_offset_disk_px": 13
+ },
+ "fit_on": {
+  "labels": "labels/dev_labels.csv",
+  "frames": [
+   "cap_seal_20260922_192609_126406.jpg",
+   "cap_seal_20260923_184630_557477.jpg",
+   "cap_seal_video_1.mp4@t0000.0",
+   "cap_seal_video_1.mp4@t0161.0",
+   "cap_seal_video_1.mp4@t0175.0",
+   "cap_seal_video_1.mp4@t0226.0",
+   "cap_seal_video_1.mp4@t0282.0",
+   "cap_seal_video_1.mp4@t0330.0",
+   "cap_seal_video_1.mp4@t0405.0",
+   "cap_seal_video_1.mp4@t0464.0",
+   "cap_seal_video_1.mp4@t0532.0",
+   "cap_seal_video_1.mp4@t0612.0",
+   "cap_seal_video_1.mp4@t0666.0",
+   "cap_seal_video_1.mp4@t0748.0",
+   "cap_seal_video_1.mp4@t0851.0",
+   "cap_seal_video_1.mp4@t0868.0",
+   "cap_seal_video_1.mp4@t0880.0",
+   "cap_seal_video_1.mp4@t0904.0",
+   "cap_seal_video_1.mp4@t0983.0",
+   "cap_seal_video_1.mp4@t1050.0"
+  ],
+  "runs": [
+   "1",
+   "2",
+   "3"
+  ],
+  "position_offset_px": [
+   0.9,
+   -1.34
+  ]
+ },
+ "per_class_ranges": {
+  "crooked_cap": {
+   "n_observations": 19,
+   "n_physical_units": 5,
+   "cap_frac": [
+    0.2997,
+    0.5597
+   ],
+   "cap_offset": [
+    4.5,
+    7.86
+   ]
+  },
+  "missing_cap": {
+   "n_observations": 12,
+   "n_physical_units": 2,
+   "cap_frac": [
+    0.0,
+    0.0027
+   ],
+   "cap_offset": null
+  },
+  "no_vial": {
+   "n_observations": 440,
+   "n_physical_units": 83,
+   "cap_frac": [
+    0.0,
+    0.1485
+   ],
+   "cap_offset": [
+    6.56,
+    11.01
+   ]
+  },
+  "pass": {
+   "n_observations": 112,
+   "n_physical_units": 16,
+   "cap_frac": [
+    0.1008,
+    0.8992
+   ],
+   "cap_offset": [
+    0.09,
+    6.74
+   ]
+  }
+ },
+ "note": "DEV runs 1-3 only; in-sample fit on draft labels; ~5 physical displaced caps; not a performance claim"
+}

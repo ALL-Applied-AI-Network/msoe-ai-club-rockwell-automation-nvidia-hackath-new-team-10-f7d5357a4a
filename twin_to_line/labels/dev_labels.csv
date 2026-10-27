@@ -1,0 +1,601 @@
+run,event,frame,position,ground_truth,gt_sequence,usable,K,note,labeler,status
+1,1,cap_seal_video_1.mp4@t0000.0,G01,no_vial,waiting,1,0,,claude-visual,draft
+1,1,cap_seal_video_1.mp4@t0000.0,G02,no_vial,waiting,1,0,,claude-visual,draft
+1,1,cap_seal_video_1.mp4@t0000.0,G03,no_vial,waiting,1,0,,claude-visual,draft
+1,1,cap_seal_video_1.mp4@t0000.0,G04,no_vial,waiting,1,0,,claude-visual,draft
+1,1,cap_seal_video_1.mp4@t0000.0,G05,no_vial,waiting,1,0,,claude-visual,draft
+1,1,cap_seal_video_1.mp4@t0000.0,G06,no_vial,waiting,1,0,,claude-visual,draft
+1,1,cap_seal_video_1.mp4@t0000.0,G07,no_vial,waiting,1,0,,claude-visual,draft
+1,1,cap_seal_video_1.mp4@t0000.0,G08,no_vial,waiting,1,0,,claude-visual,draft
+1,1,cap_seal_video_1.mp4@t0000.0,G09,no_vial,waiting,1,0,,claude-visual,draft
+1,1,cap_seal_video_1.mp4@t0000.0,G10,no_vial,waiting,1,0,,claude-visual,draft
+1,1,cap_seal_video_1.mp4@t0000.0,G11,no_vial,waiting,1,0,,claude-visual,draft
+1,1,cap_seal_video_1.mp4@t0000.0,G12,no_vial,waiting,1,0,,claude-visual,draft
+1,1,cap_seal_video_1.mp4@t0000.0,G13,no_vial,waiting,1,0,,claude-visual,draft
+1,1,cap_seal_video_1.mp4@t0000.0,G14,no_vial,waiting,1,0,,claude-visual,draft
+1,1,cap_seal_video_1.mp4@t0000.0,G15,no_vial,waiting,1,0,,claude-visual,draft
+1,1,cap_seal_video_1.mp4@t0000.0,G16,no_vial,waiting,1,0,,claude-visual,draft
+1,1,cap_seal_video_1.mp4@t0000.0,G17,no_vial,waiting,1,0,,claude-visual,draft
+1,1,cap_seal_video_1.mp4@t0000.0,G18,no_vial,waiting,1,0,,claude-visual,draft
+1,1,cap_seal_video_1.mp4@t0000.0,G19,no_vial,waiting,1,0,,claude-visual,draft
+1,1,cap_seal_video_1.mp4@t0000.0,G20,no_vial,waiting,1,0,,claude-visual,draft
+1,1,cap_seal_video_1.mp4@t0000.0,G21,no_vial,waiting,1,0,,claude-visual,draft
+1,1,cap_seal_video_1.mp4@t0000.0,G22,no_vial,waiting,1,0,,claude-visual,draft
+1,1,cap_seal_video_1.mp4@t0000.0,G23,no_vial,waiting,1,0,,claude-visual,draft
+1,1,cap_seal_video_1.mp4@t0000.0,G24,no_vial,waiting,1,0,,claude-visual,draft
+1,1,cap_seal_video_1.mp4@t0000.0,G25,no_vial,waiting,1,0,,claude-visual,draft
+1,1,cap_seal_video_1.mp4@t0000.0,G26,no_vial,waiting,1,0,,claude-visual,draft
+1,1,cap_seal_video_1.mp4@t0000.0,G27,no_vial,waiting,1,0,,claude-visual,draft
+1,1,cap_seal_video_1.mp4@t0000.0,G28,no_vial,waiting,1,0,,claude-visual,draft
+1,1,cap_seal_video_1.mp4@t0000.0,G29,no_vial,waiting,1,0,,claude-visual,draft
+1,1,cap_seal_video_1.mp4@t0000.0,G30,no_vial,waiting,1,0,,claude-visual,draft
+1,2,cap_seal_video_1.mp4@t0161.0,G01,pass,,0,1,"top-row cap, centroid ~6 px off; seating uncertain",claude-visual,draft
+1,2,cap_seal_video_1.mp4@t0161.0,G02,no_vial,waiting,1,1,,claude-visual,draft
+1,2,cap_seal_video_1.mp4@t0161.0,G03,no_vial,waiting,1,1,,claude-visual,draft
+1,2,cap_seal_video_1.mp4@t0161.0,G04,no_vial,waiting,1,1,,claude-visual,draft
+1,2,cap_seal_video_1.mp4@t0161.0,G05,no_vial,waiting,1,1,,claude-visual,draft
+1,2,cap_seal_video_1.mp4@t0161.0,G06,no_vial,waiting,1,1,,claude-visual,draft
+1,2,cap_seal_video_1.mp4@t0161.0,G07,no_vial,waiting,1,1,,claude-visual,draft
+1,2,cap_seal_video_1.mp4@t0161.0,G08,no_vial,waiting,1,1,,claude-visual,draft
+1,2,cap_seal_video_1.mp4@t0161.0,G09,no_vial,waiting,1,1,,claude-visual,draft
+1,2,cap_seal_video_1.mp4@t0161.0,G10,no_vial,waiting,1,1,,claude-visual,draft
+1,2,cap_seal_video_1.mp4@t0161.0,G11,no_vial,waiting,1,1,,claude-visual,draft
+1,2,cap_seal_video_1.mp4@t0161.0,G12,no_vial,waiting,1,1,,claude-visual,draft
+1,2,cap_seal_video_1.mp4@t0161.0,G13,no_vial,waiting,1,1,,claude-visual,draft
+1,2,cap_seal_video_1.mp4@t0161.0,G14,no_vial,waiting,1,1,,claude-visual,draft
+1,2,cap_seal_video_1.mp4@t0161.0,G15,no_vial,waiting,1,1,,claude-visual,draft
+1,2,cap_seal_video_1.mp4@t0161.0,G16,no_vial,waiting,1,1,,claude-visual,draft
+1,2,cap_seal_video_1.mp4@t0161.0,G17,no_vial,waiting,1,1,,claude-visual,draft
+1,2,cap_seal_video_1.mp4@t0161.0,G18,no_vial,waiting,1,1,,claude-visual,draft
+1,2,cap_seal_video_1.mp4@t0161.0,G19,no_vial,waiting,1,1,,claude-visual,draft
+1,2,cap_seal_video_1.mp4@t0161.0,G20,no_vial,waiting,1,1,,claude-visual,draft
+1,2,cap_seal_video_1.mp4@t0161.0,G21,no_vial,waiting,1,1,,claude-visual,draft
+1,2,cap_seal_video_1.mp4@t0161.0,G22,no_vial,waiting,1,1,,claude-visual,draft
+1,2,cap_seal_video_1.mp4@t0161.0,G23,no_vial,waiting,1,1,,claude-visual,draft
+1,2,cap_seal_video_1.mp4@t0161.0,G24,no_vial,waiting,1,1,,claude-visual,draft
+1,2,cap_seal_video_1.mp4@t0161.0,G25,no_vial,waiting,1,1,,claude-visual,draft
+1,2,cap_seal_video_1.mp4@t0161.0,G26,no_vial,waiting,1,1,,claude-visual,draft
+1,2,cap_seal_video_1.mp4@t0161.0,G27,no_vial,waiting,1,1,,claude-visual,draft
+1,2,cap_seal_video_1.mp4@t0161.0,G28,no_vial,waiting,1,1,,claude-visual,draft
+1,2,cap_seal_video_1.mp4@t0161.0,G29,no_vial,waiting,1,1,,claude-visual,draft
+1,2,cap_seal_video_1.mp4@t0161.0,G30,no_vial,waiting,1,1,,claude-visual,draft
+1,3,cap_seal_video_1.mp4@t0175.0,G01,pass,,0,2,"top-row cap, centroid ~6 px off; seating uncertain",claude-visual,draft
+1,3,cap_seal_video_1.mp4@t0175.0,G02,pass,,1,2,,claude-visual,draft
+1,3,cap_seal_video_1.mp4@t0175.0,G03,no_vial,waiting,1,2,,claude-visual,draft
+1,3,cap_seal_video_1.mp4@t0175.0,G04,no_vial,waiting,1,2,,claude-visual,draft
+1,3,cap_seal_video_1.mp4@t0175.0,G05,no_vial,waiting,1,2,,claude-visual,draft
+1,3,cap_seal_video_1.mp4@t0175.0,G06,no_vial,waiting,1,2,,claude-visual,draft
+1,3,cap_seal_video_1.mp4@t0175.0,G07,no_vial,waiting,1,2,,claude-visual,draft
+1,3,cap_seal_video_1.mp4@t0175.0,G08,no_vial,waiting,1,2,,claude-visual,draft
+1,3,cap_seal_video_1.mp4@t0175.0,G09,no_vial,waiting,1,2,,claude-visual,draft
+1,3,cap_seal_video_1.mp4@t0175.0,G10,no_vial,waiting,1,2,,claude-visual,draft
+1,3,cap_seal_video_1.mp4@t0175.0,G11,no_vial,waiting,1,2,,claude-visual,draft
+1,3,cap_seal_video_1.mp4@t0175.0,G12,no_vial,waiting,1,2,,claude-visual,draft
+1,3,cap_seal_video_1.mp4@t0175.0,G13,no_vial,waiting,1,2,,claude-visual,draft
+1,3,cap_seal_video_1.mp4@t0175.0,G14,no_vial,waiting,1,2,,claude-visual,draft
+1,3,cap_seal_video_1.mp4@t0175.0,G15,no_vial,waiting,1,2,,claude-visual,draft
+1,3,cap_seal_video_1.mp4@t0175.0,G16,no_vial,waiting,1,2,,claude-visual,draft
+1,3,cap_seal_video_1.mp4@t0175.0,G17,no_vial,waiting,1,2,,claude-visual,draft
+1,3,cap_seal_video_1.mp4@t0175.0,G18,no_vial,waiting,1,2,,claude-visual,draft
+1,3,cap_seal_video_1.mp4@t0175.0,G19,no_vial,waiting,1,2,,claude-visual,draft
+1,3,cap_seal_video_1.mp4@t0175.0,G20,no_vial,waiting,1,2,,claude-visual,draft
+1,3,cap_seal_video_1.mp4@t0175.0,G21,no_vial,waiting,1,2,,claude-visual,draft
+1,3,cap_seal_video_1.mp4@t0175.0,G22,no_vial,waiting,1,2,,claude-visual,draft
+1,3,cap_seal_video_1.mp4@t0175.0,G23,no_vial,waiting,1,2,,claude-visual,draft
+1,3,cap_seal_video_1.mp4@t0175.0,G24,no_vial,waiting,1,2,,claude-visual,draft
+1,3,cap_seal_video_1.mp4@t0175.0,G25,no_vial,waiting,1,2,,claude-visual,draft
+1,3,cap_seal_video_1.mp4@t0175.0,G26,no_vial,waiting,1,2,,claude-visual,draft
+1,3,cap_seal_video_1.mp4@t0175.0,G27,no_vial,waiting,1,2,,claude-visual,draft
+1,3,cap_seal_video_1.mp4@t0175.0,G28,no_vial,waiting,1,2,,claude-visual,draft
+1,3,cap_seal_video_1.mp4@t0175.0,G29,no_vial,waiting,1,2,,claude-visual,draft
+1,3,cap_seal_video_1.mp4@t0175.0,G30,no_vial,waiting,1,2,,claude-visual,draft
+1,4,cap_seal_video_1.mp4@t0226.0,G01,pass,,0,3,"top-row cap, centroid ~6 px off; seating uncertain",claude-visual,draft
+1,4,cap_seal_video_1.mp4@t0226.0,G02,pass,,1,3,,claude-visual,draft
+1,4,cap_seal_video_1.mp4@t0226.0,G03,pass,,1,3,,claude-visual,draft
+1,4,cap_seal_video_1.mp4@t0226.0,G04,no_vial,waiting,1,3,,claude-visual,draft
+1,4,cap_seal_video_1.mp4@t0226.0,G05,no_vial,waiting,1,3,,claude-visual,draft
+1,4,cap_seal_video_1.mp4@t0226.0,G06,no_vial,waiting,1,3,,claude-visual,draft
+1,4,cap_seal_video_1.mp4@t0226.0,G07,no_vial,waiting,1,3,,claude-visual,draft
+1,4,cap_seal_video_1.mp4@t0226.0,G08,no_vial,waiting,1,3,,claude-visual,draft
+1,4,cap_seal_video_1.mp4@t0226.0,G09,no_vial,waiting,1,3,,claude-visual,draft
+1,4,cap_seal_video_1.mp4@t0226.0,G10,no_vial,waiting,1,3,,claude-visual,draft
+1,4,cap_seal_video_1.mp4@t0226.0,G11,no_vial,waiting,1,3,,claude-visual,draft
+1,4,cap_seal_video_1.mp4@t0226.0,G12,no_vial,waiting,1,3,,claude-visual,draft
+1,4,cap_seal_video_1.mp4@t0226.0,G13,no_vial,waiting,1,3,,claude-visual,draft
+1,4,cap_seal_video_1.mp4@t0226.0,G14,no_vial,waiting,1,3,,claude-visual,draft
+1,4,cap_seal_video_1.mp4@t0226.0,G15,no_vial,waiting,1,3,,claude-visual,draft
+1,4,cap_seal_video_1.mp4@t0226.0,G16,no_vial,waiting,1,3,,claude-visual,draft
+1,4,cap_seal_video_1.mp4@t0226.0,G17,no_vial,waiting,1,3,,claude-visual,draft
+1,4,cap_seal_video_1.mp4@t0226.0,G18,no_vial,waiting,1,3,,claude-visual,draft
+1,4,cap_seal_video_1.mp4@t0226.0,G19,no_vial,waiting,1,3,,claude-visual,draft
+1,4,cap_seal_video_1.mp4@t0226.0,G20,no_vial,waiting,1,3,,claude-visual,draft
+1,4,cap_seal_video_1.mp4@t0226.0,G21,no_vial,waiting,1,3,,claude-visual,draft
+1,4,cap_seal_video_1.mp4@t0226.0,G22,no_vial,waiting,1,3,,claude-visual,draft
+1,4,cap_seal_video_1.mp4@t0226.0,G23,no_vial,waiting,1,3,,claude-visual,draft
+1,4,cap_seal_video_1.mp4@t0226.0,G24,no_vial,waiting,1,3,,claude-visual,draft
+1,4,cap_seal_video_1.mp4@t0226.0,G25,no_vial,waiting,1,3,,claude-visual,draft
+1,4,cap_seal_video_1.mp4@t0226.0,G26,no_vial,waiting,1,3,,claude-visual,draft
+1,4,cap_seal_video_1.mp4@t0226.0,G27,no_vial,waiting,1,3,,claude-visual,draft
+1,4,cap_seal_video_1.mp4@t0226.0,G28,no_vial,waiting,1,3,,claude-visual,draft
+1,4,cap_seal_video_1.mp4@t0226.0,G29,no_vial,waiting,1,3,,claude-visual,draft
+1,4,cap_seal_video_1.mp4@t0226.0,G30,no_vial,waiting,1,3,,claude-visual,draft
+1,5,cap_seal_video_1.mp4@t0282.0,G01,pass,,0,4,"top-row cap, centroid ~6 px off; seating uncertain",claude-visual,draft
+1,5,cap_seal_video_1.mp4@t0282.0,G02,pass,,1,4,,claude-visual,draft
+1,5,cap_seal_video_1.mp4@t0282.0,G03,pass,,1,4,,claude-visual,draft
+1,5,cap_seal_video_1.mp4@t0282.0,G04,pass,,1,4,,claude-visual,draft
+1,5,cap_seal_video_1.mp4@t0282.0,G05,no_vial,waiting,1,4,,claude-visual,draft
+1,5,cap_seal_video_1.mp4@t0282.0,G06,no_vial,waiting,1,4,,claude-visual,draft
+1,5,cap_seal_video_1.mp4@t0282.0,G07,no_vial,waiting,1,4,,claude-visual,draft
+1,5,cap_seal_video_1.mp4@t0282.0,G08,no_vial,waiting,1,4,,claude-visual,draft
+1,5,cap_seal_video_1.mp4@t0282.0,G09,no_vial,waiting,1,4,,claude-visual,draft
+1,5,cap_seal_video_1.mp4@t0282.0,G10,no_vial,waiting,1,4,,claude-visual,draft
+1,5,cap_seal_video_1.mp4@t0282.0,G11,no_vial,waiting,1,4,,claude-visual,draft
+1,5,cap_seal_video_1.mp4@t0282.0,G12,no_vial,waiting,1,4,,claude-visual,draft
+1,5,cap_seal_video_1.mp4@t0282.0,G13,no_vial,waiting,1,4,,claude-visual,draft
+1,5,cap_seal_video_1.mp4@t0282.0,G14,no_vial,waiting,1,4,,claude-visual,draft
+1,5,cap_seal_video_1.mp4@t0282.0,G15,no_vial,waiting,1,4,,claude-visual,draft
+1,5,cap_seal_video_1.mp4@t0282.0,G16,no_vial,waiting,1,4,,claude-visual,draft
+1,5,cap_seal_video_1.mp4@t0282.0,G17,no_vial,waiting,1,4,,claude-visual,draft
+1,5,cap_seal_video_1.mp4@t0282.0,G18,no_vial,waiting,1,4,,claude-visual,draft
+1,5,cap_seal_video_1.mp4@t0282.0,G19,no_vial,waiting,1,4,,claude-visual,draft
+1,5,cap_seal_video_1.mp4@t0282.0,G20,no_vial,waiting,1,4,,claude-visual,draft
+1,5,cap_seal_video_1.mp4@t0282.0,G21,no_vial,waiting,1,4,,claude-visual,draft
+1,5,cap_seal_video_1.mp4@t0282.0,G22,no_vial,waiting,1,4,,claude-visual,draft
+1,5,cap_seal_video_1.mp4@t0282.0,G23,no_vial,waiting,1,4,,claude-visual,draft
+1,5,cap_seal_video_1.mp4@t0282.0,G24,no_vial,waiting,1,4,,claude-visual,draft
+1,5,cap_seal_video_1.mp4@t0282.0,G25,no_vial,waiting,1,4,,claude-visual,draft
+1,5,cap_seal_video_1.mp4@t0282.0,G26,no_vial,waiting,1,4,,claude-visual,draft
+1,5,cap_seal_video_1.mp4@t0282.0,G27,no_vial,waiting,1,4,,claude-visual,draft
+1,5,cap_seal_video_1.mp4@t0282.0,G28,no_vial,waiting,1,4,,claude-visual,draft
+1,5,cap_seal_video_1.mp4@t0282.0,G29,no_vial,waiting,1,4,,claude-visual,draft
+1,5,cap_seal_video_1.mp4@t0282.0,G30,no_vial,waiting,1,4,,claude-visual,draft
+1,6,cap_seal_video_1.mp4@t0330.0,G01,pass,,0,5,"top-row cap, centroid ~6 px off; seating uncertain",claude-visual,draft
+1,6,cap_seal_video_1.mp4@t0330.0,G02,pass,,1,5,,claude-visual,draft
+1,6,cap_seal_video_1.mp4@t0330.0,G03,pass,,1,5,,claude-visual,draft
+1,6,cap_seal_video_1.mp4@t0330.0,G04,pass,,1,5,,claude-visual,draft
+1,6,cap_seal_video_1.mp4@t0330.0,G05,pass,,1,5,,claude-visual,draft
+1,6,cap_seal_video_1.mp4@t0330.0,G06,no_vial,waiting,1,5,,claude-visual,draft
+1,6,cap_seal_video_1.mp4@t0330.0,G07,no_vial,waiting,1,5,,claude-visual,draft
+1,6,cap_seal_video_1.mp4@t0330.0,G08,no_vial,waiting,1,5,,claude-visual,draft
+1,6,cap_seal_video_1.mp4@t0330.0,G09,no_vial,waiting,1,5,,claude-visual,draft
+1,6,cap_seal_video_1.mp4@t0330.0,G10,no_vial,waiting,1,5,,claude-visual,draft
+1,6,cap_seal_video_1.mp4@t0330.0,G11,no_vial,waiting,1,5,,claude-visual,draft
+1,6,cap_seal_video_1.mp4@t0330.0,G12,no_vial,waiting,1,5,,claude-visual,draft
+1,6,cap_seal_video_1.mp4@t0330.0,G13,no_vial,waiting,1,5,,claude-visual,draft
+1,6,cap_seal_video_1.mp4@t0330.0,G14,no_vial,waiting,1,5,,claude-visual,draft
+1,6,cap_seal_video_1.mp4@t0330.0,G15,no_vial,waiting,1,5,,claude-visual,draft
+1,6,cap_seal_video_1.mp4@t0330.0,G16,no_vial,waiting,1,5,,claude-visual,draft
+1,6,cap_seal_video_1.mp4@t0330.0,G17,no_vial,waiting,1,5,,claude-visual,draft
+1,6,cap_seal_video_1.mp4@t0330.0,G18,no_vial,waiting,1,5,,claude-visual,draft
+1,6,cap_seal_video_1.mp4@t0330.0,G19,no_vial,waiting,1,5,,claude-visual,draft
+1,6,cap_seal_video_1.mp4@t0330.0,G20,no_vial,waiting,1,5,,claude-visual,draft
+1,6,cap_seal_video_1.mp4@t0330.0,G21,no_vial,waiting,1,5,,claude-visual,draft
+1,6,cap_seal_video_1.mp4@t0330.0,G22,no_vial,waiting,1,5,,claude-visual,draft
+1,6,cap_seal_video_1.mp4@t0330.0,G23,no_vial,waiting,1,5,,claude-visual,draft
+1,6,cap_seal_video_1.mp4@t0330.0,G24,no_vial,waiting,1,5,,claude-visual,draft
+1,6,cap_seal_video_1.mp4@t0330.0,G25,no_vial,waiting,1,5,,claude-visual,draft
+1,6,cap_seal_video_1.mp4@t0330.0,G26,no_vial,waiting,1,5,,claude-visual,draft
+1,6,cap_seal_video_1.mp4@t0330.0,G27,no_vial,waiting,1,5,,claude-visual,draft
+1,6,cap_seal_video_1.mp4@t0330.0,G28,no_vial,waiting,1,5,,claude-visual,draft
+1,6,cap_seal_video_1.mp4@t0330.0,G29,no_vial,waiting,1,5,,claude-visual,draft
+1,6,cap_seal_video_1.mp4@t0330.0,G30,no_vial,waiting,1,5,,claude-visual,draft
+1,7,cap_seal_video_1.mp4@t0405.0,G01,pass,,0,6,"top-row cap, centroid ~6 px off; seating uncertain",claude-visual,draft
+1,7,cap_seal_video_1.mp4@t0405.0,G02,pass,,1,6,,claude-visual,draft
+1,7,cap_seal_video_1.mp4@t0405.0,G03,pass,,1,6,,claude-visual,draft
+1,7,cap_seal_video_1.mp4@t0405.0,G04,pass,,1,6,,claude-visual,draft
+1,7,cap_seal_video_1.mp4@t0405.0,G05,pass,,1,6,,claude-visual,draft
+1,7,cap_seal_video_1.mp4@t0405.0,G06,pass,,1,6,top-row specular cap,claude-visual,draft
+1,7,cap_seal_video_1.mp4@t0405.0,G07,no_vial,waiting,1,6,,claude-visual,draft
+1,7,cap_seal_video_1.mp4@t0405.0,G08,no_vial,waiting,1,6,,claude-visual,draft
+1,7,cap_seal_video_1.mp4@t0405.0,G09,no_vial,waiting,1,6,,claude-visual,draft
+1,7,cap_seal_video_1.mp4@t0405.0,G10,no_vial,waiting,1,6,,claude-visual,draft
+1,7,cap_seal_video_1.mp4@t0405.0,G11,no_vial,waiting,1,6,,claude-visual,draft
+1,7,cap_seal_video_1.mp4@t0405.0,G12,no_vial,waiting,1,6,,claude-visual,draft
+1,7,cap_seal_video_1.mp4@t0405.0,G13,no_vial,waiting,1,6,,claude-visual,draft
+1,7,cap_seal_video_1.mp4@t0405.0,G14,no_vial,waiting,1,6,,claude-visual,draft
+1,7,cap_seal_video_1.mp4@t0405.0,G15,no_vial,waiting,1,6,,claude-visual,draft
+1,7,cap_seal_video_1.mp4@t0405.0,G16,no_vial,waiting,1,6,,claude-visual,draft
+1,7,cap_seal_video_1.mp4@t0405.0,G17,no_vial,waiting,1,6,,claude-visual,draft
+1,7,cap_seal_video_1.mp4@t0405.0,G18,no_vial,waiting,1,6,,claude-visual,draft
+1,7,cap_seal_video_1.mp4@t0405.0,G19,no_vial,waiting,1,6,,claude-visual,draft
+1,7,cap_seal_video_1.mp4@t0405.0,G20,no_vial,waiting,1,6,,claude-visual,draft
+1,7,cap_seal_video_1.mp4@t0405.0,G21,no_vial,waiting,1,6,,claude-visual,draft
+1,7,cap_seal_video_1.mp4@t0405.0,G22,no_vial,waiting,1,6,,claude-visual,draft
+1,7,cap_seal_video_1.mp4@t0405.0,G23,no_vial,waiting,1,6,,claude-visual,draft
+1,7,cap_seal_video_1.mp4@t0405.0,G24,no_vial,waiting,1,6,,claude-visual,draft
+1,7,cap_seal_video_1.mp4@t0405.0,G25,no_vial,waiting,1,6,,claude-visual,draft
+1,7,cap_seal_video_1.mp4@t0405.0,G26,no_vial,waiting,1,6,,claude-visual,draft
+1,7,cap_seal_video_1.mp4@t0405.0,G27,no_vial,waiting,1,6,,claude-visual,draft
+1,7,cap_seal_video_1.mp4@t0405.0,G28,no_vial,waiting,1,6,,claude-visual,draft
+1,7,cap_seal_video_1.mp4@t0405.0,G29,no_vial,waiting,1,6,,claude-visual,draft
+1,7,cap_seal_video_1.mp4@t0405.0,G30,no_vial,waiting,1,6,,claude-visual,draft
+1,8,cap_seal_video_1.mp4@t0464.0,G01,pass,,0,7,"top-row cap, centroid ~6 px off; seating uncertain",claude-visual,draft
+1,8,cap_seal_video_1.mp4@t0464.0,G02,pass,,1,7,,claude-visual,draft
+1,8,cap_seal_video_1.mp4@t0464.0,G03,pass,,1,7,,claude-visual,draft
+1,8,cap_seal_video_1.mp4@t0464.0,G04,pass,,1,7,,claude-visual,draft
+1,8,cap_seal_video_1.mp4@t0464.0,G05,pass,,1,7,,claude-visual,draft
+1,8,cap_seal_video_1.mp4@t0464.0,G06,pass,,1,7,top-row specular cap,claude-visual,draft
+1,8,cap_seal_video_1.mp4@t0464.0,G07,missing_cap,,1,7,"open vial, no cap",claude-visual,draft
+1,8,cap_seal_video_1.mp4@t0464.0,G08,no_vial,waiting,1,7,,claude-visual,draft
+1,8,cap_seal_video_1.mp4@t0464.0,G09,no_vial,waiting,1,7,,claude-visual,draft
+1,8,cap_seal_video_1.mp4@t0464.0,G10,no_vial,waiting,1,7,,claude-visual,draft
+1,8,cap_seal_video_1.mp4@t0464.0,G11,no_vial,waiting,1,7,,claude-visual,draft
+1,8,cap_seal_video_1.mp4@t0464.0,G12,no_vial,waiting,1,7,debris in empty hole,claude-visual,draft
+1,8,cap_seal_video_1.mp4@t0464.0,G13,no_vial,waiting,1,7,,claude-visual,draft
+1,8,cap_seal_video_1.mp4@t0464.0,G14,no_vial,waiting,1,7,,claude-visual,draft
+1,8,cap_seal_video_1.mp4@t0464.0,G15,no_vial,waiting,1,7,,claude-visual,draft
+1,8,cap_seal_video_1.mp4@t0464.0,G16,no_vial,waiting,1,7,,claude-visual,draft
+1,8,cap_seal_video_1.mp4@t0464.0,G17,no_vial,waiting,1,7,,claude-visual,draft
+1,8,cap_seal_video_1.mp4@t0464.0,G18,no_vial,waiting,1,7,,claude-visual,draft
+1,8,cap_seal_video_1.mp4@t0464.0,G19,no_vial,waiting,1,7,,claude-visual,draft
+1,8,cap_seal_video_1.mp4@t0464.0,G20,no_vial,waiting,1,7,,claude-visual,draft
+1,8,cap_seal_video_1.mp4@t0464.0,G21,no_vial,waiting,1,7,,claude-visual,draft
+1,8,cap_seal_video_1.mp4@t0464.0,G22,no_vial,waiting,1,7,,claude-visual,draft
+1,8,cap_seal_video_1.mp4@t0464.0,G23,no_vial,waiting,1,7,,claude-visual,draft
+1,8,cap_seal_video_1.mp4@t0464.0,G24,no_vial,waiting,1,7,,claude-visual,draft
+1,8,cap_seal_video_1.mp4@t0464.0,G25,no_vial,waiting,1,7,,claude-visual,draft
+1,8,cap_seal_video_1.mp4@t0464.0,G26,no_vial,waiting,1,7,,claude-visual,draft
+1,8,cap_seal_video_1.mp4@t0464.0,G27,no_vial,waiting,1,7,,claude-visual,draft
+1,8,cap_seal_video_1.mp4@t0464.0,G28,no_vial,waiting,1,7,,claude-visual,draft
+1,8,cap_seal_video_1.mp4@t0464.0,G29,no_vial,waiting,1,7,,claude-visual,draft
+1,8,cap_seal_video_1.mp4@t0464.0,G30,no_vial,waiting,1,7,,claude-visual,draft
+1,9,cap_seal_video_1.mp4@t0532.0,G01,pass,,0,8,"top-row cap, centroid ~6 px off; seating uncertain",claude-visual,draft
+1,9,cap_seal_video_1.mp4@t0532.0,G02,pass,,1,8,,claude-visual,draft
+1,9,cap_seal_video_1.mp4@t0532.0,G03,pass,,1,8,,claude-visual,draft
+1,9,cap_seal_video_1.mp4@t0532.0,G04,pass,,1,8,,claude-visual,draft
+1,9,cap_seal_video_1.mp4@t0532.0,G05,pass,,1,8,,claude-visual,draft
+1,9,cap_seal_video_1.mp4@t0532.0,G06,pass,,1,8,top-row specular cap,claude-visual,draft
+1,9,cap_seal_video_1.mp4@t0532.0,G07,missing_cap,,1,8,"open vial, no cap",claude-visual,draft
+1,9,cap_seal_video_1.mp4@t0532.0,G08,pass,,1,8,,claude-visual,draft
+1,9,cap_seal_video_1.mp4@t0532.0,G09,no_vial,waiting,1,8,,claude-visual,draft
+1,9,cap_seal_video_1.mp4@t0532.0,G10,no_vial,waiting,1,8,,claude-visual,draft
+1,9,cap_seal_video_1.mp4@t0532.0,G11,no_vial,waiting,1,8,,claude-visual,draft
+1,9,cap_seal_video_1.mp4@t0532.0,G12,no_vial,waiting,1,8,debris in empty hole,claude-visual,draft
+1,9,cap_seal_video_1.mp4@t0532.0,G13,no_vial,waiting,1,8,,claude-visual,draft
+1,9,cap_seal_video_1.mp4@t0532.0,G14,no_vial,waiting,1,8,,claude-visual,draft
+1,9,cap_seal_video_1.mp4@t0532.0,G15,no_vial,waiting,1,8,,claude-visual,draft
+1,9,cap_seal_video_1.mp4@t0532.0,G16,no_vial,waiting,1,8,,claude-visual,draft
+1,9,cap_seal_video_1.mp4@t0532.0,G17,no_vial,waiting,1,8,,claude-visual,draft
+1,9,cap_seal_video_1.mp4@t0532.0,G18,no_vial,waiting,1,8,,claude-visual,draft
+1,9,cap_seal_video_1.mp4@t0532.0,G19,no_vial,waiting,1,8,,claude-visual,draft
+1,9,cap_seal_video_1.mp4@t0532.0,G20,no_vial,waiting,1,8,,claude-visual,draft
+1,9,cap_seal_video_1.mp4@t0532.0,G21,no_vial,waiting,1,8,,claude-visual,draft
+1,9,cap_seal_video_1.mp4@t0532.0,G22,no_vial,waiting,1,8,,claude-visual,draft
+1,9,cap_seal_video_1.mp4@t0532.0,G23,no_vial,waiting,1,8,,claude-visual,draft
+1,9,cap_seal_video_1.mp4@t0532.0,G24,no_vial,waiting,1,8,,claude-visual,draft
+1,9,cap_seal_video_1.mp4@t0532.0,G25,no_vial,waiting,1,8,,claude-visual,draft
+1,9,cap_seal_video_1.mp4@t0532.0,G26,no_vial,waiting,1,8,,claude-visual,draft
+1,9,cap_seal_video_1.mp4@t0532.0,G27,no_vial,waiting,1,8,,claude-visual,draft
+1,9,cap_seal_video_1.mp4@t0532.0,G28,no_vial,waiting,1,8,,claude-visual,draft
+1,9,cap_seal_video_1.mp4@t0532.0,G29,no_vial,waiting,1,8,,claude-visual,draft
+1,9,cap_seal_video_1.mp4@t0532.0,G30,no_vial,waiting,1,8,,claude-visual,draft
+1,10,cap_seal_video_1.mp4@t0612.0,G01,pass,,0,9,"top-row cap, centroid ~6 px off; seating uncertain",claude-visual,draft
+1,10,cap_seal_video_1.mp4@t0612.0,G02,pass,,1,9,,claude-visual,draft
+1,10,cap_seal_video_1.mp4@t0612.0,G03,pass,,1,9,,claude-visual,draft
+1,10,cap_seal_video_1.mp4@t0612.0,G04,pass,,1,9,,claude-visual,draft
+1,10,cap_seal_video_1.mp4@t0612.0,G05,pass,,1,9,,claude-visual,draft
+1,10,cap_seal_video_1.mp4@t0612.0,G06,pass,,1,9,top-row specular cap,claude-visual,draft
+1,10,cap_seal_video_1.mp4@t0612.0,G07,missing_cap,,1,9,"open vial, no cap",claude-visual,draft
+1,10,cap_seal_video_1.mp4@t0612.0,G08,pass,,1,9,,claude-visual,draft
+1,10,cap_seal_video_1.mp4@t0612.0,G09,pass,,1,9,,claude-visual,draft
+1,10,cap_seal_video_1.mp4@t0612.0,G10,no_vial,waiting,1,9,,claude-visual,draft
+1,10,cap_seal_video_1.mp4@t0612.0,G11,no_vial,waiting,1,9,,claude-visual,draft
+1,10,cap_seal_video_1.mp4@t0612.0,G12,no_vial,waiting,1,9,debris in empty hole,claude-visual,draft
+1,10,cap_seal_video_1.mp4@t0612.0,G13,no_vial,waiting,1,9,,claude-visual,draft
+1,10,cap_seal_video_1.mp4@t0612.0,G14,no_vial,waiting,1,9,,claude-visual,draft
+1,10,cap_seal_video_1.mp4@t0612.0,G15,no_vial,waiting,1,9,,claude-visual,draft
+1,10,cap_seal_video_1.mp4@t0612.0,G16,no_vial,waiting,1,9,,claude-visual,draft
+1,10,cap_seal_video_1.mp4@t0612.0,G17,no_vial,waiting,1,9,,claude-visual,draft
+1,10,cap_seal_video_1.mp4@t0612.0,G18,no_vial,waiting,1,9,,claude-visual,draft
+1,10,cap_seal_video_1.mp4@t0612.0,G19,no_vial,waiting,1,9,,claude-visual,draft
+1,10,cap_seal_video_1.mp4@t0612.0,G20,no_vial,waiting,1,9,,claude-visual,draft
+1,10,cap_seal_video_1.mp4@t0612.0,G21,no_vial,waiting,1,9,,claude-visual,draft
+1,10,cap_seal_video_1.mp4@t0612.0,G22,no_vial,waiting,1,9,,claude-visual,draft
+1,10,cap_seal_video_1.mp4@t0612.0,G23,no_vial,waiting,1,9,,claude-visual,draft
+1,10,cap_seal_video_1.mp4@t0612.0,G24,no_vial,waiting,1,9,,claude-visual,draft
+1,10,cap_seal_video_1.mp4@t0612.0,G25,no_vial,waiting,1,9,,claude-visual,draft
+1,10,cap_seal_video_1.mp4@t0612.0,G26,no_vial,waiting,1,9,,claude-visual,draft
+1,10,cap_seal_video_1.mp4@t0612.0,G27,no_vial,waiting,1,9,,claude-visual,draft
+1,10,cap_seal_video_1.mp4@t0612.0,G28,no_vial,waiting,1,9,,claude-visual,draft
+1,10,cap_seal_video_1.mp4@t0612.0,G29,no_vial,waiting,1,9,,claude-visual,draft
+1,10,cap_seal_video_1.mp4@t0612.0,G30,no_vial,waiting,1,9,,claude-visual,draft
+1,11,cap_seal_video_1.mp4@t0666.0,G01,pass,,0,10,"top-row cap, centroid ~6 px off; seating uncertain",claude-visual,draft
+1,11,cap_seal_video_1.mp4@t0666.0,G02,pass,,1,10,,claude-visual,draft
+1,11,cap_seal_video_1.mp4@t0666.0,G03,pass,,1,10,,claude-visual,draft
+1,11,cap_seal_video_1.mp4@t0666.0,G04,pass,,1,10,,claude-visual,draft
+1,11,cap_seal_video_1.mp4@t0666.0,G05,pass,,1,10,,claude-visual,draft
+1,11,cap_seal_video_1.mp4@t0666.0,G06,pass,,1,10,top-row specular cap,claude-visual,draft
+1,11,cap_seal_video_1.mp4@t0666.0,G07,missing_cap,,1,10,"open vial, no cap",claude-visual,draft
+1,11,cap_seal_video_1.mp4@t0666.0,G08,pass,,1,10,,claude-visual,draft
+1,11,cap_seal_video_1.mp4@t0666.0,G09,pass,,1,10,,claude-visual,draft
+1,11,cap_seal_video_1.mp4@t0666.0,G10,pass,,1,10,,claude-visual,draft
+1,11,cap_seal_video_1.mp4@t0666.0,G11,no_vial,waiting,1,10,,claude-visual,draft
+1,11,cap_seal_video_1.mp4@t0666.0,G12,no_vial,waiting,1,10,debris in empty hole,claude-visual,draft
+1,11,cap_seal_video_1.mp4@t0666.0,G13,no_vial,waiting,1,10,,claude-visual,draft
+1,11,cap_seal_video_1.mp4@t0666.0,G14,no_vial,waiting,1,10,,claude-visual,draft
+1,11,cap_seal_video_1.mp4@t0666.0,G15,no_vial,waiting,1,10,,claude-visual,draft
+1,11,cap_seal_video_1.mp4@t0666.0,G16,no_vial,waiting,1,10,,claude-visual,draft
+1,11,cap_seal_video_1.mp4@t0666.0,G17,no_vial,waiting,1,10,,claude-visual,draft
+1,11,cap_seal_video_1.mp4@t0666.0,G18,no_vial,waiting,1,10,,claude-visual,draft
+1,11,cap_seal_video_1.mp4@t0666.0,G19,no_vial,waiting,1,10,,claude-visual,draft
+1,11,cap_seal_video_1.mp4@t0666.0,G20,no_vial,waiting,1,10,,claude-visual,draft
+1,11,cap_seal_video_1.mp4@t0666.0,G21,no_vial,waiting,1,10,,claude-visual,draft
+1,11,cap_seal_video_1.mp4@t0666.0,G22,no_vial,waiting,1,10,,claude-visual,draft
+1,11,cap_seal_video_1.mp4@t0666.0,G23,no_vial,waiting,1,10,,claude-visual,draft
+1,11,cap_seal_video_1.mp4@t0666.0,G24,no_vial,waiting,1,10,,claude-visual,draft
+1,11,cap_seal_video_1.mp4@t0666.0,G25,no_vial,waiting,1,10,,claude-visual,draft
+1,11,cap_seal_video_1.mp4@t0666.0,G26,no_vial,waiting,1,10,,claude-visual,draft
+1,11,cap_seal_video_1.mp4@t0666.0,G27,no_vial,waiting,1,10,,claude-visual,draft
+1,11,cap_seal_video_1.mp4@t0666.0,G28,no_vial,waiting,1,10,,claude-visual,draft
+1,11,cap_seal_video_1.mp4@t0666.0,G29,no_vial,waiting,1,10,,claude-visual,draft
+1,11,cap_seal_video_1.mp4@t0666.0,G30,no_vial,waiting,1,10,,claude-visual,draft
+1,12,cap_seal_video_1.mp4@t0748.0,G01,pass,,0,11,"top-row cap, centroid ~6 px off; seating uncertain",claude-visual,draft
+1,12,cap_seal_video_1.mp4@t0748.0,G02,pass,,1,11,,claude-visual,draft
+1,12,cap_seal_video_1.mp4@t0748.0,G03,pass,,1,11,,claude-visual,draft
+1,12,cap_seal_video_1.mp4@t0748.0,G04,pass,,1,11,,claude-visual,draft
+1,12,cap_seal_video_1.mp4@t0748.0,G05,pass,,1,11,,claude-visual,draft
+1,12,cap_seal_video_1.mp4@t0748.0,G06,pass,,1,11,top-row specular cap,claude-visual,draft
+1,12,cap_seal_video_1.mp4@t0748.0,G07,missing_cap,,1,11,"open vial, no cap",claude-visual,draft
+1,12,cap_seal_video_1.mp4@t0748.0,G08,pass,,1,11,,claude-visual,draft
+1,12,cap_seal_video_1.mp4@t0748.0,G09,pass,,1,11,,claude-visual,draft
+1,12,cap_seal_video_1.mp4@t0748.0,G10,pass,,1,11,,claude-visual,draft
+1,12,cap_seal_video_1.mp4@t0748.0,G11,pass,,1,11,top-row specular cap,claude-visual,draft
+1,12,cap_seal_video_1.mp4@t0748.0,G12,no_vial,waiting,1,11,debris in empty hole,claude-visual,draft
+1,12,cap_seal_video_1.mp4@t0748.0,G13,no_vial,waiting,1,11,,claude-visual,draft
+1,12,cap_seal_video_1.mp4@t0748.0,G14,no_vial,waiting,1,11,,claude-visual,draft
+1,12,cap_seal_video_1.mp4@t0748.0,G15,no_vial,waiting,1,11,,claude-visual,draft
+1,12,cap_seal_video_1.mp4@t0748.0,G16,no_vial,waiting,1,11,,claude-visual,draft
+1,12,cap_seal_video_1.mp4@t0748.0,G17,no_vial,waiting,1,11,,claude-visual,draft
+1,12,cap_seal_video_1.mp4@t0748.0,G18,no_vial,waiting,1,11,,claude-visual,draft
+1,12,cap_seal_video_1.mp4@t0748.0,G19,no_vial,waiting,1,11,,claude-visual,draft
+1,12,cap_seal_video_1.mp4@t0748.0,G20,no_vial,waiting,1,11,,claude-visual,draft
+1,12,cap_seal_video_1.mp4@t0748.0,G21,no_vial,waiting,1,11,,claude-visual,draft
+1,12,cap_seal_video_1.mp4@t0748.0,G22,no_vial,waiting,1,11,,claude-visual,draft
+1,12,cap_seal_video_1.mp4@t0748.0,G23,no_vial,waiting,1,11,,claude-visual,draft
+1,12,cap_seal_video_1.mp4@t0748.0,G24,no_vial,waiting,1,11,,claude-visual,draft
+1,12,cap_seal_video_1.mp4@t0748.0,G25,no_vial,waiting,1,11,,claude-visual,draft
+1,12,cap_seal_video_1.mp4@t0748.0,G26,no_vial,waiting,1,11,,claude-visual,draft
+1,12,cap_seal_video_1.mp4@t0748.0,G27,no_vial,waiting,1,11,,claude-visual,draft
+1,12,cap_seal_video_1.mp4@t0748.0,G28,no_vial,waiting,1,11,,claude-visual,draft
+1,12,cap_seal_video_1.mp4@t0748.0,G29,no_vial,waiting,1,11,,claude-visual,draft
+1,12,cap_seal_video_1.mp4@t0748.0,G30,no_vial,waiting,1,11,,claude-visual,draft
+1,13,cap_seal_video_1.mp4@t0851.0,G01,pass,,0,12,"top-row cap, centroid ~6 px off; seating uncertain",claude-visual,draft
+1,13,cap_seal_video_1.mp4@t0851.0,G02,pass,,1,12,,claude-visual,draft
+1,13,cap_seal_video_1.mp4@t0851.0,G03,pass,,1,12,,claude-visual,draft
+1,13,cap_seal_video_1.mp4@t0851.0,G04,pass,,1,12,,claude-visual,draft
+1,13,cap_seal_video_1.mp4@t0851.0,G05,pass,,1,12,,claude-visual,draft
+1,13,cap_seal_video_1.mp4@t0851.0,G06,pass,,1,12,top-row specular cap,claude-visual,draft
+1,13,cap_seal_video_1.mp4@t0851.0,G07,missing_cap,,1,12,"open vial, no cap",claude-visual,draft
+1,13,cap_seal_video_1.mp4@t0851.0,G08,pass,,1,12,,claude-visual,draft
+1,13,cap_seal_video_1.mp4@t0851.0,G09,pass,,1,12,,claude-visual,draft
+1,13,cap_seal_video_1.mp4@t0851.0,G10,pass,,1,12,,claude-visual,draft
+1,13,cap_seal_video_1.mp4@t0851.0,G11,pass,,1,12,top-row specular cap,claude-visual,draft
+1,13,cap_seal_video_1.mp4@t0851.0,G12,crooked_cap,,1,12,cap displaced off the vial mouth (unseated); tilt angle unknown,claude-visual,draft
+1,13,cap_seal_video_1.mp4@t0851.0,G13,no_vial,waiting,1,12,,claude-visual,draft
+1,13,cap_seal_video_1.mp4@t0851.0,G14,no_vial,waiting,1,12,,claude-visual,draft
+1,13,cap_seal_video_1.mp4@t0851.0,G15,no_vial,waiting,1,12,,claude-visual,draft
+1,13,cap_seal_video_1.mp4@t0851.0,G16,no_vial,waiting,1,12,,claude-visual,draft
+1,13,cap_seal_video_1.mp4@t0851.0,G17,no_vial,waiting,1,12,neighbour's displaced cap intrudes into crop,claude-visual,draft
+1,13,cap_seal_video_1.mp4@t0851.0,G18,no_vial,waiting,1,12,,claude-visual,draft
+1,13,cap_seal_video_1.mp4@t0851.0,G19,no_vial,waiting,1,12,,claude-visual,draft
+1,13,cap_seal_video_1.mp4@t0851.0,G20,no_vial,waiting,1,12,,claude-visual,draft
+1,13,cap_seal_video_1.mp4@t0851.0,G21,no_vial,waiting,1,12,,claude-visual,draft
+1,13,cap_seal_video_1.mp4@t0851.0,G22,no_vial,waiting,1,12,,claude-visual,draft
+1,13,cap_seal_video_1.mp4@t0851.0,G23,no_vial,waiting,1,12,,claude-visual,draft
+1,13,cap_seal_video_1.mp4@t0851.0,G24,no_vial,waiting,1,12,,claude-visual,draft
+1,13,cap_seal_video_1.mp4@t0851.0,G25,no_vial,waiting,1,12,,claude-visual,draft
+1,13,cap_seal_video_1.mp4@t0851.0,G26,no_vial,waiting,1,12,,claude-visual,draft
+1,13,cap_seal_video_1.mp4@t0851.0,G27,no_vial,waiting,1,12,,claude-visual,draft
+1,13,cap_seal_video_1.mp4@t0851.0,G28,no_vial,waiting,1,12,,claude-visual,draft
+1,13,cap_seal_video_1.mp4@t0851.0,G29,no_vial,waiting,1,12,,claude-visual,draft
+1,13,cap_seal_video_1.mp4@t0851.0,G30,no_vial,waiting,1,12,,claude-visual,draft
+1,14,cap_seal_video_1.mp4@t0868.0,G01,pass,,0,13,"top-row cap, centroid ~6 px off; seating uncertain",claude-visual,draft
+1,14,cap_seal_video_1.mp4@t0868.0,G02,pass,,1,13,,claude-visual,draft
+1,14,cap_seal_video_1.mp4@t0868.0,G03,pass,,1,13,,claude-visual,draft
+1,14,cap_seal_video_1.mp4@t0868.0,G04,pass,,1,13,,claude-visual,draft
+1,14,cap_seal_video_1.mp4@t0868.0,G05,pass,,1,13,,claude-visual,draft
+1,14,cap_seal_video_1.mp4@t0868.0,G06,pass,,1,13,top-row specular cap,claude-visual,draft
+1,14,cap_seal_video_1.mp4@t0868.0,G07,missing_cap,,1,13,"open vial, no cap",claude-visual,draft
+1,14,cap_seal_video_1.mp4@t0868.0,G08,pass,,1,13,,claude-visual,draft
+1,14,cap_seal_video_1.mp4@t0868.0,G09,pass,,1,13,,claude-visual,draft
+1,14,cap_seal_video_1.mp4@t0868.0,G10,pass,,1,13,,claude-visual,draft
+1,14,cap_seal_video_1.mp4@t0868.0,G11,pass,,1,13,top-row specular cap,claude-visual,draft
+1,14,cap_seal_video_1.mp4@t0868.0,G12,crooked_cap,,1,13,cap displaced off the vial mouth (unseated); tilt angle unknown,claude-visual,draft
+1,14,cap_seal_video_1.mp4@t0868.0,G13,crooked_cap,,1,13,cap displaced off the vial mouth (unseated); tilt angle unknown,claude-visual,draft
+1,14,cap_seal_video_1.mp4@t0868.0,G14,no_vial,waiting,1,13,,claude-visual,draft
+1,14,cap_seal_video_1.mp4@t0868.0,G15,no_vial,waiting,1,13,,claude-visual,draft
+1,14,cap_seal_video_1.mp4@t0868.0,G16,no_vial,waiting,1,13,,claude-visual,draft
+1,14,cap_seal_video_1.mp4@t0868.0,G17,no_vial,waiting,1,13,neighbour's displaced cap intrudes into crop,claude-visual,draft
+1,14,cap_seal_video_1.mp4@t0868.0,G18,no_vial,waiting,1,13,,claude-visual,draft
+1,14,cap_seal_video_1.mp4@t0868.0,G19,no_vial,waiting,1,13,,claude-visual,draft
+1,14,cap_seal_video_1.mp4@t0868.0,G20,no_vial,waiting,1,13,,claude-visual,draft
+1,14,cap_seal_video_1.mp4@t0868.0,G21,no_vial,waiting,1,13,,claude-visual,draft
+1,14,cap_seal_video_1.mp4@t0868.0,G22,no_vial,waiting,1,13,,claude-visual,draft
+1,14,cap_seal_video_1.mp4@t0868.0,G23,no_vial,waiting,1,13,,claude-visual,draft
+1,14,cap_seal_video_1.mp4@t0868.0,G24,no_vial,waiting,1,13,,claude-visual,draft
+1,14,cap_seal_video_1.mp4@t0868.0,G25,no_vial,waiting,1,13,,claude-visual,draft
+1,14,cap_seal_video_1.mp4@t0868.0,G26,no_vial,waiting,1,13,,claude-visual,draft
+1,14,cap_seal_video_1.mp4@t0868.0,G27,no_vial,waiting,1,13,,claude-visual,draft
+1,14,cap_seal_video_1.mp4@t0868.0,G28,no_vial,waiting,1,13,,claude-visual,draft
+1,14,cap_seal_video_1.mp4@t0868.0,G29,no_vial,waiting,1,13,,claude-visual,draft
+1,14,cap_seal_video_1.mp4@t0868.0,G30,no_vial,waiting,1,13,,claude-visual,draft
+1,15,cap_seal_video_1.mp4@t0880.0,G01,pass,,0,14,"top-row cap, centroid ~6 px off; seating uncertain",claude-visual,draft
+1,15,cap_seal_video_1.mp4@t0880.0,G02,pass,,1,14,,claude-visual,draft
+1,15,cap_seal_video_1.mp4@t0880.0,G03,pass,,1,14,,claude-visual,draft
+1,15,cap_seal_video_1.mp4@t0880.0,G04,pass,,1,14,,claude-visual,draft
+1,15,cap_seal_video_1.mp4@t0880.0,G05,pass,,1,14,,claude-visual,draft
+1,15,cap_seal_video_1.mp4@t0880.0,G06,pass,,1,14,top-row specular cap,claude-visual,draft
+1,15,cap_seal_video_1.mp4@t0880.0,G07,missing_cap,,1,14,"open vial, no cap",claude-visual,draft
+1,15,cap_seal_video_1.mp4@t0880.0,G08,pass,,1,14,,claude-visual,draft
+1,15,cap_seal_video_1.mp4@t0880.0,G09,pass,,1,14,,claude-visual,draft
+1,15,cap_seal_video_1.mp4@t0880.0,G10,pass,,1,14,,claude-visual,draft
+1,15,cap_seal_video_1.mp4@t0880.0,G11,pass,,1,14,top-row specular cap,claude-visual,draft
+1,15,cap_seal_video_1.mp4@t0880.0,G12,crooked_cap,,1,14,cap displaced off the vial mouth (unseated); tilt angle unknown,claude-visual,draft
+1,15,cap_seal_video_1.mp4@t0880.0,G13,crooked_cap,,1,14,cap displaced off the vial mouth (unseated); tilt angle unknown,claude-visual,draft
+1,15,cap_seal_video_1.mp4@t0880.0,G14,crooked_cap,,1,14,cap displaced off the vial mouth (unseated); tilt angle unknown,claude-visual,draft
+1,15,cap_seal_video_1.mp4@t0880.0,G15,no_vial,waiting,1,14,,claude-visual,draft
+1,15,cap_seal_video_1.mp4@t0880.0,G16,no_vial,waiting,1,14,,claude-visual,draft
+1,15,cap_seal_video_1.mp4@t0880.0,G17,no_vial,waiting,1,14,neighbour's displaced cap intrudes into crop,claude-visual,draft
+1,15,cap_seal_video_1.mp4@t0880.0,G18,no_vial,waiting,1,14,,claude-visual,draft
+1,15,cap_seal_video_1.mp4@t0880.0,G19,no_vial,waiting,1,14,neighbour's displaced cap intrudes into crop,claude-visual,draft
+1,15,cap_seal_video_1.mp4@t0880.0,G20,no_vial,waiting,1,14,,claude-visual,draft
+1,15,cap_seal_video_1.mp4@t0880.0,G21,no_vial,waiting,1,14,,claude-visual,draft
+1,15,cap_seal_video_1.mp4@t0880.0,G22,no_vial,waiting,1,14,,claude-visual,draft
+1,15,cap_seal_video_1.mp4@t0880.0,G23,no_vial,waiting,1,14,,claude-visual,draft
+1,15,cap_seal_video_1.mp4@t0880.0,G24,no_vial,waiting,1,14,,claude-visual,draft
+1,15,cap_seal_video_1.mp4@t0880.0,G25,no_vial,waiting,1,14,,claude-visual,draft
+1,15,cap_seal_video_1.mp4@t0880.0,G26,no_vial,waiting,1,14,,claude-visual,draft
+1,15,cap_seal_video_1.mp4@t0880.0,G27,no_vial,waiting,1,14,,claude-visual,draft
+1,15,cap_seal_video_1.mp4@t0880.0,G28,no_vial,waiting,1,14,,claude-visual,draft
+1,15,cap_seal_video_1.mp4@t0880.0,G29,no_vial,waiting,1,14,,claude-visual,draft
+1,15,cap_seal_video_1.mp4@t0880.0,G30,no_vial,waiting,1,14,,claude-visual,draft
+1,16,cap_seal_video_1.mp4@t0904.0,G01,pass,,0,15,"top-row cap, centroid ~6 px off; seating uncertain",claude-visual,draft
+1,16,cap_seal_video_1.mp4@t0904.0,G02,pass,,1,15,,claude-visual,draft
+1,16,cap_seal_video_1.mp4@t0904.0,G03,pass,,1,15,,claude-visual,draft
+1,16,cap_seal_video_1.mp4@t0904.0,G04,pass,,1,15,,claude-visual,draft
+1,16,cap_seal_video_1.mp4@t0904.0,G05,pass,,1,15,,claude-visual,draft
+1,16,cap_seal_video_1.mp4@t0904.0,G06,pass,,1,15,top-row specular cap,claude-visual,draft
+1,16,cap_seal_video_1.mp4@t0904.0,G07,missing_cap,,1,15,"open vial, no cap",claude-visual,draft
+1,16,cap_seal_video_1.mp4@t0904.0,G08,pass,,1,15,,claude-visual,draft
+1,16,cap_seal_video_1.mp4@t0904.0,G09,pass,,1,15,,claude-visual,draft
+1,16,cap_seal_video_1.mp4@t0904.0,G10,pass,,1,15,,claude-visual,draft
+1,16,cap_seal_video_1.mp4@t0904.0,G11,pass,,1,15,top-row specular cap,claude-visual,draft
+1,16,cap_seal_video_1.mp4@t0904.0,G12,crooked_cap,,1,15,cap displaced off the vial mouth (unseated); tilt angle unknown,claude-visual,draft
+1,16,cap_seal_video_1.mp4@t0904.0,G13,crooked_cap,,1,15,cap displaced off the vial mouth (unseated); tilt angle unknown,claude-visual,draft
+1,16,cap_seal_video_1.mp4@t0904.0,G14,crooked_cap,,1,15,cap displaced off the vial mouth (unseated); tilt angle unknown,claude-visual,draft
+1,16,cap_seal_video_1.mp4@t0904.0,G15,crooked_cap,,1,15,cap displaced off the vial mouth (unseated); tilt angle unknown,claude-visual,draft
+1,16,cap_seal_video_1.mp4@t0904.0,G16,no_vial,waiting,1,15,,claude-visual,draft
+1,16,cap_seal_video_1.mp4@t0904.0,G17,no_vial,waiting,1,15,neighbour's displaced cap intrudes into crop,claude-visual,draft
+1,16,cap_seal_video_1.mp4@t0904.0,G18,no_vial,waiting,1,15,,claude-visual,draft
+1,16,cap_seal_video_1.mp4@t0904.0,G19,no_vial,waiting,1,15,neighbour's displaced cap intrudes into crop,claude-visual,draft
+1,16,cap_seal_video_1.mp4@t0904.0,G20,no_vial,waiting,1,15,neighbour's displaced cap intrudes into crop,claude-visual,draft
+1,16,cap_seal_video_1.mp4@t0904.0,G21,no_vial,waiting,1,15,,claude-visual,draft
+1,16,cap_seal_video_1.mp4@t0904.0,G22,no_vial,waiting,1,15,,claude-visual,draft
+1,16,cap_seal_video_1.mp4@t0904.0,G23,no_vial,waiting,1,15,,claude-visual,draft
+1,16,cap_seal_video_1.mp4@t0904.0,G24,no_vial,waiting,1,15,,claude-visual,draft
+1,16,cap_seal_video_1.mp4@t0904.0,G25,no_vial,waiting,1,15,,claude-visual,draft
+1,16,cap_seal_video_1.mp4@t0904.0,G26,no_vial,waiting,1,15,,claude-visual,draft
+1,16,cap_seal_video_1.mp4@t0904.0,G27,no_vial,waiting,1,15,,claude-visual,draft
+1,16,cap_seal_video_1.mp4@t0904.0,G28,no_vial,waiting,1,15,,claude-visual,draft
+1,16,cap_seal_video_1.mp4@t0904.0,G29,no_vial,waiting,1,15,,claude-visual,draft
+1,16,cap_seal_video_1.mp4@t0904.0,G30,no_vial,waiting,1,15,,claude-visual,draft
+1,17,cap_seal_video_1.mp4@t0983.0,G01,pass,,0,16,"top-row cap, centroid ~6 px off; seating uncertain",claude-visual,draft
+1,17,cap_seal_video_1.mp4@t0983.0,G02,pass,,1,16,,claude-visual,draft
+1,17,cap_seal_video_1.mp4@t0983.0,G03,pass,,1,16,,claude-visual,draft
+1,17,cap_seal_video_1.mp4@t0983.0,G04,pass,,1,16,,claude-visual,draft
+1,17,cap_seal_video_1.mp4@t0983.0,G05,pass,,1,16,,claude-visual,draft
+1,17,cap_seal_video_1.mp4@t0983.0,G06,pass,,1,16,top-row specular cap,claude-visual,draft
+1,17,cap_seal_video_1.mp4@t0983.0,G07,missing_cap,,1,16,"open vial, no cap",claude-visual,draft
+1,17,cap_seal_video_1.mp4@t0983.0,G08,pass,,1,16,,claude-visual,draft
+1,17,cap_seal_video_1.mp4@t0983.0,G09,pass,,1,16,,claude-visual,draft
+1,17,cap_seal_video_1.mp4@t0983.0,G10,pass,,1,16,,claude-visual,draft
+1,17,cap_seal_video_1.mp4@t0983.0,G11,pass,,1,16,top-row specular cap,claude-visual,draft
+1,17,cap_seal_video_1.mp4@t0983.0,G12,crooked_cap,,1,16,cap displaced off the vial mouth (unseated); tilt angle unknown,claude-visual,draft
+1,17,cap_seal_video_1.mp4@t0983.0,G13,crooked_cap,,1,16,cap displaced off the vial mouth (unseated); tilt angle unknown,claude-visual,draft
+1,17,cap_seal_video_1.mp4@t0983.0,G14,crooked_cap,,1,16,cap displaced off the vial mouth (unseated); tilt angle unknown,claude-visual,draft
+1,17,cap_seal_video_1.mp4@t0983.0,G15,crooked_cap,,1,16,cap displaced off the vial mouth (unseated); tilt angle unknown,claude-visual,draft
+1,17,cap_seal_video_1.mp4@t0983.0,G16,pass,,1,16,top-row specular cap,claude-visual,draft
+1,17,cap_seal_video_1.mp4@t0983.0,G17,no_vial,waiting,1,16,neighbour's displaced cap intrudes into crop,claude-visual,draft
+1,17,cap_seal_video_1.mp4@t0983.0,G18,no_vial,waiting,1,16,,claude-visual,draft
+1,17,cap_seal_video_1.mp4@t0983.0,G19,no_vial,waiting,1,16,neighbour's displaced cap intrudes into crop,claude-visual,draft
+1,17,cap_seal_video_1.mp4@t0983.0,G20,no_vial,waiting,1,16,neighbour's displaced cap intrudes into crop,claude-visual,draft
+1,17,cap_seal_video_1.mp4@t0983.0,G21,no_vial,waiting,1,16,,claude-visual,draft
+1,17,cap_seal_video_1.mp4@t0983.0,G22,no_vial,waiting,1,16,,claude-visual,draft
+1,17,cap_seal_video_1.mp4@t0983.0,G23,no_vial,waiting,1,16,,claude-visual,draft
+1,17,cap_seal_video_1.mp4@t0983.0,G24,no_vial,waiting,1,16,,claude-visual,draft
+1,17,cap_seal_video_1.mp4@t0983.0,G25,no_vial,waiting,1,16,,claude-visual,draft
+1,17,cap_seal_video_1.mp4@t0983.0,G26,no_vial,waiting,1,16,,claude-visual,draft
+1,17,cap_seal_video_1.mp4@t0983.0,G27,no_vial,waiting,1,16,,claude-visual,draft
+1,17,cap_seal_video_1.mp4@t0983.0,G28,no_vial,waiting,1,16,,claude-visual,draft
+1,17,cap_seal_video_1.mp4@t0983.0,G29,no_vial,waiting,1,16,,claude-visual,draft
+1,17,cap_seal_video_1.mp4@t0983.0,G30,no_vial,waiting,1,16,,claude-visual,draft
+1,18,cap_seal_video_1.mp4@t1050.0,G01,pass,,0,17,"top-row cap, centroid ~6 px off; seating uncertain",claude-visual,draft
+1,18,cap_seal_video_1.mp4@t1050.0,G02,pass,,1,17,,claude-visual,draft
+1,18,cap_seal_video_1.mp4@t1050.0,G03,pass,,1,17,,claude-visual,draft
+1,18,cap_seal_video_1.mp4@t1050.0,G04,pass,,1,17,,claude-visual,draft
+1,18,cap_seal_video_1.mp4@t1050.0,G05,pass,,1,17,,claude-visual,draft
+1,18,cap_seal_video_1.mp4@t1050.0,G06,pass,,1,17,top-row specular cap,claude-visual,draft
+1,18,cap_seal_video_1.mp4@t1050.0,G07,missing_cap,,1,17,"open vial, no cap",claude-visual,draft
+1,18,cap_seal_video_1.mp4@t1050.0,G08,pass,,1,17,,claude-visual,draft
+1,18,cap_seal_video_1.mp4@t1050.0,G09,pass,,1,17,,claude-visual,draft
+1,18,cap_seal_video_1.mp4@t1050.0,G10,pass,,1,17,,claude-visual,draft
+1,18,cap_seal_video_1.mp4@t1050.0,G11,pass,,1,17,top-row specular cap,claude-visual,draft
+1,18,cap_seal_video_1.mp4@t1050.0,G12,crooked_cap,,1,17,cap displaced off the vial mouth (unseated); tilt angle unknown,claude-visual,draft
+1,18,cap_seal_video_1.mp4@t1050.0,G13,crooked_cap,,1,17,cap displaced off the vial mouth (unseated); tilt angle unknown,claude-visual,draft
+1,18,cap_seal_video_1.mp4@t1050.0,G14,crooked_cap,,1,17,cap displaced off the vial mouth (unseated); tilt angle unknown,claude-visual,draft
+1,18,cap_seal_video_1.mp4@t1050.0,G15,crooked_cap,,1,17,cap displaced off the vial mouth (unseated); tilt angle unknown,claude-visual,draft
+1,18,cap_seal_video_1.mp4@t1050.0,G16,pass,,1,17,top-row specular cap,claude-visual,draft
+1,18,cap_seal_video_1.mp4@t1050.0,G17,pass,,1,17,,claude-visual,draft
+1,18,cap_seal_video_1.mp4@t1050.0,G18,no_vial,waiting,1,17,,claude-visual,draft
+1,18,cap_seal_video_1.mp4@t1050.0,G19,no_vial,waiting,1,17,neighbour's displaced cap intrudes into crop,claude-visual,draft
+1,18,cap_seal_video_1.mp4@t1050.0,G20,no_vial,waiting,1,17,neighbour's displaced cap intrudes into crop,claude-visual,draft
+1,18,cap_seal_video_1.mp4@t1050.0,G21,no_vial,waiting,1,17,,claude-visual,draft
+1,18,cap_seal_video_1.mp4@t1050.0,G22,no_vial,waiting,1,17,,claude-visual,draft
+1,18,cap_seal_video_1.mp4@t1050.0,G23,no_vial,waiting,1,17,,claude-visual,draft
+1,18,cap_seal_video_1.mp4@t1050.0,G24,no_vial,waiting,1,17,,claude-visual,draft
+1,18,cap_seal_video_1.mp4@t1050.0,G25,no_vial,waiting,1,17,,claude-visual,draft
+1,18,cap_seal_video_1.mp4@t1050.0,G26,no_vial,waiting,1,17,,claude-visual,draft
+1,18,cap_seal_video_1.mp4@t1050.0,G27,no_vial,waiting,1,17,,claude-visual,draft
+1,18,cap_seal_video_1.mp4@t1050.0,G28,no_vial,waiting,1,17,,claude-visual,draft
+1,18,cap_seal_video_1.mp4@t1050.0,G29,no_vial,waiting,1,17,,claude-visual,draft
+1,18,cap_seal_video_1.mp4@t1050.0,G30,no_vial,waiting,1,17,,claude-visual,draft
+2,1,cap_seal_20260922_192609_126406.jpg,G01,no_vial,missed,1,8,empty inside the occupied prefix; K inferred from occupancy (no placement count exists),claude-visual,draft
+2,1,cap_seal_20260922_192609_126406.jpg,G02,pass,,1,8,,claude-visual,draft
+2,1,cap_seal_20260922_192609_126406.jpg,G03,missing_cap,,1,8,"uncapped vial, dark liquid visible",claude-visual,draft
+2,1,cap_seal_20260922_192609_126406.jpg,G04,pass,,1,8,,claude-visual,draft
+2,1,cap_seal_20260922_192609_126406.jpg,G05,pass,,1,8,,claude-visual,draft
+2,1,cap_seal_20260922_192609_126406.jpg,G06,pass,,1,8,top-row specular cap,claude-visual,draft
+2,1,cap_seal_20260922_192609_126406.jpg,G07,crooked_cap,,1,8,cap pushed up off the vial mouth; tilt angle unknown,claude-visual,draft
+2,1,cap_seal_20260922_192609_126406.jpg,G08,pass,,1,8,,claude-visual,draft
+2,1,cap_seal_20260922_192609_126406.jpg,G09,no_vial,waiting,1,8,,claude-visual,draft
+2,1,cap_seal_20260922_192609_126406.jpg,G10,no_vial,waiting,1,8,,claude-visual,draft
+2,1,cap_seal_20260922_192609_126406.jpg,G11,no_vial,waiting,1,8,,claude-visual,draft
+2,1,cap_seal_20260922_192609_126406.jpg,G12,no_vial,waiting,1,8,,claude-visual,draft
+2,1,cap_seal_20260922_192609_126406.jpg,G13,no_vial,waiting,1,8,,claude-visual,draft
+2,1,cap_seal_20260922_192609_126406.jpg,G14,no_vial,waiting,1,8,,claude-visual,draft
+2,1,cap_seal_20260922_192609_126406.jpg,G15,no_vial,waiting,1,8,,claude-visual,draft
+2,1,cap_seal_20260922_192609_126406.jpg,G16,no_vial,waiting,1,8,,claude-visual,draft
+2,1,cap_seal_20260922_192609_126406.jpg,G17,no_vial,waiting,1,8,,claude-visual,draft
+2,1,cap_seal_20260922_192609_126406.jpg,G18,no_vial,waiting,1,8,,claude-visual,draft
+2,1,cap_seal_20260922_192609_126406.jpg,G19,no_vial,waiting,1,8,,claude-visual,draft
+2,1,cap_seal_20260922_192609_126406.jpg,G20,no_vial,waiting,1,8,,claude-visual,draft
+2,1,cap_seal_20260922_192609_126406.jpg,G21,no_vial,waiting,1,8,,claude-visual,draft
+2,1,cap_seal_20260922_192609_126406.jpg,G22,no_vial,waiting,1,8,,claude-visual,draft
+2,1,cap_seal_20260922_192609_126406.jpg,G23,no_vial,waiting,1,8,,claude-visual,draft
+2,1,cap_seal_20260922_192609_126406.jpg,G24,no_vial,waiting,1,8,,claude-visual,draft
+2,1,cap_seal_20260922_192609_126406.jpg,G25,no_vial,waiting,1,8,,claude-visual,draft
+2,1,cap_seal_20260922_192609_126406.jpg,G26,no_vial,waiting,1,8,,claude-visual,draft
+2,1,cap_seal_20260922_192609_126406.jpg,G27,no_vial,waiting,1,8,,claude-visual,draft
+2,1,cap_seal_20260922_192609_126406.jpg,G28,no_vial,waiting,1,8,,claude-visual,draft
+2,1,cap_seal_20260922_192609_126406.jpg,G29,no_vial,waiting,1,8,,claude-visual,draft
+2,1,cap_seal_20260922_192609_126406.jpg,G30,no_vial,waiting,1,8,,claude-visual,draft
+3,1,cap_seal_20260923_184630_557477.jpg,G01,no_vial,waiting,1,0,,claude-visual,draft
+3,1,cap_seal_20260923_184630_557477.jpg,G02,no_vial,waiting,1,0,,claude-visual,draft
+3,1,cap_seal_20260923_184630_557477.jpg,G03,no_vial,waiting,1,0,,claude-visual,draft
+3,1,cap_seal_20260923_184630_557477.jpg,G04,no_vial,waiting,1,0,,claude-visual,draft
+3,1,cap_seal_20260923_184630_557477.jpg,G05,no_vial,waiting,1,0,,claude-visual,draft
+3,1,cap_seal_20260923_184630_557477.jpg,G06,no_vial,waiting,1,0,,claude-visual,draft
+3,1,cap_seal_20260923_184630_557477.jpg,G07,no_vial,waiting,1,0,,claude-visual,draft
+3,1,cap_seal_20260923_184630_557477.jpg,G08,no_vial,waiting,1,0,,claude-visual,draft
+3,1,cap_seal_20260923_184630_557477.jpg,G09,no_vial,waiting,1,0,,claude-visual,draft
+3,1,cap_seal_20260923_184630_557477.jpg,G10,no_vial,waiting,1,0,,claude-visual,draft
+3,1,cap_seal_20260923_184630_557477.jpg,G11,no_vial,waiting,1,0,,claude-visual,draft
+3,1,cap_seal_20260923_184630_557477.jpg,G12,no_vial,waiting,1,0,,claude-visual,draft
+3,1,cap_seal_20260923_184630_557477.jpg,G13,no_vial,waiting,1,0,,claude-visual,draft
+3,1,cap_seal_20260923_184630_557477.jpg,G14,no_vial,waiting,1,0,,claude-visual,draft
+3,1,cap_seal_20260923_184630_557477.jpg,G15,no_vial,waiting,1,0,,claude-visual,draft
+3,1,cap_seal_20260923_184630_557477.jpg,G16,no_vial,waiting,1,0,,claude-visual,draft
+3,1,cap_seal_20260923_184630_557477.jpg,G17,no_vial,waiting,1,0,,claude-visual,draft
+3,1,cap_seal_20260923_184630_557477.jpg,G18,no_vial,waiting,1,0,,claude-visual,draft
+3,1,cap_seal_20260923_184630_557477.jpg,G19,no_vial,waiting,1,0,,claude-visual,draft
+3,1,cap_seal_20260923_184630_557477.jpg,G20,no_vial,waiting,1,0,,claude-visual,draft
+3,1,cap_seal_20260923_184630_557477.jpg,G21,no_vial,waiting,1,0,,claude-visual,draft
+3,1,cap_seal_20260923_184630_557477.jpg,G22,no_vial,waiting,1,0,,claude-visual,draft
+3,1,cap_seal_20260923_184630_557477.jpg,G23,no_vial,waiting,1,0,,claude-visual,draft
+3,1,cap_seal_20260923_184630_557477.jpg,G24,no_vial,waiting,1,0,,claude-visual,draft
+3,1,cap_seal_20260923_184630_557477.jpg,G25,no_vial,waiting,1,0,,claude-visual,draft
+3,1,cap_seal_20260923_184630_557477.jpg,G26,no_vial,waiting,1,0,,claude-visual,draft
+3,1,cap_seal_20260923_184630_557477.jpg,G27,no_vial,waiting,1,0,,claude-visual,draft
+3,1,cap_seal_20260923_184630_557477.jpg,G28,no_vial,waiting,1,0,,claude-visual,draft
+3,1,cap_seal_20260923_184630_557477.jpg,G29,no_vial,waiting,1,0,,claude-visual,draft
+3,1,cap_seal_20260923_184630_557477.jpg,G30,no_vial,waiting,1,0,,claude-visual,draft

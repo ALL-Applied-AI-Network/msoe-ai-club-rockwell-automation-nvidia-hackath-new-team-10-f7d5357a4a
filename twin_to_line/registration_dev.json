@@ -1,0 +1,339 @@
+{
+ "date": "2026-10-14",
+ "method": "registration.py yellow-blob rule; offset = median over unique (run, position) caps",
+ "offset_dx_dy_px": [
+  0.9,
+  -1.34
+ ],
+ "previous_offset_dx_dy_px": [
+  -0.3,
+  -3.6
+ ],
+ "frames_used": [
+  "cap_seal_video_1.mp4@t0000.0",
+  "cap_seal_video_1.mp4@t0161.0",
+  "cap_seal_video_1.mp4@t0175.0",
+  "cap_seal_video_1.mp4@t0226.0",
+  "cap_seal_video_1.mp4@t0282.0",
+  "cap_seal_video_1.mp4@t0330.0",
+  "cap_seal_video_1.mp4@t0405.0",
+  "cap_seal_video_1.mp4@t0464.0",
+  "cap_seal_video_1.mp4@t0532.0",
+  "cap_seal_video_1.mp4@t0612.0",
+  "cap_seal_video_1.mp4@t0666.0",
+  "cap_seal_video_1.mp4@t0748.0",
+  "cap_seal_video_1.mp4@t0851.0",
+  "cap_seal_video_1.mp4@t0868.0",
+  "cap_seal_video_1.mp4@t0880.0",
+  "cap_seal_video_1.mp4@t0904.0",
+  "cap_seal_video_1.mp4@t0983.0",
+  "cap_seal_video_1.mp4@t1050.0",
+  "cap_seal_20260922_192609_126406.jpg",
+  "cap_seal_20260923_184630_557477.jpg"
+ ],
+ "runs": [
+  "1",
+  "2",
+  "3"
+ ],
+ "unique_caps": 21,
+ "inlier_caps_for_offset": 14,
+ "unique_cap_residual_px": {
+  "median": 4.06,
+  "p90": 12.15,
+  "max": 12.46,
+  "per_unit": {
+   "run1:G01": 6.47,
+   "run1:G02": 4.88,
+   "run1:G03": 4.06,
+   "run1:G04": 2.31,
+   "run1:G05": 0.56,
+   "run1:G08": 2.89,
+   "run1:G09": 0.32,
+   "run1:G10": 3.05,
+   "run1:G11": 4.81,
+   "run1:G12": 12.41,
+   "run1:G13": 7.41,
+   "run1:G14": 12.46,
+   "run1:G15": 12.15,
+   "run1:G16": 2.75,
+   "run1:G17": 9.83,
+   "run2:G02": 1.97,
+   "run2:G04": 1.25,
+   "run2:G05": 1.21,
+   "run2:G06": 4.12,
+   "run2:G07": 10.35,
+   "run2:G08": 2.96
+  }
+ },
+ "all_frame_observations_residual_px": {
+  "n": 135,
+  "median": 3.85,
+  "p90": 8.86
+ },
+ "empty_hole_check_run3": {
+  "frame": "cap_seal_20260923_184630_557477.jpg",
+  "holes_matched": 30,
+  "of": 30,
+  "median_px": 1.68,
+  "p90_px": 2.53,
+  "mean_dx_dy": [
+   -1.57,
+   0.12
+  ]
+ },
+ "per_frame": [
+  {
+   "run": "1",
+   "event": 1,
+   "frame": "cap_seal_video_1.mp4@t0000.0",
+   "caps_matched": 0,
+   "median_px": null,
+   "p90_px": null,
+   "max_px": null,
+   "outliers_ge6px": []
+  },
+  {
+   "run": "1",
+   "event": 2,
+   "frame": "cap_seal_video_1.mp4@t0161.0",
+   "caps_matched": 1,
+   "median_px": 5.26,
+   "p90_px": 5.26,
+   "max_px": 5.26,
+   "outliers_ge6px": []
+  },
+  {
+   "run": "1",
+   "event": 3,
+   "frame": "cap_seal_video_1.mp4@t0175.0",
+   "caps_matched": 2,
+   "median_px": 4.84,
+   "p90_px": 6.02,
+   "max_px": 6.32,
+   "outliers_ge6px": [
+    "G01"
+   ]
+  },
+  {
+   "run": "1",
+   "event": 4,
+   "frame": "cap_seal_video_1.mp4@t0226.0",
+   "caps_matched": 3,
+   "median_px": 4.05,
+   "p90_px": 6.36,
+   "max_px": 6.94,
+   "outliers_ge6px": [
+    "G01"
+   ]
+  },
+  {
+   "run": "1",
+   "event": 5,
+   "frame": "cap_seal_video_1.mp4@t0282.0",
+   "caps_matched": 4,
+   "median_px": 3.43,
+   "p90_px": 6.25,
+   "max_px": 7.17,
+   "outliers_ge6px": [
+    "G01"
+   ]
+  },
+  {
+   "run": "1",
+   "event": 6,
+   "frame": "cap_seal_video_1.mp4@t0330.0",
+   "caps_matched": 5,
+   "median_px": 2.84,
+   "p90_px": 5.81,
+   "max_px": 6.98,
+   "outliers_ge6px": [
+    "G01"
+   ]
+  },
+  {
+   "run": "1",
+   "event": 7,
+   "frame": "cap_seal_video_1.mp4@t0405.0",
+   "caps_matched": 5,
+   "median_px": 3.31,
+   "p90_px": 6.05,
+   "max_px": 7.11,
+   "outliers_ge6px": [
+    "G01"
+   ]
+  },
+  {
+   "run": "1",
+   "event": 8,
+   "frame": "cap_seal_video_1.mp4@t0464.0",
+   "caps_matched": 5,
+   "median_px": 3.85,
+   "p90_px": 6.14,
+   "max_px": 7.02,
+   "outliers_ge6px": [
+    "G01"
+   ]
+  },
+  {
+   "run": "1",
+   "event": 9,
+   "frame": "cap_seal_video_1.mp4@t0532.0",
+   "caps_matched": 6,
+   "median_px": 3.37,
+   "p90_px": 5.83,
+   "max_px": 6.71,
+   "outliers_ge6px": [
+    "G01"
+   ]
+  },
+  {
+   "run": "1",
+   "event": 10,
+   "frame": "cap_seal_video_1.mp4@t0612.0",
+   "caps_matched": 7,
+   "median_px": 2.7,
+   "p90_px": 5.38,
+   "max_px": 6.43,
+   "outliers_ge6px": [
+    "G01"
+   ]
+  },
+  {
+   "run": "1",
+   "event": 11,
+   "frame": "cap_seal_video_1.mp4@t0666.0",
+   "caps_matched": 8,
+   "median_px": 2.91,
+   "p90_px": 5.56,
+   "max_px": 6.21,
+   "outliers_ge6px": [
+    "G01"
+   ]
+  },
+  {
+   "run": "1",
+   "event": 12,
+   "frame": "cap_seal_video_1.mp4@t0748.0",
+   "caps_matched": 9,
+   "median_px": 2.95,
+   "p90_px": 5.52,
+   "max_px": 6.44,
+   "outliers_ge6px": [
+    "G01"
+   ]
+  },
+  {
+   "run": "1",
+   "event": 13,
+   "frame": "cap_seal_video_1.mp4@t0851.0",
+   "caps_matched": 10,
+   "median_px": 3.5,
+   "p90_px": 7.03,
+   "max_px": 12.34,
+   "outliers_ge6px": [
+    "G01",
+    "G12"
+   ]
+  },
+  {
+   "run": "1",
+   "event": 14,
+   "frame": "cap_seal_video_1.mp4@t0868.0",
+   "caps_matched": 11,
+   "median_px": 3.47,
+   "p90_px": 7.06,
+   "max_px": 12.17,
+   "outliers_ge6px": [
+    "G01",
+    "G12",
+    "G13"
+   ]
+  },
+  {
+   "run": "1",
+   "event": 15,
+   "frame": "cap_seal_video_1.mp4@t0880.0",
+   "caps_matched": 12,
+   "median_px": 4.31,
+   "p90_px": 12.11,
+   "max_px": 12.79,
+   "outliers_ge6px": [
+    "G01",
+    "G12",
+    "G13",
+    "G14"
+   ]
+  },
+  {
+   "run": "1",
+   "event": 16,
+   "frame": "cap_seal_video_1.mp4@t0904.0",
+   "caps_matched": 13,
+   "median_px": 3.92,
+   "p90_px": 12.32,
+   "max_px": 12.39,
+   "outliers_ge6px": [
+    "G01",
+    "G12",
+    "G13",
+    "G14",
+    "G15"
+   ]
+  },
+  {
+   "run": "1",
+   "event": 17,
+   "frame": "cap_seal_video_1.mp4@t0983.0",
+   "caps_matched": 14,
+   "median_px": 4.38,
+   "p90_px": 12.4,
+   "max_px": 12.91,
+   "outliers_ge6px": [
+    "G01",
+    "G12",
+    "G13",
+    "G14",
+    "G15"
+   ]
+  },
+  {
+   "run": "1",
+   "event": 18,
+   "frame": "cap_seal_video_1.mp4@t1050.0",
+   "caps_matched": 14,
+   "median_px": 4.53,
+   "p90_px": 11.38,
+   "max_px": 12.47,
+   "outliers_ge6px": [
+    "G01",
+    "G13",
+    "G14",
+    "G15",
+    "G17"
+   ]
+  },
+  {
+   "run": "2",
+   "event": 1,
+   "frame": "cap_seal_20260922_192609_126406.jpg",
+   "caps_matched": 6,
+   "median_px": 2.47,
+   "p90_px": 7.24,
+   "max_px": 10.35,
+   "outliers_ge6px": [
+    "G07"
+   ]
+  },
+  {
+   "run": "3",
+   "event": 1,
+   "frame": "cap_seal_20260923_184630_557477.jpg",
+   "caps_matched": 0,
+   "median_px": null,
+   "p90_px": null,
+   "max_px": null,
+   "outliers_ge6px": []
+  }
+ ]
+}
