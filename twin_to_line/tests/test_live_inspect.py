@@ -1,4 +1,4 @@
-import csv, os, sys, tempfile, threading, time, unittest, unittest.mock
+import contextlib, csv, io, os, sys, tempfile, threading, time, types, unittest, unittest.mock
 from datetime import datetime, timedelta
 import cv2, numpy as np
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -9,7 +9,7 @@ import live_inspect as L
 from events import segment_events
 import inspect_frame as IF
 from inspect_frame import inspect
-from rules import RuleInspector
+from rules import Observation, RuleInspector
 
 PM = P.PositionMap()
 YELLOW = (0, 220, 230)                                   # BGR, inside the cap HSV range
@@ -177,6 +177,140 @@ class ReplayAndOutputs(unittest.TestCase):
         r = s.process_frame(name(0), fixture([1])); s.close()
         self.assertEqual((r["exp_G01"], r["exp_G02"], r["exp_G03"]), ("PASS", "MISSED", ""))
         self.assertEqual(r["n_differ_from_expected"], 1)                         # G02 reads WAITING, expected MISSED
+
+
+class FiveClassLiveContract(unittest.TestCase):
+    class Inspector(RuleInspector):
+        name = "contract_test_staging5"
+
+        def inspect_batch(self, crops):
+            observations = super().inspect_batch(crops)
+            for observation in observations:
+                observation.features.update({"t_defect": 0.75, "reason_code": "contract_test_vision",
+                                             "model_argmax_class": observation.visual_state})
+            return observations
+
+        def info(self):
+            return {"name": self.name, "files": {"model.onnx": "a" * 64}, "model_sha256": "a" * 64,
+                    "t_defect": 0.75, "status": "test double"}
+
+    def test_predictions_include_required_audit_fields_without_removing_legacy_schema(self):
+        s, out = session(inspector=self.Inspector())
+        source = name(0)
+        s.process_frame(source, fixture([1])); s.close()
+        rows = read_csv(os.path.join(out, "predictions.csv"))
+        self.assertEqual(len(rows), 30)
+        required = {"source_image_id", "fixture_id", "position_id", "expected_occupancy",
+                    "expected_occupancy_source", "predicted_visual_class", "model_argmax_class", "model_score",
+                    "applicable_threshold", "inspection_decision", "reason_code", "inspection_timestamp_utc",
+                    "event_uid"}
+        legacy = {"run", "event", "frame", "position", "predicted_state", "defect_score", "final_state"}
+        self.assertTrue((required | legacy).issubset(rows[0]))
+        self.assertEqual({row["source_image_id"] for row in rows}, {source})
+        self.assertEqual({row["fixture_id"] for row in rows}, {"G"})
+        self.assertEqual(rows[0]["position_id"], "G01")
+        self.assertEqual((rows[0]["expected_occupancy"], rows[0]["inspection_decision"]), ("occupied", "PASS"))
+        self.assertEqual((rows[1]["expected_occupancy"], rows[1]["inspection_decision"]), ("empty", "WAITING"))
+        self.assertEqual({row["expected_occupancy_source"] for row in rows},
+                         {"deterministic_inference:visual_frontier"})
+        self.assertEqual((rows[0]["predicted_visual_class"], rows[0]["model_argmax_class"]), ("pass", "pass"))
+        self.assertEqual({row["applicable_threshold"] for row in rows}, {"0.75"})
+        self.assertTrue(all(row["inspection_timestamp_utc"] for row in rows))
+        self.assertEqual(len({row["event_uid"] for row in rows}), 1)
+        self.assertTrue(all(row["reason_code"] for row in rows))
+        info = __import__("json").load(open(os.path.join(out, "session.json")))
+        self.assertEqual(info["fixture_id"], "G")
+        self.assertEqual(info["operation"], {"mode": "shadow_evaluation_only", "actuation_enabled": False,
+                                              "automatic_release_enabled": False})
+
+    def test_unresolved_position_does_not_claim_expected_empty_or_occupied(self):
+        res = inspect(fixture(half=[14]), "ambiguous.png", PM, RuleInspector(), plate=PM.plate_mask())
+        row = next(row for row in IF.prediction_rows("live", 1, res) if row["position_id"] == "G14")
+        self.assertEqual((row["predicted_visual_class"], row["inspection_decision"], row["expected_occupancy"],
+                          row["expected_occupancy_source"]),
+                         ("unknown", "UNSURE", "unknown", "deterministic_inference:visual_frontier"))
+
+    def test_external_and_deterministic_count_sources_are_not_conflated(self):
+        explicit = inspect(fixture([1]), "count.png", PM, RuleInspector(), fill_count=1, plate=PM.plate_mask())
+        rows = {row["position_id"]: row for row in IF.prediction_rows("offline", 1, explicit)}
+        self.assertEqual((rows["G01"]["expected_occupancy"], rows["G01"]["expected_occupancy_source"]),
+                         ("occupied", "external_context:fill_count"))
+        self.assertEqual((rows["G02"]["expected_occupancy"], rows["G02"]["expected_occupancy_source"]),
+                         ("empty", "external_context:fill_count"))
+
+        explicit["K_source"] = "events"
+        event_rows = IF.prediction_rows("video", 2, explicit)
+        self.assertEqual({row["expected_occupancy_source"] for row in event_rows},
+                         {"deterministic_inference:event_count"})
+
+    def test_final_inspection_external_context_keeps_unresolved_expectation_occupied(self):
+        res = inspect(fixture(half=[14]), "final.png", PM, RuleInspector(), plate=PM.plate_mask(),
+                      mode="final_inspection")
+        row = next(row for row in IF.prediction_rows("live", 1, res) if row["position_id"] == "G14")
+        self.assertEqual((row["predicted_visual_class"], row["inspection_decision"], row["expected_occupancy"],
+                          row["expected_occupancy_source"]),
+                         ("unknown", "UNSURE", "occupied", "external_context:final_inspection"))
+
+    def test_raw_unsupported_argmax_is_preserved_separately_from_safety_class(self):
+        class UnsupportedInspector:
+            name = "unsupported_test"
+
+            def inspect_batch(self, crops):
+                return [Observation("unknown", 0.45,
+                                    {"model_argmax_class": "damaged_vial", "t_defect": 0.9,
+                                     "reason_code": "unsupported_class_is_global_argmax"},
+                                    "raw model output is not a defect detection; manual review required")
+                        for _ in crops]
+
+        res = inspect(fixture(), "unsupported.png", PM, UnsupportedInspector(), plate=PM.plate_mask())
+        self.assertEqual(res["positions"][0]["model_argmax_class"], "damaged_vial")
+        row = IF.prediction_rows("live", 1, res)[0]
+        self.assertEqual((row["model_argmax_class"], row["predicted_visual_class"], row["inspection_decision"]),
+                         ("damaged_vial", "unknown", "UNSURE"))
+
+    def test_staging5_requires_explicit_model_and_has_no_unknown_kind_fallback(self):
+        with self.assertRaisesRegex(ValueError, "explicit --model-dir"):
+            L.make_inspector("staging5", quiet=True)
+        with self.assertRaisesRegex(ValueError, "unknown inspector"):
+            L.make_inspector("typo", quiet=True)
+
+    def test_staging5_lazy_loader_warms_model_and_prints_shadow_banner(self):
+        class FakeInspector:
+            name, device, warmed = "resnet18_staging5_onnx", "cpu", False
+
+            def __init__(self, model_dir):
+                self.model_dir = model_dir
+
+            def warmup(self):
+                self.warmed = True
+
+            def info(self):
+                return {"name": self.name, "files": {"model.onnx": "b" * 64}, "model_sha256": "b" * 64,
+                        "t_defect": 0.75}
+
+        fake_module = types.SimpleNamespace(ResNet5OnnxInspector=FakeInspector)
+        output = io.StringIO()
+        with unittest.mock.patch.dict(sys.modules, {"resnet5_onnx_inspector": fake_module}), \
+             contextlib.redirect_stdout(output):
+            inspector = L.make_inspector("staging5", model_dir="/explicit/model", quiet=False)
+        self.assertEqual(inspector.model_dir, "/explicit/model")
+        self.assertTrue(inspector.warmed)
+        self.assertIn("SHADOW/EVALUATION ONLY", output.getvalue())
+
+    def test_fixture_s_is_refused_without_a_calibrated_map(self):
+        with self.assertRaisesRegex(ValueError, "fixture S"):
+            L.Session(tempfile.mkdtemp(), fixture_id="S", quiet=True)
+
+    def test_nonempty_output_directory_is_refused_without_truncating_evidence(self):
+        out = tempfile.mkdtemp()
+        predictions = os.path.join(out, "predictions.csv")
+        with open(predictions, "wb") as f:
+            f.write(b"existing evidence\n")
+        with self.assertRaisesRegex(FileExistsError, "refusing nonempty live output directory"):
+            L.Session(out, ix=None, quiet=True)
+        with open(predictions, "rb") as f:
+            self.assertEqual(f.read(), b"existing evidence\n")
+        self.assertEqual(os.listdir(out), ["predictions.csv"])
 
 
 class FolderSource(unittest.TestCase):

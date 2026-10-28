@@ -1,0 +1,1 @@
+sample_id,event_uid,session_id,event_id,source_image_id,source_image_relpath,source_image_sha256,capture_time,fixture_id,position_id,expected_occupancy,visual_class,inspection_mode,gt_sequence,designation,usable,split,split_reason,label_source,annotator_id,annotation_confidence,review_state,notes

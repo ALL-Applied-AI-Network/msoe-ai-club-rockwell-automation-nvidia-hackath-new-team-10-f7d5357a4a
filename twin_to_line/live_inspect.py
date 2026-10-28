@@ -4,7 +4,7 @@ fill-sequence state (LIVE_FILL, D021) -> predictions CSV + trial log + operator 
     python live_inspect.py --source replay:DIR [--labels labels/dev_labels.csv] [--out DIR]
     python live_inspect.py --source folder:DIR [--poll 0.25] [--idle-exit S]
     python live_inspect.py --source stream:URL|DEVICE|FILE [--every 1.0] [--idle-exit S]
-        [--inspector rule|resnet] [--threshold d038|preregistered] [--model-dir DIR] [--device mps|cpu]
+        [--inspector rule|resnet|staging5] [--threshold d038|preregistered] [--model-dir DIR] [--device mps|cpu]
     python live_inspect.py --export-replay 1 --out results/live/replay_run1 [--from video|stills] [--step 1.0]
     python live_inspect.py --preflight PKG/preflight --out DIR      (GB10 package self-check, LIVE_RUNBOOK.md section 7)
 
@@ -52,6 +52,9 @@ Inspectors (--inspector):
   resnet          synthetic-only ResNet-18 v1 (resnet_inspector.py), threshold D038 (default) or the pre-registered one.
                   G3 on DEV runs 1-3 was NO-GO (87.7 % false positives at D038), so per the plan the rule baseline
                   runs live and the ResNet is scored offline as arm A; the step-9 choice is Noor's.
+  staging5        five-output staging-data ResNet-18 exported to ONNX (resnet5_onnx_inspector.py). An explicit
+                  --model-dir is required and model provenance is verified before any frame is read. This is a
+                  shadow/evaluation-only demo: it never actuates, releases, or automatically passes product.
 Preflight (--preflight): prints OS, CPU, glibc, Python, numpy / OpenCV versions and the sha256 of every runtime file,
 then scores the package's bundled frames (the 1080 still, 10 DEV run-1 event frames at 640 and as 1080 copies) with
 --gate each and compares every hole with the Mac's predictions shipped next to them. Exit 0 = PREFLIGHT OK.
@@ -74,9 +77,13 @@ STILL_RE = re.compile(r"(\d{8})_(\d{6})_(\d{6})")
 FLAGGED = ("DEFECT", "MISSED", "UNSURE")
 RUNTIME_FILES = ("live_inspect.py", "inspect_frame.py", "positions.py", "fill_state.py", "rules.py", "events.py",
                  "real_data.py", "position_map_G.json", "registration_dev.json", "rule_thresholds.json",
-                 "resnet_inspector.py", "train_resnet.py", "frame_warp.py", "frame_warp_1080.json")
-PRED_FIELDS = ["run", "event", "frame", "position", "predicted_state", "defect_score", "pred_sequence", "final_state",
-               "K", "K_source", "cap_frac", "cap_offset", "reason"]
+                 "resnet_inspector.py", "resnet5_onnx_inspector.py", "staging_dataset.py", "train_resnet.py",
+                 "train_resnet5.py", "frame_warp.py", "frame_warp_1080.json")
+PRED_FIELDS = ["source_image_id", "fixture_id", "position_id", "expected_occupancy", "expected_occupancy_source",
+               "predicted_visual_class", "model_argmax_class", "model_score", "applicable_threshold",
+               "inspection_decision", "reason_code",
+               "inspection_timestamp_utc", "event_uid", "run", "event", "frame", "position", "predicted_state",
+               "defect_score", "pred_sequence", "final_state", "K", "K_source", "cap_frac", "cap_offset", "reason"]
 IDS = [f"G{i:02d}" for i in range(1, 31)]
 TRIAL_FIELDS = (["time_utc", "session", "git", "inspector", "model_sha256", "input_file", "frame_t", "status", "arm_px",
                  "event", "event_frame", "event_delay_s", "K", "n_flagged", "n_differ_from_expected", "latency_ms"]
@@ -86,6 +93,8 @@ ARCHIVE_COMMIT = os.path.join(P.HERE, "ARCHIVE_COMMIT")      # filled in by `git
 GRID_CODE = {"PASS": "ok", "DEFECT": "DEF", "MISSED": "MISS", "UNSURE": "??", "WAITING": "."}
 GRID_ANSI = {"PASS": "32", "DEFECT": "1;31", "MISSED": "1;35", "UNSURE": "1;33", "WAITING": "2"}
 VIEW_HTML = "view.html"
+SHADOW_BANNER = ("SAFETY: STAGING5 SHADOW/EVALUATION ONLY — no automatic product release, line actuation, "
+                 "or deterministic-rule override.")
 VIEW_PAGE = """<!doctype html>
 <html><head><meta charset="utf-8"><title>Twin-to-Line live view: {session}</title>
 <style>body{{margin:0;background:#111;color:#ddd;font:14px sans-serif}}#s{{padding:6px 10px}}
@@ -147,6 +156,17 @@ def filename_time(path):
 def frame_time(path):
     t = filename_time(path)
     return os.path.getmtime(path) if t is None else t
+
+
+def event_timestamp_utc(path, event_time):
+    """Stable UTC capture/arrival time when the event clock is an epoch; video-relative clocks stay blank."""
+    try:
+        captured = filename_time(path)
+    except ValueError:
+        captured = None
+    value = event_time if captured is None else captured
+    return (datetime.fromtimestamp(value, timezone.utc).isoformat(timespec="milliseconds")
+            if value is not None and value >= 946684800 else "")
 
 
 class FolderClock:
@@ -525,7 +545,9 @@ class CsvLog:
     """CSV written and flushed row by row, so Ctrl-C or a crash never loses a logged row."""
 
     def __init__(self, path, fields):
-        self.f = open(path, "w", newline="")
+        # Session output directories are fresh.  Exclusive creation closes the remaining race between the
+        # directory check and opening evidence files: an existing log is never truncated.
+        self.f = open(path, "x", newline="")
         self.w = csv.DictWriter(self.f, fieldnames=fields, extrasaction="ignore"); self.w.writeheader(); self.f.flush()
 
     def write(self, rows):
@@ -537,8 +559,21 @@ class CsvLog:
 
 class Session:
     def __init__(self, out, source="", run_id=None, gate="events", mode=LIVE_FILL, track=False, labels=None,
-                 note="", ix="auto", pmap=None, inspector=None, quiet=False, warp="auto"):
+                 note="", ix="auto", pmap=None, inspector=None, quiet=False, warp="auto", fixture_id="G"):
+        if fixture_id != "G":
+            raise ValueError("fixture S is refused: no calibrated fixture-S position map is available")
+        if os.path.exists(out):
+            if not os.path.isdir(out):
+                raise FileExistsError(f"refusing nonempty live output directory: {out}; preserve existing evidence")
+            with os.scandir(out) as entries:
+                if next(entries, None) is not None:
+                    raise FileExistsError(
+                        f"refusing nonempty live output directory: {out}; preserve existing evidence"
+                    )
+        else:
+            os.makedirs(out, exist_ok=False)
         self.out, self.run_id, self.mode, self.quiet = out, run_id, mode, quiet
+        self.fixture_id = fixture_id
         self.pm = pmap or P.PositionMap(); self.plate = self.pm.plate_mask()
         self.warp = FW.load() if warp == "auto" else warp           # None: 1080 frames are wrong_size
         if self.warp is not None and self.warp.size_out != tuple(self.pm.size):
@@ -549,24 +584,35 @@ class Session:
         self.ix = dataset_index() if ix == "auto" else ix
         self.expected = expected_states(labels) if labels else {}
         self.name = os.path.basename(os.path.normpath(out))
-        insp_info = self.insp.info()                    # model sha in the trial log = the inspector's first file
-        self.git, self.model_sha = code_version(), next(iter(insp_info["files"].values()), "")
+        insp_info = self.insp.info()
+        files = insp_info.get("files", {})
+        if not isinstance(files, dict):
+            raise ValueError(f"{self.insp.name}.info()['files'] must be a path-to-sha256 mapping")
+        model_sha = insp_info.get("model_sha256", "")
+        if not model_sha:
+            model_sha = next((digest for path, digest in files.items()
+                              if os.path.basename(path) in {"model.onnx", "model.pt"}), "")
+        self.git, self.model_sha = code_version(), model_sha or next(iter(files.values()), "")
         self.events, self.counts, self.latency, self.stop_reason = 0, Counter(), [], "end of source"
         self.source_error = None
-        os.makedirs(os.path.join(out, "overlays"), exist_ok=True)
-        with open(os.path.join(out, VIEW_HTML), "w") as f:
+        os.mkdir(os.path.join(out, "overlays"))
+        with open(os.path.join(out, VIEW_HTML), "x") as f:
             f.write(VIEW_PAGE.format(session=self.name))
         self.preds = CsvLog(os.path.join(out, "predictions.csv"), PRED_FIELDS)
         self.trial = CsvLog(os.path.join(out, "trial_log.csv"), TRIAL_FIELDS)
-        self.info = {"session": self.name, "started_utc": self.now(), "source": source, "gate": gate, "mode": mode,
+        self.info = {"session": self.name, "started_utc": self.now(), "source": source, "fixture_id": fixture_id,
+                     "gate": gate, "mode": mode,
                      "track": track, "run_id": run_id, "labels": labels, "note": note, "git": self.git,
                      "inspector": insp_info,
+                     "operation": {"mode": "shadow_evaluation_only", "actuation_enabled": False,
+                                   "automatic_release_enabled": False},
                      "position_map": {"file": os.path.relpath(P.MAP_PATH, P.HERE), "sha256": sha256(P.MAP_PATH),
                                       "image_size": list(self.pm.size), "offset_px": list(self.pm.offset),
                                       "offset_source": self.pm.offset_source},
                      "frame_warp": self.warp.info() if self.warp else None,
                      "event_rule": {"change_t": E.CHANGE_T, "stable_s": E.STABLE_S, "arm_min_area": E.ARM_MIN_AREA},
-                     "code_sha256": {f: sha256(os.path.join(P.HERE, f)) for f in RUNTIME_FILES}}
+                     "code_sha256": {f: sha256(os.path.join(P.HERE, f)) for f in RUNTIME_FILES
+                                     if os.path.isfile(os.path.join(P.HERE, f))}}
         self.write_info()
 
     @staticmethod
@@ -623,8 +669,12 @@ class Session:
     def score(self, ev, changed, t_now):
         name, t, img = ev
         self.events += 1
-        res = inspect(img, name, self.pm, self.insp, plate=self.plate, mode=self.mode, tracker=self.tracker)
-        self.preds.write(prediction_rows(self.run_of(name), self.events, res))
+        res = inspect(img, name, self.pm, self.insp, plate=self.plate, mode=self.mode, tracker=self.tracker,
+                      fixture_id=self.fixture_id)
+        run_id = self.run_of(name)
+        self.preds.write(prediction_rows(run_id, self.events, res,
+                                         event_uid=f"{run_id}:{name}:{t:.6f}",
+                                         inspection_timestamp_utc=event_timestamp_utc(name, t)))
         view = annotate(img, res, self.pm)
         cv2.imwrite(os.path.join(self.out, "overlays", f"e{self.events:02d}_{safe(name)}.png"), view)
         tmp = os.path.join(self.out, ".overlay_latest.png"); cv2.imwrite(tmp, view)
@@ -662,15 +712,31 @@ def make_inspector(kind="rule", threshold="d038", model_dir=None, device=None, q
     """The inspector for a session, loaded (and, for the ResNet, warmed up) before the first frame arrives."""
     if kind == "rule":
         insp = RuleInspector()
-    else:
+    elif kind == "resnet":
         from resnet_inspector import MODEL_DIR, ResNetInspector
         insp = ResNetInspector(model_dir or MODEL_DIR, threshold, device)
         insp.warmup()
+    elif kind == "staging5":
+        if not model_dir:
+            raise ValueError("--inspector staging5 requires an explicit --model-dir; no model fallback is allowed")
+        if device not in (None, "cpu"):
+            raise ValueError("the OpenCV ONNX staging5 runtime supports --device cpu only")
+        from resnet5_onnx_inspector import ResNet5OnnxInspector
+        insp = ResNet5OnnxInspector(model_dir)
+        insp.warmup()
+    else:
+        raise ValueError(f"unknown inspector {kind!r}")
     if not quiet:
         i = insp.info(); f, h = next(iter(i["files"].items()), ("", ""))
-        extra = (f" t={i['t_defect']:.5f} (pre-registered {i['t_defect_preregistered']:.5f}) on {insp.device}"
-                 if kind == "resnet" else "")
+        if kind == "resnet":
+            extra = f" t={i['t_defect']:.5f} (pre-registered {i['t_defect_preregistered']:.5f}) on {insp.device}"
+        elif kind == "staging5":
+            extra = f" t={i['t_defect']:.5f} on {getattr(insp, 'device', 'cpu')}"
+        else:
+            extra = ""
         print(f"inspector {i['name']}{extra}  {f} {h[:12]}")
+        if kind == "staging5":
+            print(SHADOW_BANNER)
     return insp
 
 
@@ -714,7 +780,7 @@ def preflight(data, out):
     env = {**environment(), "code": code_version()}
     for k, v in env.items():
         print(f"{k:8s} {v}")
-    hashes = {f: sha256(os.path.join(P.HERE, f)) for f in RUNTIME_FILES}
+    hashes = {f: sha256(os.path.join(P.HERE, f)) for f in RUNTIME_FILES if os.path.isfile(os.path.join(P.HERE, f))}
     for f, h in hashes.items():
         print(f"sha256   {h}  {f}")
     ok, sets = True, {}
@@ -762,12 +828,17 @@ if __name__ == "__main__":
     ap.add_argument("--note", default="")
     ap.add_argument("--export-replay", metavar="RUN"); ap.add_argument("--from", dest="from_", choices=("video", "stills"), default="video")
     ap.add_argument("--step", type=float, default=1.0)
-    ap.add_argument("--inspector", choices=("rule", "resnet"), default="rule")
+    ap.add_argument("--inspector", choices=("rule", "resnet", "staging5"), default="rule")
     ap.add_argument("--threshold", choices=("d038", "preregistered"), default="d038", help="ResNet threshold (D038)")
-    ap.add_argument("--model-dir", help="ResNet run folder (default results/train/resnet18_v1)")
+    ap.add_argument("--model-dir", help="model run folder (required for staging5; no fallback)")
     ap.add_argument("--device", help="ResNet device (default mps if available, else cpu)")
+    ap.add_argument("--fixture", choices=("G", "S"), default="G", help="fixture to inspect (only G is calibrated)")
     ap.add_argument("--preflight", metavar="DIR", help="package self-check on the bundled frames in DIR")
     a = ap.parse_args()
+    if a.fixture != "G":
+        ap.error("fixture S is refused: no calibrated fixture-S position map is available")
+    if a.inspector == "staging5" and not a.model_dir:
+        ap.error("--inspector staging5 requires an explicit --model-dir; no model fallback is allowed")
     if a.preflight:
         sys.exit(0 if preflight(a.preflight, a.out or os.path.join(P.HERE, "results", "preflight")) else 1)
     if a.export_replay:
@@ -789,7 +860,8 @@ if __name__ == "__main__":
             frames = replay(folder, ix) if kind == "replay" else watch(folder, a.poll, a.idle_exit, stats=stats, ix=ix)
         out = a.out or os.path.join(P.HERE, "results", "live", datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ"))
         insp = make_inspector(a.inspector, a.threshold, a.model_dir, a.device)
-        s = Session(out, a.source, a.run_id, a.gate, a.mode, a.track, a.labels, a.note, ix=ix, inspector=insp)
+        s = Session(out, a.source, a.run_id, a.gate, a.mode, a.track, a.labels, a.note, ix=ix, inspector=insp,
+                    fixture_id=a.fixture)
         if kind == "folder":
             s.write_info(**stats)
             print(f"watching {folder}: {stats.get('ignored_existing_images', 'unknown')} image(s) already there are ignored; new images only")

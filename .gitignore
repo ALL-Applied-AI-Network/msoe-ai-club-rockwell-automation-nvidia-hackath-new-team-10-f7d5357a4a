@@ -15,6 +15,10 @@ venv/
 *.tar.gz
 csi-vial-fill-dataset/
 csi_digital_twin*/
+# Collected staging captures, derived manifests, YAAD bundles/results, trained
+# artifacts, and offline USB kits are local/generated. The source staging
+# dataset is maintained in its own repository.
+data/
 data/raw/
 data/downloaded/
 # Generated Twin-to-Line artifacts
