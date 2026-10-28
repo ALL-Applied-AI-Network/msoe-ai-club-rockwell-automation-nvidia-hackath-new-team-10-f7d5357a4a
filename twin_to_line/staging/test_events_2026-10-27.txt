@@ -1,0 +1,6 @@
+# Predeclared protected test events. Never use these pixels for fitting or thresholds.
+visit_20261027T174831_k9fpc3:setup_06
+visit_20261027T174831_k9fpc3:setup_07
+visit_20261027T174831_k9fpc3:setup_15
+visit_20261027T174831_k9fpc3:setup_17
+visit_20261027T174831_k9fpc3:setup_21

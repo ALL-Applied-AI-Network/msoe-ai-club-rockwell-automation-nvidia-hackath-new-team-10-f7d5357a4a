@@ -1,0 +1,6 @@
+# Predeclared within-visit validation events. Do not change after training starts.
+visit_20261027T174831_k9fpc3:setup_03
+visit_20261027T174831_k9fpc3:setup_08
+visit_20261027T174831_k9fpc3:setup_12
+visit_20261027T174831_k9fpc3:setup_13
+visit_20261027T174831_k9fpc3:setup_20

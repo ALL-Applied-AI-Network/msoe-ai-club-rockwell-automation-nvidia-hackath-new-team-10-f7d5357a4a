@@ -1,0 +1,5 @@
+# The YAAD NGC PyTorch image supplies torch, torchvision, CUDA and NumPy.
+# Exact ARM64 wheels keep the sealed run reproducible and avoid pulling a
+# newer OpenCV release that would replace the image's constrained NumPy.
+opencv-python-headless==4.10.0.84
+pytest==8.4.2
