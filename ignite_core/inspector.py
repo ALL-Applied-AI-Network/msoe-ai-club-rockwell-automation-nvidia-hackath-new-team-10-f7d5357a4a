@@ -10,10 +10,11 @@ class Observation:
     features: dict | None = None
     reason: str = ""
 
-class Inspector(Protocol)
+class Inspector(Protocol):
     def inspect(self, crop: PositionCrop) -> Observation:
         ...
 
 class MockInspector:
     def inspect(self, crop: PositionCrop) -> Observation:
-        return Observation(visual_state="pass", score=0.0, reason="mock_prediction")
+        # A placeholder has no visual evidence and must never manufacture PASS.
+        return Observation(visual_state="unknown", score=None, reason="mock_no_evidence")

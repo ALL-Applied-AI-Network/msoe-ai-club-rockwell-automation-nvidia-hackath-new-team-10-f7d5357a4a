@@ -19,6 +19,7 @@ import numpy as np
 
 import frame_warp as FW
 from resnet5_inspector import ResNet5Inspector
+from staging5_decision_policy import decide_one
 from staging_dataset import (
     CANONICAL_CLASSES,
     DEFECT_CLASSES,
@@ -31,7 +32,6 @@ from staging_dataset import (
 )
 from train_resnet5 import (
     _parse_maps,
-    decide_one,
     evaluate,
     final_decision,
     verify_preprocessing_sha256,
@@ -71,7 +71,7 @@ def compute_metrics(
             "expected_occupancy": row.expected_occupancy,
             "ground_truth_visual_class": row.visual_class,
             "predicted_visual_class": predicted,
-            "defect_score": round(float(score), 8),
+            "defect_score": None if score is None else round(float(score), 8),
             "applicable_threshold": threshold,
             "inspection_decision": decision,
             "ground_truth_decision": _ground_truth_decision(row),
@@ -82,7 +82,9 @@ def compute_metrics(
         }
         record.update(
             {
-                f"p_{name}": round(float(value), 8)
+                f"p_{name}": (
+                    round(float(value), 8) if np.isfinite(float(value)) else None
+                )
                 for name, value in zip(CANONICAL_CLASSES, probability)
             }
         )

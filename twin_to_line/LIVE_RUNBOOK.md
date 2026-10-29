@@ -66,7 +66,17 @@ never writes into the image folder (R10).
      (unchanged files only) are not read; `session.json` records N.
    - `operator view: this console (one grid per event), <OUT>/overlay_latest.png, or <OUT>/view.html in a browser`.
      Then nothing until the first event.
-   - Within ~2 s, `$OUT` contains `overlays/`, `predictions.csv`, `session.json`, `trial_log.csv` and `view.html`.
+   - Within ~2 s, `$OUT` contains `overlays/`, `predictions.csv`, `session.json`, `runtime_status.json`,
+     `trial_log.csv` and `view.html`. `runtime_status.json` is replaced atomically after every input. It starts
+     `INSPECTION_UNAVAILABLE`, changes to reason `input_processing` before decode/inference, and remains unavailable
+     after an unscored input, any input/source fault, during `session_closing`, or after session end. The closing
+     state is published before either CSV is closed, so a slow or blocked filesystem close cannot leave an old
+     available state on disk. Only a newly completed `scored` event publishes
+     `INSPECTION_AVAILABLE`. It is shadow-only status and never grants PASS, release, or actuation authority.
+     Its `availability_scope` is `processing_runtime_only` and `source_liveness_guaranteed` is false: folder silence
+     can be normal, so the runtime does not invent a universal idle timeout. Any consumer must configure a maximum
+     age or heartbeat appropriate to its camera route and treat an older-than-configured `status_updated_utc` as
+     unavailable.
    - In `session.json`, `"git"` is the frozen commit **without** `+modified`.
 3. **Watch the log** in a second terminal: `tail -f "$OUT/trial_log.csv" | cut -d, -f6,8,77`. Each new image adds one
    `file,status,path` line within ~1 s.
@@ -102,7 +112,9 @@ never writes into the image folder (R10).
   In a terminal the codes are coloured (green ok, red DEF, magenta MISS, yellow ??, dim .).
 - **Operator view (extra, if there is a browser):** open `$OUT/view.html` (`xdg-open "$OUT/view.html"`, or drag it into
   the browser). It reloads `overlay_latest.png` every second over `file://`; the image is replaced atomically (temp
-  file + rename), so a half-written overlay is never shown. Earlier events stay in `$OUT/overlays/eNN_<frame>.png`.
+  file + rename), so a half-written overlay is never shown. The page explicitly labels it as the **last successful
+  event**, not the current input or a product-release decision. Check `runtime_status.json` for current health.
+  Earlier events stay in `$OUT/overlays/eNN_<frame>.png`.
 - **Interventions.** Anything a person does goes on the paper log with the clock time: robot stopped, part moved,
   restart, cable, re-aim. After the session, copy those notes into the `intervention` column of the matching
   `trial_log.csv` rows. Never edit any other column.
@@ -111,6 +123,8 @@ never writes into the image folder (R10).
 1. Press **Ctrl-C once** in the terminal running `live_inspect.py`.
 2. **Expected:** one line `N frames, M events, {...} -> <OUT>`. The prompt returns with no traceback.
    `session.json` shows `"stop_reason": "ctrl-c"`. Every row was already written as it happened, so nothing is lost.
+   It also reports separately named all-record and scored-event p50/p95/p99 latency; use the scored-event values for
+   inference performance because cheap gating/source records can make the all-record distribution look faster.
 3. **Copy all of `$OUT`** to the USB stick, and note the start and stop times on the paper log.
 
 ## 4. Errors: what you see and what to do
@@ -128,7 +142,9 @@ never writes into the image folder (R10).
 | `FileNotFoundError: ... frame_warp_1080.json` at startup | The required warp file is missing; startup stops while hashing runtime files | Restore the frozen package and check its hashes (§0.1 or §7) before restarting |
 | `WARNING folder ...`, status `source_error` | The watched directory cannot be listed (e.g. disconnected mount or permissions) | The runtime retries every `--poll` seconds and logs `source_recovered` on recovery; restore access. If `--idle-exit` ends during the outage, `session.json` records the source error |
 | Status `refused` | A dataset holdout frame (runs 4–5) arrived in the folder | Ctrl-C; take that folder out of use; tell Noor |
-| Status `error` (the note has the message) | One frame failed; the program keeps going | One-off: note it. Repeated: Ctrl-C, start again with a new `OUT`, log it as an intervention |
+| Status `error` (the note has the message) | A recoverable pre-stateful frame operation failed, or a gate/score/evidence transaction failed | Any note starting `restart_required_after_` is fatal: the session stops and refuses more inputs because gate/tracker state or audit evidence may have changed. Preserve the entire `OUT`; restart with a new one and never reuse its gate/tracker state. Predictions plus an archival overlay may be retained if only publishing `overlay_latest.png` failed; the prior latest overlay remains and health is unavailable. For another one-off error, note it; repeated errors require a restart |
+| `runtime_status.json` says `INSPECTION_UNAVAILABLE` | No event has succeeded yet, the latest input/source fault is unresolved, shutdown is in `session_closing`, or the session ended | Do not treat the last overlay as current. Restore the input route and wait for a new `scored` event; recovery alone does not clear this state. Never restart into the same `OUT` after a shutdown/evidence failure |
+| `SessionRestartRequired`, `runtime_status.json` disappears, or shutdown reports an evidence-close failure | Gate, score, prediction, overlay, trial/health status, or close evidence could not be completed safely | Fatal even if no final trial row was writable. Preserve the entire `OUT`, never reuse its gate/tracker state, and restart with a new `OUT`. A failed CSV append is rolled back when possible; rollback failure is reported explicitly. If predictions and the archival overlay committed before latest-overlay publication failed, they remain as partial evidence, event numbering stays reserved, the prior `overlay_latest.png` remains, and health is unavailable |
 | A new image is in `IN` but no trial-log line appears | It isn't `.png` / `.jpg` / `.jpeg`, or its name starts with `.` (ignored) | `ls -la "$IN"`; ask CSI for the file type |
 | Trial-log lines keep coming but no event for minutes | The arm stays over the fixture, the scene never holds still for 4 s, or `frame_t` barely advances (e.g. a burst with missing, invalid or repeated filename timestamps) | Check `arm` / `settling` and column 7. If `frame_t` is flat, stop and tell Noor (§6); for independent stills saved on request, restart with `--gate each` (§7.5) |
 | Boxes on the overlay don't sit on the holes; many holes UNSURE or WAITING that look filled | The camera view differs from the position map | Ctrl-C; take one photo of the screen; tell Noor. Never re-aim or move the camera (CSI rule) |

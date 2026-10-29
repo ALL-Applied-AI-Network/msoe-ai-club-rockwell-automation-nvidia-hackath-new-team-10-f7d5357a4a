@@ -1,0 +1,92 @@
+Use only vial_guard_staging_collector_2026-10-29.run and the instructions beside
+it for this collection. First run `sha256sum -c PACKAGE_SHA256SUMS` from the kit
+directory and report the exact result. Do not edit/rebuild the launchable,
+inspect captured images for labels, run a model, change camera settings, or
+touch robot, PLC, conveyor, actuator, network, or product-release controls.
+
+Before each rehearsal, train, or validation event, open the matching entry in
+ALL_STAGING_EVENTS.md and reconcile it with the collector display. The file is
+a read-only fixture-G reference: never write runtime identifiers, hashes,
+measurements, or notes into the checksummed USB copy. The collector display and
+session's immutable plan.csv are authoritative for exact target positions;
+never invent or reuse a slot assignment from the shared guide. For a
+protected-test session, use only the event cards created inside the custodian's
+protected records/event_cards directory; never copy them to this USB or the
+development account. The protected section in ALL_STAGING_EVENTS.md is public
+aggregate information only, not an executable protected plan. Treat the
+proposed partial-fill/lean extension as NOT RUNNABLE until a later collector
+version explicitly implements it.
+
+Keep the launcher on USB, but require local compute-module paths for the camera
+source and active evidence output; neither may be inside the USB kit directory.
+Confirm the approved physical G01-G30 numbering guide is present and matches the
+frozen G map. STOP on any numbering or fixture-map ambiguity.
+
+The repository currently provides only a placeholder baseline-freeze example.
+It is not valid. Never fabricate hashes, rename the example, or substitute a
+staging-trained candidate. If no authorized synthetic-only baseline freeze is
+provided, allow `rehearsal` only and STOP any train, validation, or
+protected_test request.
+
+Ask me for:
+
+- rehearsal, train, validation, or protected_test role;
+- camera image folder;
+- evidence output root;
+- operator ID and camera/profile ID;
+- expected resolution (normally 1920x1080);
+- frozen synthetic baseline JSON for official roles;
+- a separate protected camera/output/custodian and the frozen five-file
+  development handoff for protected_test.
+
+Launch the collector in the foreground. Read each event's exact setup aloud.
+Only submit uppercase READY after I explicitly confirm: the stated physical
+setup is complete, it is a fresh placement, motion has stopped, hands/arm/tools
+are clear, the approved camera/mount/settings are unchanged, and the camera
+application saved exactly one new JPEG/PNG. Never manufacture that confirmation
+yourself. A folder that continuously creates multiple frames is incompatible;
+pause it or use a single-still output folder under the approved camera process.
+Require baseline Huffman JPEG (SOF0) or non-interlaced PNG; the collector
+intentionally refuses progressive/arithmetic/multiscan JPEG and interlaced PNG.
+
+Require contemporaneous primary-target angle records keyed by event UID and
+position, including method, uncertainty, measurer, and time. If angles will be
+derived later from pixels, require a documented validated method and retained
+uncertainty. Otherwise they stay blank and no angle-stratified claim is allowed.
+
+After the collector retains a frame, ask me for its required human setup-match
+confirmation. A retake is valid only when the physical state is unchanged. If a
+vial, cap, fixture, camera, or mount moved, use `q`; the moved state needs a new
+physical event/session. The script, not Codex, records capture names,
+dimensions, hashes, retakes, skips, and seal membership. Stop and report the
+exact refusal on a role/root mismatch, baseline/map failure, unexpected
+resolution, multiple/unstable/duplicate images, hash error, or tamper check.
+
+After sealing and verification, run `export-review` to a new empty directory.
+Give reviewer_a_packet and reviewer_b_packet to two different authorized
+reviewers under separate access. Neither reviewer receives the other packet,
+coordinator_only files, event plan, staging intent, expected occupancy, or
+sequence context before both reviews are locked. Never edit sealed originals.
+Copy sealed evidence to approved storage and verify its SHA-256 after copying.
+
+Before protected_test, confirm every train and validation session is COMPLETE,
+sealed, verified, adjudicated, and baseline-scored. Under the development
+account run `freeze-development --development-root DEV --out-dir NEW_HANDOFF`.
+Warn me immediately before running it: success irreversibly closes that
+development campaign to new captures. The command mechanically verifies sealed
+raw sessions; independently confirm the review and baseline-scoring gates first.
+Transfer only the five-file handoff—
+development_campaign.json, development_capture_sha256_reservations.csv,
+development_sealed_sessions.json, protected_handoff_receipt.json, and
+SHA256SUMS—to the custodian. Do not transfer development pixels or session
+directories. Verify the handoff, then start
+protected collection with `--protected-handoff NEW_HANDOFF`; the protected
+account must not need access to the development root.
+
+Do not describe intended setup as ground truth. Independent visible-content
+review happens after collection. A language model cannot override a
+deterministic rule or human safety confirmation. For protected_test, use a
+separate custodian/account, inaccessible camera-source folder, evidence root,
+and review storage. Do not expose protected pixels, labels, filenames, or event
+identifiers to the development session.
+

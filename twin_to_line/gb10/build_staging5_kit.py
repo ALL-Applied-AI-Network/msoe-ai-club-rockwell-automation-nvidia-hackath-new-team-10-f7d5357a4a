@@ -29,8 +29,19 @@ import urllib.request
 HERE = Path(__file__).resolve().parent
 TTL = HERE.parent
 REPO = TTL.parent
-PACKAGE_VERSION = "staging5-2026-10-28"
-KIT_BASENAME = "ttl_kit_staging5_2026-10-28"
+if str(TTL) not in sys.path:
+    sys.path.insert(0, str(TTL))
+
+from staging5_decision_policy import POLICY_VERSION  # noqa: E402
+
+
+PACKAGE_VERSION = "staging5-policy-v2-candidate-r1"
+KIT_BASENAME = "ttl_kit_staging5_policy_v2_candidate_r1"
+INSTALL_DIR_NAME = "ttl_staging5_policy_v2_candidate_r1"
+CANDIDATE_INPUT_ROOT = REPO / "data/staging5-policy-v2-candidate-r1"
+POLICY_V2_REQUIRED_MESSAGE = (
+    "use existing sealed .run; new build requires policy-v2 artifacts"
+)
 
 PYTHON_RUNTIME = {
     "release": "20261009",
@@ -53,6 +64,7 @@ ARM64_WHEEL_SHA256 = {
 
 APP_FILES = (
     "live_inspect.py",
+    "runtime_health.py",
     "inspect_frame.py",
     "positions.py",
     "fill_state.py",
@@ -61,6 +73,7 @@ APP_FILES = (
     "real_data.py",
     "frame_warp.py",
     "eval_metrics.py",
+    "staging5_decision_policy.py",
     "staging_dataset.py",
     "train_resnet.py",
     "train_resnet5.py",
@@ -80,9 +93,8 @@ MODEL_FILES = (
     "validation_predictions.csv",
 )
 DOC_FILES = (
-    "STAGING_TRAINING.md",
-    "staging/PROTOCOL_2026-10-28.md",
-    "staging/RESULT_2026-10-28.md",
+    "LIVE_RUNBOOK.md",
+    "staging/RETRAINING_LIFECYCLE.md",
 )
 PREFLIGHT_FRAME_NAMES = ("setup_03_r1.jpg", "setup_20.jpg")
 
@@ -101,7 +113,6 @@ def _read_json(path: Path) -> dict:
         raise ValueError(f"{path}: expected a JSON object")
     return value
 
-
 def _copy(source: Path, destination: Path) -> None:
     if not source.is_file() or source.is_symlink():
         raise FileNotFoundError(f"required regular file is missing or unsafe: {source}")
@@ -114,19 +125,81 @@ def authenticate_inputs(model_dir: Path, onnx_dir: Path) -> tuple[dict, dict, di
     run = _read_json(model_dir / "run.json")
     threshold = _read_json(model_dir / "thresholds.json")
     export = _read_json(onnx_dir / "onnx_export.json")
+    readiness = export.get("readiness")
+    policy_attestations = {
+        "run.json": run.get("decision_policy_version"),
+        "thresholds.json": threshold.get("decision_policy_version"),
+        "onnx_export.json readiness": (
+            readiness.get("decision_policy_version")
+            if isinstance(readiness, dict)
+            else None
+        ),
+    }
+    mismatched_policy = {
+        name: value
+        for name, value in policy_attestations.items()
+        if value != POLICY_VERSION
+    }
+    if mismatched_policy:
+        detail = ", ".join(
+            f"{name}={value!r}" for name, value in mismatched_policy.items()
+        )
+        raise ValueError(
+            f"{POLICY_V2_REQUIRED_MESSAGE}: expected {POLICY_VERSION!r}; {detail}"
+        )
+    preprocessing = run.get("preprocessing_sha256")
+    policy_source_sha256 = sha256(TTL / "staging5_decision_policy.py")
+    if not isinstance(preprocessing, dict) or (
+        preprocessing.get("staging5_decision_policy.py") != policy_source_sha256
+    ):
+        raise ValueError(
+            f"{POLICY_V2_REQUIRED_MESSAGE}: run.json does not attest the current "
+            "staging5_decision_policy.py SHA-256"
+        )
+    if run.get("training_code_sha256") != sha256(TTL / "train_resnet5.py"):
+        raise ValueError(
+            f"{POLICY_V2_REQUIRED_MESSAGE}: run.json does not attest the current "
+            "train_resnet5.py SHA-256"
+        )
+    if export.get("export_code_sha256") != sha256(TTL / "export_resnet5_onnx.py"):
+        raise ValueError(
+            f"{POLICY_V2_REQUIRED_MESSAGE}: onnx_export.json does not attest the current "
+            "export_resnet5_onnx.py SHA-256"
+        )
+    source = export.get("source")
+    if not isinstance(source, dict):
+        raise ValueError("ONNX export report lacks authenticated source provenance")
+    run_sha256 = sha256(model_dir / "run.json")
+    threshold_sha256 = sha256(model_dir / "thresholds.json")
+    if source.get("run_json_sha256") != run_sha256:
+        raise ValueError("ONNX source run.json differs from the frozen training run")
+    if source.get("thresholds_sha256") != threshold_sha256:
+        raise ValueError("ONNX source threshold differs from the frozen threshold")
+    if run.get("thresholds_sha256") != threshold_sha256:
+        raise ValueError("thresholds.json differs from run.json")
+    if source.get("model_pt_sha256") != run.get("model_pt_sha256"):
+        raise ValueError("ONNX source model differs from the frozen training model")
     expected_classes = ["pass", "missing_cap", "crooked_cap", "damaged_vial", "no_vial"]
     if run.get("classes") != expected_classes or export.get("classes") != expected_classes:
         raise ValueError("model/export class order differs from the exact five-class taxonomy")
-    if run.get("five_class_model_ready") is not False:
-        raise ValueError("this builder is pinned to the current not-yet-ready staging run")
-    if run.get("unsupported_classes") != ["damaged_vial"]:
-        raise ValueError("unexpected unsupported-class inventory")
+    unsupported = run.get("unsupported_classes")
+    if unsupported not in ([], ["damaged_vial"]):
+        raise ValueError(
+            "unsupported-class inventory must be empty or exactly ['damaged_vial']"
+        )
+    ready = not unsupported
+    if run.get("five_class_model_ready") is not ready:
+        raise ValueError("five_class_model_ready contradicts unsupported-class inventory")
+    if threshold.get("unsupported_classes") != unsupported:
+        raise ValueError("threshold/model unsupported-class provenance differs")
+    if readiness.get("unsupported_classes") != unsupported:
+        raise ValueError("ONNX/model unsupported-class provenance differs")
+    if readiness.get("five_class_model_ready") is not ready:
+        raise ValueError("ONNX readiness contradicts unsupported-class inventory")
     if run.get("final_test_used") is not False or run.get("test_rows_loaded") != 0:
         raise ValueError("training provenance does not prove protected-test isolation")
     if sha256(model_dir / "model.pt") != run.get("model_pt_sha256"):
         raise ValueError("model.pt differs from run.json")
-    if sha256(model_dir / "thresholds.json") != run.get("thresholds_sha256"):
-        raise ValueError("thresholds.json differs from run.json")
     verification = export.get("verification", {})
     if not isinstance(verification, dict) or verification.get("status") != "passed":
         raise ValueError("ONNX verification did not pass")
@@ -138,13 +211,6 @@ def authenticate_inputs(model_dir: Path, onnx_dir: Path) -> tuple[dict, dict, di
         raise ValueError("ONNX report lacks full 510-crop decision equivalence")
     if sha256(onnx_dir / "model.onnx") != export.get("model_onnx_sha256"):
         raise ValueError("model.onnx differs from its export report")
-    source = export.get("source", {})
-    if source.get("model_pt_sha256") != run.get("model_pt_sha256"):
-        raise ValueError("ONNX source model differs from the frozen training model")
-    if source.get("run_json_sha256") != sha256(model_dir / "run.json"):
-        raise ValueError("ONNX source run.json differs from the frozen training run")
-    if source.get("thresholds_sha256") != sha256(model_dir / "thresholds.json"):
-        raise ValueError("ONNX source threshold differs from the frozen threshold")
     if export.get("tools", {}).get("numpy") != "2.1.0":
         raise ValueError("ONNX verification did not use deployment NumPy 2.1.0")
     if export.get("tools", {}).get("opencv") != "4.10.0":
@@ -280,6 +346,26 @@ def _git_revision() -> str:
 
 
 def _write_payload_docs(payload: Path, deployment: dict) -> None:
+    unsupported = deployment.get("unsupported_classes")
+    if isinstance(unsupported, list) and unsupported:
+        support_state = (
+            "Authenticated model metadata declares these visual classes unsupported: "
+            + ", ".join(str(value) for value in unsupported)
+            + ". Their evidence is forced to UNKNOWN, and deterministic rules resolve it "
+            "conservatively to UNSURE/manual review. No unsupported defect can be asserted "
+            "or passed."
+        )
+    elif unsupported == []:
+        support_state = (
+            "Authenticated model metadata declares development support for all five visual "
+            "classes. This does not grant release authority or replace sealed evaluation."
+        )
+    else:
+        support_state = (
+            "Unsupported-class metadata is unavailable in this rendered copy; treat all "
+            "unresolved evidence as UNSURE/manual review."
+        )
+    unsupported_note = f"* {support_state}"
     readme = f"""VIAL GUARD AI — staging5 offline live-demo kit
 Version: {PACKAGE_VERSION}
 
@@ -299,28 +385,42 @@ Saved-frame replay:
   bash live_demo.sh replay:/path/to/images /path/to/output each
 
 The output directory contains predictions.csv, trial_log.csv, session.json,
-overlays, and a browser-refreshing view.html. Every target row includes source
-image, G fixture/position, expected-occupancy context, five-class prediction,
-score/threshold, deterministic inspection decision, reason, timestamp and
-event identifier.
+runtime_status.json, overlays, and a browser-refreshing view.html. The runtime
+status is fail-closed during input_processing and session_closing, after
+input/source faults, and after session end. It covers processing-runtime state only, not camera/source
+liveness. Every target row includes source image, G fixture/position,
+expected-occupancy context, five-class prediction, score/threshold,
+deterministic inspection decision, reason, timestamp and event identifier.
 
 This is a SHADOW/EVALUATION demo. It has no PLC or product-release output.
+This candidate bundles no protected-performance claim and remains shadow-only
+until it completes its own sealed evaluation.
 See SAFETY_AND_LIMITATIONS.txt before operating it.
 """
-    safety = """SAFETY AND LIMITATIONS — READ BEFORE THE DEMO
+    safety = f"""SAFETY AND LIMITATIONS — READ BEFORE THE DEMO
 
 * Shadow/evaluation only. A PASS is not authority to release product.
 * The kit never writes to a PLC, robot, actuator, or manufacturing controller.
+* runtime_status.json is INSPECTION_UNAVAILABLE while an input is processing,
+  during session_closing, after an input/source fault, and after the session ends. Only a newly scored
+  event can publish INSPECTION_AVAILABLE; it grants no PASS or release authority.
+* Runtime availability has scope processing_runtime_only and explicitly does
+  not guarantee source liveness. Folder silence can be normal. A deployment
+  consumer must define a source-specific maximum age or heartbeat and treat an
+  older-than-configured status_updated_utc as unavailable.
+* overlay_latest.png is the last successful event, not necessarily the current
+  vial state. Neither an old overlay nor any status value authorizes release.
+* A score/evidence failure latches restart_required and refuses later inputs in
+  that session. Preserve its output and restart with a new output directory.
+  The same applies to gate, CSV/status persistence, and evidence-close failures,
+  including failures too early or too late to write a final trial-log row.
 * Fixture G only. Fixture S is explicitly refused because it has no calibrated
   map or collected staging evidence.
 * The network has a five-output head in the exact class order:
   pass, missing_cap, crooked_cap, damaged_vial, no_vial.
-* damaged_vial had zero development examples. Its global-maximum evidence is
-  forced to UNKNOWN, and deterministic rules resolve that conservatively to
-  UNSURE/manual review.
-* The one-visit protected event holdout is not independent deployment proof.
-  It showed 98% exact visual/process agreement, but exact supported-defect
-  recall was 5/8 (62.5%) and one crooked-cap defect escaped as PASS.
+{unsupported_note}
+* This policy-v2 candidate bundles no protected-performance claim. It remains
+  shadow-only until its own frozen artifacts complete a sealed evaluation.
 * Trailing empty positions are WAITING unless sequence/order-complete context
   supports MISSED. A language model cannot override these deterministic rules.
 * Do not tune the model, threshold, or package using final protected-test data.
@@ -329,6 +429,7 @@ Use the demo to display predictions and audit records, not to control product.
 """
     (payload / "README.txt").write_text(readme, encoding="utf-8")
     (payload / "SAFETY_AND_LIMITATIONS.txt").write_text(safety, encoding="utf-8")
+    (payload / "MODEL_SUPPORT.txt").write_text(support_state + "\n", encoding="utf-8")
     (payload / "deployment.json").write_text(
         json.dumps(deployment, indent=2, sort_keys=True) + "\n", encoding="utf-8"
     )
@@ -368,7 +469,7 @@ def self_extractor_header(payload_sha256: str) -> str:
     return f"""#!/usr/bin/env bash
 set -euo pipefail
 
-INSTALL_DIR="$HOME/ttl_staging5_2026-10-28"
+INSTALL_DIR="$HOME/{INSTALL_DIR_NAME}"
 EXTRACT_ONLY=0
 while [ "$#" -gt 0 ]; do
     case "$1" in
@@ -444,18 +545,18 @@ the compute module.
 
 3. On the NVIDIA compute module:
 
-     bash {run_name} --install "$HOME/ttl_staging5_2026-10-28"
+     bash {run_name} --install "$HOME/{INSTALL_DIR_NAME}"
 
    The installer verifies the embedded archive, installs only from bundled
    artifacts, and runs a model-aware golden preflight.
 
 4. Run the bundled sample:
 
-     bash "$HOME/ttl_staging5_2026-10-28/run_sample.sh"
+     bash "$HOME/{INSTALL_DIR_NAME}/run_sample.sh"
 
 5. Run the live demo against the folder receiving new camera JPEGs:
 
-     bash "$HOME/ttl_staging5_2026-10-28/live_demo.sh" folder:/path/to/images
+     bash "$HOME/{INSTALL_DIR_NAME}/live_demo.sh" folder:/path/to/images
 
    Use Ctrl-C to stop. Results are written under ~/ttl_staging5_runs/.
 
@@ -464,7 +565,9 @@ after copying. FAT/exFAT may drop execute bits, so invoking the file with
 "bash" is intentional.
 
 SAFETY: shadow/evaluation only, fixture G only, no automatic release or PLC
-actuation. Read SAFETY_AND_LIMITATIONS.txt.
+actuation. runtime_status.json covers processing only, not source liveness;
+configure a source-specific freshness limit and never treat status or a stale
+overlay as PASS/release authority. Read SAFETY_AND_LIMITATIONS.txt.
 """
 
 
@@ -473,10 +576,10 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--model-dir",
         type=Path,
-        default=REPO / "data/yaad-results/3c875c39-3bb5-4f17-bb07-46e30679c520/out/resnet18_staging5",
+        default=CANDIDATE_INPUT_ROOT / "model/resnet18_staging5",
     )
     parser.add_argument(
-        "--onnx-dir", type=Path, default=REPO / "data/onnx-export-staging5-2026-10-28"
+        "--onnx-dir", type=Path, default=CANDIDATE_INPUT_ROOT / "onnx"
     )
     parser.add_argument(
         "--validation-manifest",
@@ -568,6 +671,7 @@ def main(argv: list[str] | None = None) -> int:
                 "inference": "OpenCV DNN CPU / ONNX opset 17",
             },
             "classes": run["classes"],
+            "decision_policy_version": POLICY_VERSION,
             "unsupported_classes": run["unsupported_classes"],
             "five_class_model_ready": run["five_class_model_ready"],
             "fixture_support": ["G"],
@@ -578,14 +682,15 @@ def main(argv: list[str] | None = None) -> int:
                 "t_defect": threshold["t_defect"],
                 "run_json_sha256": sha256(model_dir / "run.json"),
                 "onnx_export_json_sha256": sha256(onnx_dir / "onnx_export.json"),
-                "training_job_id": "3c875c39-3bb5-4f17-bb07-46e30679c520",
-                "protected_evaluation_job_id": "14160052-ea75-4861-bf4d-46fd90b82b4b",
+                "decision_policy_version": POLICY_VERSION,
             },
             "onnx_equivalence": export["verification"],
             "conversion_benchmark": export["benchmark"],
             "preflight_frames": preflight_frames,
             "protected_test_pixels_included": False,
             "protected_test_manifests_accessed_by_builder": False,
+            "protected_performance_claim_bundled": False,
+            "candidate_evaluation_status": "sealed_evaluation_required",
             "runtime_source_sha256": source_hashes,
             "limitations": export["limitations"],
         }

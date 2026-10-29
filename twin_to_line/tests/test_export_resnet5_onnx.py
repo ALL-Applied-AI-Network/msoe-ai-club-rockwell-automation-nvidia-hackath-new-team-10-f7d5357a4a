@@ -16,6 +16,7 @@ import pytest
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import export_resnet5_onnx as E
+from staging5_decision_policy import POLICY_VERSION
 from staging_dataset import CANONICAL_CLASSES, ManifestError
 
 
@@ -28,6 +29,7 @@ def _model_bundle(root: Path, *, unsupported=None) -> Path:
     root.mkdir()
     (root / "model.pt").write_bytes(b"frozen model")
     thresholds = {
+        "decision_policy_version": POLICY_VERSION,
         "t_defect": 0.91,
         "unsupported_classes": unsupported,
     }
@@ -35,6 +37,7 @@ def _model_bundle(root: Path, *, unsupported=None) -> Path:
         json.dumps(thresholds), encoding="utf-8"
     )
     run = {
+        "decision_policy_version": POLICY_VERSION,
         "classes": list(CANONICAL_CLASSES),
         "defect_classes": ["missing_cap", "crooked_cap", "damaged_vial"],
         "model_pt_sha256": _digest(root / "model.pt"),

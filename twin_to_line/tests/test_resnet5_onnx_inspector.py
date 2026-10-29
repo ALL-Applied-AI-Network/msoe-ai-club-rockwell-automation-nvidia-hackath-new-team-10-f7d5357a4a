@@ -17,6 +17,7 @@ import numpy as np
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import resnet5_onnx_inspector as O
+from staging5_decision_policy import POLICY_VERSION
 from staging_dataset import CANONICAL_CLASSES
 from train_resnet import to_tensor_array
 
@@ -62,6 +63,7 @@ def make_artifacts(root, *, unsupported=("damaged_vial",), threshold=0.9):
     model.write_bytes(b"synthetic ONNX bytes for unit test")
 
     thresholds = {
+        "decision_policy_version": POLICY_VERSION,
         "threshold_source": "validation_only",
         "t_defect": threshold,
         "unsupported_classes": list(unsupported),
@@ -75,6 +77,7 @@ def make_artifacts(root, *, unsupported=("damaged_vial",), threshold=0.9):
         for name, path in O._runtime_preprocessing_paths().items()
     }
     run = {
+        "decision_policy_version": POLICY_VERSION,
         "classes": list(CANONICAL_CLASSES),
         "defect_classes": ["missing_cap", "crooked_cap", "damaged_vial"],
         "final_test_used": False,
@@ -147,6 +150,7 @@ def make_artifacts(root, *, unsupported=("damaged_vial",), threshold=0.9):
             "platform": sys.platform,
         },
         "readiness": {
+            "decision_policy_version": POLICY_VERSION,
             "five_class_model_ready": not unsupported,
             "unsupported_classes": list(unsupported),
             "safety_note": "unsupported visual evidence requires manual review",
@@ -272,7 +276,7 @@ class ConservativeDecision(unittest.TestCase):
             self.assertIn("automatic pass prohibited", unsupported.reason)
             self.assertIn("not a defect detection", unsupported.reason)
 
-    def test_invalid_probability_array_is_refused(self):
+    def test_invalid_probability_array_fails_closed(self):
         with tempfile.TemporaryDirectory() as directory:
             make_artifacts(directory)
             inspector = O.ResNet5OnnxInspector(directory, net=FakeNet())
@@ -280,8 +284,13 @@ class ConservativeDecision(unittest.TestCase):
                 inspector.observations(np.zeros((2, 4), np.float32))
             bad = np.zeros((1, 5), np.float32)
             bad[0, 2] = np.inf
-            with self.assertRaisesRegex(ValueError, "non-finite"):
-                inspector.observations(bad)
+            observation = inspector.observations(bad)[0]
+            self.assertEqual(observation.visual_state, "unknown")
+            self.assertIsNone(observation.score)
+            self.assertEqual(
+                observation.features["reason_code"], "non_finite_probability"
+            )
+            self.assertIn("automatic pass prohibited", observation.reason)
 
 
 class ProvenanceRefusals(unittest.TestCase):

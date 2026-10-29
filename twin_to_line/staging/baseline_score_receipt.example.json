@@ -1,0 +1,10 @@
+{
+  "baseline_freeze_sha256": "REPLACE_WITH_64_LOWERCASE_HEX",
+  "baseline_id": "REPLACE_WITH_FROZEN_SYNTHETIC_BASELINE_ID",
+  "completed_at_utc": "2026-11-01T10:30:00Z",
+  "decision_policy_sha256": "REPLACE_WITH_64_LOWERCASE_HEX",
+  "decision_policy_version": "REPLACE_WITH_VERSIONED_POLICY_ID",
+  "predictions_sha256": "REPLACE_WITH_64_LOWERCASE_HEX",
+  "schema_version": 1,
+  "scored_before_real_adaptation": true
+}

@@ -23,7 +23,11 @@ sha256sum --quiet -c SHA256SUMS || {
 echo "======================================================================"
 echo "VIAL GUARD staging5 — SHADOW / EVALUATION ONLY"
 echo "Fixture G only. No PLC actuation. A PASS is not a product-release signal."
-echo "damaged_vial has no training examples and is conservatively UNSURE."
+[ -f "$ROOT/MODEL_SUPPORT.txt" ] || {
+    echo "LAUNCH REFUSED: authenticated model-support notice is missing" >&2
+    exit 1
+}
+cat "$ROOT/MODEL_SUPPORT.txt"
 echo "======================================================================"
 
 mkdir -p "$(dirname "$OUT")"

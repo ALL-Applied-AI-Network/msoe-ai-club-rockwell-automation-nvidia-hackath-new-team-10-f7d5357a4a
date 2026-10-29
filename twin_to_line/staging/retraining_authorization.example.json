@@ -1,0 +1,13 @@
+{
+  "allowed_uses": [
+    "baseline_scoring",
+    "train",
+    "validation"
+  ],
+  "authorization_statement": "REPLACE_WITH_THE_RECORDED_PROJECT_OWNER_AUTHORIZATION",
+  "authorized_at_utc": "2026-11-01T08:00:00Z",
+  "authorized_by": "REPLACE_WITH_AUTHORIZER",
+  "dataset_scope": "REPLACE_WITH_COLLECTION_OR_DATASET_SCOPE",
+  "schema_version": 1,
+  "staging_training_authorized": true
+}

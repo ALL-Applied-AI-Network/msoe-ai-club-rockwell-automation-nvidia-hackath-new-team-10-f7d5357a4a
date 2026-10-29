@@ -1,0 +1,7 @@
+# Pinned CPU test dependencies.  USD/twin and archived-evidence checks are
+# separate prerequisite-gated commands; the core CI job does not download them.
+# Match the ARM64 deployment kit's pinned numerical/runtime contract.
+numpy==2.1.0
+opencv-python-headless==4.10.0.84
+pytest==8.4.2
+
