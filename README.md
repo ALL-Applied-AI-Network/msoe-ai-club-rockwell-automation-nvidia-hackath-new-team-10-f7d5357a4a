@@ -109,7 +109,7 @@ Rendering on Brev and the sim-to-real gate: [`twin_to_line/README.md`](twin_to_l
 
 ## Team
 
-Code Crusaders: Prabhnoor (Noor) Bal, Vang, Zara, Matthew, Trevor, Anthony Harvey, Jamie Gill.
+Code Crusaders: Prabhnoor (Noor) Bal, Matthew Vang, Anthony Harvey, Zara Omosun (captain).
 
 ## Credits and references
 
