@@ -1,7 +1,8 @@
 """Placement events from a DEV frame sequence, without the cap classifier (so events cannot be biased by it).
 
 A sample is (t, image). Two pixel signals only:
-  arm      yellow connected component > ARM_MIN_AREA px touching the (dilated) fixture plate: the FANUC arm is yellow
+  arm      yellow connected component > ARM_MIN_AREA px, on average >= ARM_MIN_WIDTH px wide, touching the (dilated)
+           fixture plate: the FANUC arm is yellow (v1.1, D045: caps, merged caps and thin strips are not the arm)
   change   per position, mean over its anchor box of max-channel |difference| to the previous sample
 A STABLE segment = consecutive arm-free samples with no position changing by >= CHANGE_T, lasting >= STABLE_S.
 An EVENT = the first frame of a stable segment whose appearance differs (some position >= CHANGE_T) from the
@@ -18,16 +19,23 @@ import cv2, numpy as np
 import positions as P
 import real_data as R
 
-ARM_MIN_AREA = 2000
+ARM_MIN_AREA = 8000      # v1.1 (D045), was 2000: DEV arm blobs >= 16,965 px; 1080 strip / merged caps <= 2,519 px
+ARM_MIN_WIDTH = 20.0     # v1.1 (D045): area / long side of the min-area rectangle; DEV arm >= 53 px, 1080 strip 6-7 px
 CHANGE_T = 15.0
 STABLE_S = 4.0
+
+
+def mean_width(blob):
+    """Average width of a blob mask: its area over the long side of its minimum-area rectangle."""
+    (_, _), (w, h), _ = cv2.minAreaRect(cv2.findNonZero(blob.astype(np.uint8)))
+    return int(blob.sum()) / max(w, h, 1.0)
 
 
 def arm_pixels(img, pmap, plate=None):
     plate = pmap.plate_mask() if plate is None else plate
     y = (P.yellow_mask(img) > 0).astype(np.uint8)
     n, lab, st, _ = cv2.connectedComponentsWithStats(y)
-    big = [k for k in range(1, n) if st[k, cv2.CC_STAT_AREA] > ARM_MIN_AREA]
+    big = [k for k in range(1, n) if st[k, cv2.CC_STAT_AREA] > ARM_MIN_AREA and mean_width(lab == k) >= ARM_MIN_WIDTH]
     return int(np.isin(lab, big)[plate > 0].sum()) if big else 0
 
 
