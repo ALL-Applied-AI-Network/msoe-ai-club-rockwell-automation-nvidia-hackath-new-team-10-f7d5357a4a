@@ -35,6 +35,7 @@ EVALUATION_CODE_ALLOWLIST = (
     "requirements_train_resnet5.txt",
     "resnet5_inspector.py",
     "rules.py",
+    "staging5_decision_policy.py",
     "staging_dataset.py",
     "tests/test_yaad_test_preflight.py",
     "train_resnet.py",

@@ -28,13 +28,13 @@ import numpy as np
 
 import positions as P
 from rules import Inspector, Observation
+from staging5_decision_policy import POLICY_VERSION, decide_one
 from staging_dataset import CANONICAL_CLASSES, DEFECT_CLASSES
 from train_resnet import to_tensor_array
 
 
 DEFAULT_MODEL_DIR = os.path.join(P.HERE, "results", "train", "resnet18_staging5")
 SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
-NON_DEFECT_CLASSES = ("pass", "no_vial")
 MODEL_FILENAME = "model.onnx"
 EXPORT_FILENAME = "onnx_export.json"
 RUN_FILENAME = "run.json"
@@ -85,6 +85,7 @@ def _runtime_preprocessing_paths() -> dict[str, Path]:
         "position_map_G": Path(P.MAP_PATH),
         "positions.py": Path(P.__file__),
         "registration_dev.json": Path(P.REG_PATH),
+        "staging5_decision_policy.py": here / "staging5_decision_policy.py",
         "staging_dataset.py": here / "staging_dataset.py",
         "train_resnet.py": here / "train_resnet.py",
         "train_resnet5.py": here / "train_resnet5.py",
@@ -144,6 +145,8 @@ class ResNet5OnnxInspector(Inspector):
             raise ValueError(f"{self.export_path}: class order is not the exact five-class taxonomy")
         if tuple(run.get("classes", ())) != CANONICAL_CLASSES:
             raise ValueError(f"{self.run_path}: class order is not the exact five-class taxonomy")
+        if run.get("decision_policy_version") != POLICY_VERSION:
+            raise ValueError(f"{self.run_path}: decision policy is not {POLICY_VERSION}")
 
         input_meta = _require_mapping(export.get("input"), f"{self.export_path}: input")
         if input_meta.get("name") != "input":
@@ -223,6 +226,8 @@ class ResNet5OnnxInspector(Inspector):
             raise ValueError(f"{self.run_path}: threshold source is not validation-only")
         if threshold.get("threshold_source") != "validation_only":
             raise ValueError(f"{self.threshold_path}: threshold is not validation-only")
+        if threshold.get("decision_policy_version") != POLICY_VERSION:
+            raise ValueError(f"{self.threshold_path}: decision policy is not {POLICY_VERSION}")
         try:
             t_defect = float(threshold["t_defect"])
         except (KeyError, TypeError, ValueError) as exc:
@@ -268,6 +273,7 @@ class ResNet5OnnxInspector(Inspector):
 
         readiness = _require_mapping(export.get("readiness"), f"{self.export_path}: readiness")
         readiness_pairs = {
+            "decision_policy_version": POLICY_VERSION,
             "five_class_model_ready": run.get("five_class_model_ready"),
             "unsupported_classes": list(unsupported),
             "evaluation_scope": run.get("evaluation_scope"),
@@ -357,46 +363,26 @@ class ResNet5OnnxInspector(Inspector):
         )
         return self._softmax(self._forward_logits(features)).astype(np.float32, copy=False)
 
-    def _decide(self, probability: np.ndarray) -> tuple[str, float, str]:
-        defect_indices = tuple(CANONICAL_CLASSES.index(name) for name in DEFECT_CLASSES)
-        score = float(probability[list(defect_indices)].sum())
-
-        # This guard intentionally precedes the validation threshold.  The
-        # frozen trainer's original decision helper only guarded the highest
-        # defect after thresholding, which could pass unsupported evidence at
-        # a low aggregate score.
-        global_index = int(np.argmax(probability))
-        global_class = CANONICAL_CLASSES[global_index]
-        if global_class in self.unsupported:
-            return "unknown", score, "unsupported_class_is_global_argmax"
-
-        if score < self.t_defect:
-            index = max(
-                (CANONICAL_CLASSES.index(name) for name in NON_DEFECT_CLASSES),
-                key=lambda value: float(probability[value]),
-            )
-            return CANONICAL_CLASSES[index], score, "below_defect_threshold"
-
-        defect_index = max(defect_indices, key=lambda value: float(probability[value]))
-        predicted = CANONICAL_CLASSES[defect_index]
-        if predicted in self.unsupported:
-            return "unknown", score, "unsupported_class_has_highest_defect_probability"
-        return predicted, score, "at_or_above_defect_threshold"
-
     def observations(self, probabilities: np.ndarray) -> list[Observation]:
         values = np.asarray(probabilities, dtype=np.float32)
         if values.ndim != 2 or values.shape[1] != len(CANONICAL_CLASSES):
             raise ValueError(
                 f"probabilities must have shape (batch, {len(CANONICAL_CLASSES)})"
             )
-        if not np.isfinite(values).all():
-            raise ValueError("probabilities contain a non-finite value")
         output = []
         for probability in values:
-            predicted, score, reason_code = self._decide(probability)
-            global_class = CANONICAL_CLASSES[int(np.argmax(probability))]
+            predicted, score, reason_code = decide_one(
+                probability, self.t_defect, self.unsupported
+            )
+            global_class = (
+                CANONICAL_CLASSES[int(np.argmax(probability))]
+                if np.isfinite(probability).all()
+                else ""
+            )
             features = {
-                f"p_{name}": round(float(value), 8)
+                f"p_{name}": (
+                    round(float(value), 8) if np.isfinite(float(value)) else None
+                )
                 for name, value in zip(CANONICAL_CLASSES, probability)
             }
             features.update(
@@ -408,14 +394,24 @@ class ResNet5OnnxInspector(Inspector):
                     # safety-gated Observation.visual_state used by deterministic process rules.
                     "model_argmax_class": global_class,
                     "deployment_mode": "shadow_only",
+                    "decision_policy_version": POLICY_VERSION,
                 }
             )
             if predicted == "unknown":
-                reason = ("raw model output involves an unsupported class; this is not a defect detection; "
-                          "manual review required; automatic pass prohibited")
+                reason = (
+                    "raw model output is unsupported, ambiguous, or invalid; this is not a "
+                    "defect detection; manual review required; automatic pass prohibited"
+                )
             else:
-                reason = f"defect score {score:.6f}; threshold {self.t_defect:.6f}"
-            output.append(Observation(predicted, round(score, 8), features, reason))
+                reason = f"defect score {float(score):.6f}; threshold {self.t_defect:.6f}"
+            output.append(
+                Observation(
+                    predicted,
+                    None if score is None else round(score, 8),
+                    features,
+                    reason,
+                )
+            )
         return output
 
     def inspect_batch(self, crops):
@@ -447,6 +443,7 @@ class ResNet5OnnxInspector(Inspector):
             "t_defect": self.t_defect,
             "threshold": self.t_defect,
             "threshold_source": "validation_only",
+            "decision_policy_version": POLICY_VERSION,
             "unsupported_classes": list(self.unsupported),
             "five_class_model_ready": self.run.get("five_class_model_ready"),
             "evaluation_scope": self.run.get("evaluation_scope"),

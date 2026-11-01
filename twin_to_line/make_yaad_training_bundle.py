@@ -34,6 +34,7 @@ TRAINING_CODE_ALLOWLIST = (
     "positions.py",
     "registration_dev.json",
     "requirements_train_resnet5.txt",
+    "staging5_decision_policy.py",
     "staging_dataset.py",
     "tests/test_yaad_training_preflight.py",
     "train_resnet.py",

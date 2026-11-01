@@ -1,0 +1,27 @@
+{
+  "baseline_id": "REPLACE_WITH_FROZEN_SYNTHETIC_BASELINE_ID",
+  "canonical_classes": [
+    "pass",
+    "missing_cap",
+    "crooked_cap",
+    "damaged_vial",
+    "no_vial"
+  ],
+  "code_sha256": {
+    "inference_entrypoint": "REPLACE_WITH_64_LOWERCASE_HEX"
+  },
+  "decision_policy_sha256": "REPLACE_WITH_64_LOWERCASE_HEX",
+  "decision_policy_version": "REPLACE_WITH_VERSIONED_POLICY_ID",
+  "fixture_map_sha256": {
+    "G": "REPLACE_WITH_64_LOWERCASE_HEX"
+  },
+  "frozen_at_utc": "2026-11-01T10:00:00Z",
+  "model_sha256": "REPLACE_WITH_64_LOWERCASE_HEX",
+  "preprocessing_sha256": {
+    "frame_warp": "REPLACE_WITH_64_LOWERCASE_HEX",
+    "to_tensor_array": "REPLACE_WITH_64_LOWERCASE_HEX"
+  },
+  "schema_version": 1,
+  "thresholds_sha256": "REPLACE_WITH_64_LOWERCASE_HEX",
+  "training_data_scope": "synthetic_only"
+}

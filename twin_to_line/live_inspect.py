@@ -44,7 +44,9 @@ Outputs in --out (default results/live/<UTC time>):
                       with a short state each, then the counts
   overlay_latest.png  the latest event's overlay (30 coloured boxes + legend), replaced atomically (temp + rename);
                       overlays/eNN_<frame>.png; view.html reloads overlay_latest.png every second over file://
-  session.json        configuration, code / thresholds / map hashes, counts
+  session.json        configuration, code / thresholds / map hashes, counts, final health/latency/coverage summary
+  runtime_status.json atomically replaced after every input; inspection availability, latest outcome, faults,
+                      latency and input-validity coverage. It is observational and never authorizes PASS/release.
 Data rule (D011): a frame that is in the dataset index but not in DEV runs 1-3 is refused, so runs 4-5 are never
 processed; images from outside the dataset (staged / live captures) are accepted.
 Inspectors (--inspector):
@@ -59,7 +61,7 @@ Preflight (--preflight): prints OS, CPU, glibc, Python, numpy / OpenCV versions 
 then scores the package's bundled frames (the 1080 still, 10 DEV run-1 event frames at 640 and as 1080 copies) with
 --gate each and compares every hole with the Mac's predictions shipped next to them. Exit 0 = PREFLIGHT OK.
 """
-import argparse, csv, hashlib, json, os, re, shutil, subprocess, sys, threading, time
+import argparse, csv, hashlib, json, os, re, shutil, subprocess, sys, tempfile, threading, time
 from collections import Counter
 from datetime import datetime, timezone
 import cv2, numpy as np
@@ -71,14 +73,16 @@ from eval_metrics import gt_final
 from fill_state import SequenceTracker, LIVE_FILL, MODES
 from inspect_frame import inspect, annotate, prediction_rows, safe
 from rules import RuleInspector
+from runtime_health import AVAILABLE, RuntimeHealth, invalidate_runtime_status, write_json_atomic
 
 IMAGE_EXT = (".png", ".jpg", ".jpeg")
 STILL_RE = re.compile(r"(\d{8})_(\d{6})_(\d{6})")
 FLAGGED = ("DEFECT", "MISSED", "UNSURE")
 RUNTIME_FILES = ("live_inspect.py", "inspect_frame.py", "positions.py", "fill_state.py", "rules.py", "events.py",
                  "real_data.py", "position_map_G.json", "registration_dev.json", "rule_thresholds.json",
-                 "resnet_inspector.py", "resnet5_onnx_inspector.py", "staging_dataset.py", "train_resnet.py",
-                 "train_resnet5.py", "frame_warp.py", "frame_warp_1080.json")
+                 "resnet_inspector.py", "resnet5_onnx_inspector.py", "staging5_decision_policy.py",
+                 "staging_dataset.py", "train_resnet.py",
+                 "train_resnet5.py", "frame_warp.py", "frame_warp_1080.json", "runtime_health.py")
 PRED_FIELDS = ["source_image_id", "fixture_id", "position_id", "expected_occupancy", "expected_occupancy_source",
                "predicted_visual_class", "model_argmax_class", "model_score", "applicable_threshold",
                "inspection_decision", "reason_code",
@@ -93,20 +97,21 @@ ARCHIVE_COMMIT = os.path.join(P.HERE, "ARCHIVE_COMMIT")      # filled in by `git
 GRID_CODE = {"PASS": "ok", "DEFECT": "DEF", "MISSED": "MISS", "UNSURE": "??", "WAITING": "."}
 GRID_ANSI = {"PASS": "32", "DEFECT": "1;31", "MISSED": "1;35", "UNSURE": "1;33", "WAITING": "2"}
 VIEW_HTML = "view.html"
+RUNTIME_STATUS = "runtime_status.json"
 SHADOW_BANNER = ("SAFETY: STAGING5 SHADOW/EVALUATION ONLY — no automatic product release, line actuation, "
                  "or deterministic-rule override.")
 VIEW_PAGE = """<!doctype html>
 <html><head><meta charset="utf-8"><title>Twin-to-Line live view: {session}</title>
 <style>body{{margin:0;background:#111;color:#ddd;font:14px sans-serif}}#s{{padding:6px 10px}}
 img{{display:block;max-width:100vw;max-height:calc(100vh - 32px);margin:auto}}</style></head>
-<body><div id="s">{session}: waiting for the first event</div><img id="v" alt="">
+<body><div id="s">{session}: INSPECTION UNAVAILABLE — waiting for the first successful event</div><img id="v" alt="">
 <script>
 // live_inspect.py replaces overlay_latest.png atomically after every event; reload it every second.
 // A load that fails (no event yet) keeps the last image on screen.
 const v = document.getElementById("v"), s = document.getElementById("s");
 function tick() {{
   const n = new Image();
-  n.onload = () => {{ v.src = n.src; s.textContent = "{session}: overlay_latest.png, checked " + new Date().toLocaleTimeString(); }};
+  n.onload = () => {{ v.src = n.src; s.textContent = "{session}: last successful event overlay only — not a current-input PASS or release authorization; check runtime_status.json"; }};
   n.src = "overlay_latest.png?t=" + Date.now();
 }}
 tick(); setInterval(tick, 1000);
@@ -115,9 +120,46 @@ tick(); setInterval(tick, 1000);
 PREFLIGHT_SETS = (("still_1080", PATH_1080), ("run1_640", PATH_640), ("run1_1080", PATH_1080))
 
 
+class SessionRestartRequired(RuntimeError):
+    """A score/evidence transaction failed after stateful event processing began."""
+
+
+class CsvAppendRollbackError(OSError):
+    """A CSV append and its attempt to restore the previous complete file both failed."""
+
+
 def sha256(path):
     with open(path, "rb") as f:
         return hashlib.sha256(f.read()).hexdigest()
+
+
+def write_image_atomic(path, image, refuse_existing=False):
+    """Encode and atomically replace one image, never promoting a stale temp file."""
+    if refuse_existing and os.path.exists(path):
+        raise FileExistsError(f"refusing to replace existing image evidence: {path}")
+    directory = os.path.dirname(os.path.abspath(path))
+    suffix = os.path.splitext(path)[1].lower()
+    if suffix not in IMAGE_EXT:
+        raise ValueError(f"unsupported image evidence suffix: {suffix or '<none>'}")
+    descriptor, temporary = tempfile.mkstemp(prefix=".runtime-image-", suffix=suffix, dir=directory)
+    os.close(descriptor)
+    try:
+        if not cv2.imwrite(temporary, image):
+            raise OSError(f"OpenCV failed to write image evidence: {path}")
+        if os.path.getsize(temporary) <= 0:
+            raise OSError(f"OpenCV wrote empty image evidence: {path}")
+        try:
+            mode = os.stat(path, follow_symlinks=False).st_mode & 0o777
+        except FileNotFoundError:
+            mode = 0o644
+        os.chmod(temporary, mode)
+        os.replace(temporary, path)
+    except BaseException:
+        try:
+            os.unlink(temporary)
+        except FileNotFoundError:
+            pass
+        raise
 
 
 def code_version():
@@ -551,7 +593,23 @@ class CsvLog:
         self.w = csv.DictWriter(self.f, fieldnames=fields, extrasaction="ignore"); self.w.writeheader(); self.f.flush()
 
     def write(self, rows):
-        self.w.writerows(rows); self.f.flush()
+        self.f.flush()
+        offset = self.f.tell()
+        try:
+            self.w.writerows(rows)
+            self.f.flush()
+        except BaseException as append_error:
+            try:
+                self.f.seek(offset)
+                self.f.truncate()
+                self.f.flush()
+                os.fsync(self.f.fileno())
+            except BaseException as rollback_error:
+                raise CsvAppendRollbackError(
+                    f"CSV append failed ({type(append_error).__name__}: {append_error}) and rollback failed "
+                    f"({type(rollback_error).__name__}: {rollback_error})"
+                ) from append_error
+            raise
 
     def close(self):
         self.f.close()
@@ -595,6 +653,10 @@ class Session:
         self.git, self.model_sha = code_version(), model_sha or next(iter(files.values()), "")
         self.events, self.counts, self.latency, self.stop_reason = 0, Counter(), [], "end of source"
         self.source_error = None
+        self.restart_required = False
+        self.fatal_error = None
+        self.health = RuntimeHealth(started_utc=self.now())
+        self.health_path = os.path.join(out, RUNTIME_STATUS)
         os.mkdir(os.path.join(out, "overlays"))
         with open(os.path.join(out, VIEW_HTML), "x") as f:
             f.write(VIEW_PAGE.format(session=self.name))
@@ -613,7 +675,8 @@ class Session:
                      "event_rule": {"change_t": E.CHANGE_T, "stable_s": E.STABLE_S, "arm_min_area": E.ARM_MIN_AREA},
                      "code_sha256": {f: sha256(os.path.join(P.HERE, f)) for f in RUNTIME_FILES
                                      if os.path.isfile(os.path.join(P.HERE, f))}}
-        self.write_info()
+        self.write_runtime_status()
+        self.write_info(runtime_health=self.health.snapshot())
 
     @staticmethod
     def now():
@@ -621,7 +684,24 @@ class Session:
 
     def write_info(self, **extra):
         self.info.update(extra)
-        json.dump(self.info, open(os.path.join(self.out, "session.json"), "w"), indent=1)
+        write_json_atomic(os.path.join(self.out, "session.json"), self.info)
+
+    def latch_restart(self, reason, error):
+        detail = f"{reason}: {type(error).__name__}: {error}"
+        self.restart_required = True
+        self.fatal_error = f"{self.fatal_error}; {detail}" if self.fatal_error else detail
+        return detail
+
+    def write_runtime_status(self):
+        try:
+            write_json_atomic(self.health_path, self.health.snapshot())
+        except BaseException as error:
+            # runtime_status.json is ephemeral current-state evidence.  Unlike
+            # session.json, retaining an older complete version can falsely
+            # advertise AVAILABLE after the in-memory state became unsafe.
+            self.latch_restart("runtime_status_persistence_failure", error)
+            invalidate_runtime_status(self.health_path)
+            raise
 
     def run_of(self, name):
         if self.run_id:
@@ -633,9 +713,19 @@ class Session:
 
     def process_frame(self, path, img, t=None, source_error=None):
         """One input frame (any source). Logs exactly one trial-log row and returns it."""
+        if self.restart_required:
+            raise SessionRestartRequired(
+                f"session is corrupt after a prior state/evidence failure ({self.fatal_error}); start a new OUT"
+            )
         t0 = time.perf_counter(); name = frame_id(path)
         row = {"time_utc": self.now(), "session": self.name, "git": self.git, "inspector": self.insp.name,
                "model_sha256": self.model_sha, "input_file": os.path.basename(path)}
+        # Persist fail-closed state before decode, gating, or inference.  A
+        # blocked model call must never leave the preceding AVAILABLE state on
+        # disk. This does not increment completed-record metrics.
+        self.health.begin_input(timestamp_utc=row["time_utc"], input_file=row["input_file"])
+        self.write_runtime_status()
+        stateful_error = None
         try:
             why = refusal(self.ix, path)
             if source_error is not None:
@@ -655,32 +745,104 @@ class Session:
             if row.get("path"):
                 t = frame_time(path) if t is None else t
                 arm = E.arm_pixels(img, self.pm, self.plate)
-                status, ev, changed = self.gate.update(name, t, img, arm > 0)
-                row.update(frame_t=round(t, 3), status=status, arm_px=arm)
-                if status == "event":
-                    row.update(self.score(ev, changed, t))
+                try:
+                    status, ev, changed = self.gate.update(name, t, img, arm > 0)
+                except Exception as error:
+                    stateful_error = error
+                    detail = self.latch_restart("restart_required_after_gate_failure", error)
+                    row.update(frame_t=round(t, 3), status="error", arm_px=arm, note=detail)
+                else:
+                    row.update(frame_t=round(t, 3), status=status, arm_px=arm)
+                    if status == "event":
+                        try:
+                            row.update(self.score(ev, changed, t))
+                        except Exception as error:
+                            stateful_error = error
+                            detail = self.latch_restart("restart_required_after_score_failure", error)
+                            row.update(status="error", note=detail)
         except Exception as e:                                  # never let one bad frame stop the session
             row.update(status="error", note=f"{type(e).__name__}: {e}")
         row["latency_ms"] = round((time.perf_counter() - t0) * 1000, 1)
-        self.counts[row["status"]] += 1; self.latency.append(row["latency_ms"])
-        self.trial.write([row])
+        self.latency.append(row["latency_ms"])
+        try:
+            self.trial.write([row])
+        except Exception as error:
+            detail = self.latch_restart("restart_required_after_trial_log_failure", error)
+            self.counts["error"] += 1
+            completed_utc = self.now()
+            self.health.record(status="error", timestamp_utc=completed_utc,
+                               input_started_utc=row["time_utc"], latency_ms=row["latency_ms"],
+                               input_file=row["input_file"], event=row.get("event"),
+                               event_frame=row.get("event_frame"), note=detail)
+            self.write_runtime_status()
+            raise SessionRestartRequired(
+                f"trial-log evidence failed; session restart required: {self.fatal_error}"
+            ) from error
+        self.counts[row["status"]] += 1
+        previous_health = self.health.state
+        completed_utc = self.now()
+        try:
+            self.health.record(status=row["status"], timestamp_utc=completed_utc,
+                               input_started_utc=row["time_utc"], latency_ms=row["latency_ms"],
+                               input_file=row["input_file"], event=row.get("event"),
+                               event_frame=row.get("event_frame"), note=row.get("note", ""))
+        except Exception as error:
+            self.latch_restart("restart_required_after_health_record_failure", error)
+            invalidate_runtime_status(self.health_path)
+            raise SessionRestartRequired(
+                f"health evidence failed; session restart required: {self.fatal_error}"
+            ) from error
+        self.write_runtime_status()
+        if not self.quiet and self.health.state != previous_health:
+            if self.health.state == AVAILABLE:
+                print("SAFETY: inspection available after a successfully scored event; shadow mode still cannot "
+                      "authorize release", flush=True)
+            else:
+                print(f"SAFETY: inspection unavailable ({self.health.reason_code}); no PASS/release authority",
+                      flush=True)
+        if stateful_error is not None:
+            raise SessionRestartRequired(
+                f"state/evidence transaction failed; session restart required: {self.fatal_error}"
+            ) from stateful_error
         return row
 
     def score(self, ev, changed, t_now):
         name, t, img = ev
-        self.events += 1
+        event_number = self.events + 1
         res = inspect(img, name, self.pm, self.insp, plate=self.plate, mode=self.mode, tracker=self.tracker,
                       fixture_id=self.fixture_id)
-        run_id = self.run_of(name)
-        self.preds.write(prediction_rows(run_id, self.events, res,
-                                         event_uid=f"{run_id}:{name}:{t:.6f}",
-                                         inspection_timestamp_utc=event_timestamp_utc(name, t)))
         view = annotate(img, res, self.pm)
-        cv2.imwrite(os.path.join(self.out, "overlays", f"e{self.events:02d}_{safe(name)}.png"), view)
-        tmp = os.path.join(self.out, ".overlay_latest.png"); cv2.imwrite(tmp, view)
-        os.replace(tmp, os.path.join(self.out, "overlay_latest.png"))   # a viewer never sees half a file
+        archive = os.path.join(self.out, "overlays", f"e{event_number:02d}_{safe(name)}.png")
+        latest = os.path.join(self.out, "overlay_latest.png")
+        write_image_atomic(archive, view, refuse_existing=True)
+        run_id = self.run_of(name)
+        try:
+            self.preds.write(prediction_rows(run_id, event_number, res,
+                                             event_uid=f"{run_id}:{name}:{t:.6f}",
+                                             inspection_timestamp_utc=event_timestamp_utc(name, t)))
+        except BaseException as append_error:
+            try:
+                os.unlink(archive)
+            except OSError as cleanup_error:
+                raise OSError(
+                    f"prediction append failed ({type(append_error).__name__}: {append_error}) and "
+                    f"uncommitted archival overlay cleanup failed "
+                    f"({type(cleanup_error).__name__}: {cleanup_error})"
+                ) from append_error
+            raise
+        # A successful prediction append reserves this event number even if a
+        # later presentation-artifact publish fails. Reusing it could create
+        # duplicate event IDs in predictions.csv.
+        self.events = event_number
+        try:
+            write_image_atomic(latest, view)
+        except BaseException as error:
+            raise OSError(
+                f"event {event_number} predictions and archival overlay committed, but latest overlay publish failed: "
+                f"{type(error).__name__}: {error}"
+            ) from error
         pos = res["positions"]
-        row = {"status": "scored", "event": self.events, "event_frame": name, "event_delay_s": round(t_now - t, 1),
+        row = {"status": "scored", "event": event_number, "event_frame": name, "event_delay_s": round(t_now - t, 1),
                "K": res["K"], "n_flagged": sum(p["final_state"] in FLAGGED for p in pos),
                "note": "changed: " + (" ".join(changed) if len(changed) < 30 else "ALL")}
         for p in pos:
@@ -697,15 +859,64 @@ class Session:
         return row
 
     def close(self):
-        self.preds.close(); self.trial.close()
-        if self.source_error and self.stop_reason == "end of source":
+        close_errors = []
+        # Publish fail-closed state before either CSV close. A close can block
+        # in a filesystem or device driver, and the preceding scored event must
+        # not remain advertised as currently available while shutdown hangs.
+        self.health.begin_close(timestamp_utc=self.now())
+        try:
+            self.write_runtime_status()
+        except BaseException as error:
+            close_errors.append(("runtime_status_session_closing_publish_failure", error))
+        for name, log in (("predictions", self.preds), ("trial_log", self.trial)):
+            try:
+                log.close()
+            except BaseException as error:
+                detail = self.latch_restart(f"restart_required_after_{name}_close_failure", error)
+                close_errors.append((detail, error))
+        if close_errors:
+            prefix = "fatal evidence close failure; restart required"
+            self.stop_reason = f"{self.stop_reason}; {prefix}: {self.fatal_error}"
+        elif self.source_error and self.stop_reason == "end of source":
             self.stop_reason = f"source error: {self.source_error}"
         lat = sorted(self.latency)
-        self.write_info(ended_utc=self.now(), stop_reason=self.stop_reason, frames=sum(self.counts.values()),
-                        events=self.events, status_counts=dict(self.counts),
-                        latency_ms_median=lat[len(lat) // 2] if lat else None)
+        # Closing either CSV can fail, but current health must still become
+        # unavailable and both final status artifacts must be attempted.
+        self.health.end(timestamp_utc=self.now(), stop_reason=self.stop_reason)
+        try:
+            self.write_runtime_status()
+        except BaseException as error:
+            close_errors.append(("runtime_status_close_publish_failure", error))
+        health = self.health.snapshot(); health_metrics = health["metrics"]
+        all_latency = health_metrics["all_record_latency_ms"]
+        scored_latency = health_metrics["scored_event_latency_ms"]
+        try:
+            self.write_info(ended_utc=self.now(), stop_reason=self.stop_reason, frames=sum(self.counts.values()),
+                            events=self.events, status_counts=dict(self.counts), restart_required=self.restart_required,
+                            fatal_error=self.fatal_error,
+                            close_errors=[detail for detail, _ in close_errors],
+                            latency_ms_median=lat[len(lat) // 2] if lat else None,
+                            latency_ms_p50=all_latency["p50"], latency_ms_p95=all_latency["p95"],
+                            latency_ms_p99=all_latency["p99"],
+                            all_record_latency_ms_p50=all_latency["p50"],
+                            all_record_latency_ms_p95=all_latency["p95"],
+                            all_record_latency_ms_p99=all_latency["p99"],
+                            scored_event_latency_ms_p50=scored_latency["p50"],
+                            scored_event_latency_ms_p95=scored_latency["p95"],
+                            scored_event_latency_ms_p99=scored_latency["p99"],
+                            input_validity_coverage=health_metrics["input_validity_coverage"],
+                            failed_or_refused_inputs=health_metrics["failed_or_refused_inputs"],
+                            runtime_health=health)
+        except BaseException as error:
+            detail = self.latch_restart("restart_required_after_session_summary_failure", error)
+            close_errors.append((detail, error))
         if not self.quiet:
             print(f"{sum(self.counts.values())} frames, {self.events} events, {dict(self.counts)} -> {self.out}")
+        if close_errors:
+            raise SessionRestartRequired(
+                "session close evidence failed; health was ended fail-closed and all final artifacts were attempted: "
+                + "; ".join(detail for detail, _ in close_errors)
+            ) from close_errors[0][1]
 
 
 def make_inspector(kind="rule", threshold="d038", model_dir=None, device=None, quiet=False):
@@ -747,8 +958,17 @@ def run(session, frames):
             session.process_frame(*f)
     except KeyboardInterrupt:
         session.stop_reason = "ctrl-c"
+    except SessionRestartRequired as e:
+        session.stop_reason = f"fatal state/evidence failure; restart required: {e}"
+        raise
     except Exception as e:
-        session.stop_reason = f"source error: {type(e).__name__}: {e}"
+        if session.restart_required:
+            session.stop_reason = (
+                "fatal state/evidence failure; restart required: "
+                f"{type(e).__name__}: {e}; {session.fatal_error}"
+            )
+        else:
+            session.stop_reason = f"source error: {type(e).__name__}: {e}"
         raise
     finally:
         getattr(frames, "close", lambda: None)()                # stops a stream's reader thread

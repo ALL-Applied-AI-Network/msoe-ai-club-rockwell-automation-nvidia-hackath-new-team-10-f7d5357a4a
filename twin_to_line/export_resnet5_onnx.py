@@ -23,6 +23,7 @@ import cv2
 import numpy as np
 
 import frame_warp as FW
+from staging5_decision_policy import POLICY_VERSION, decide_one
 from staging_dataset import (
     CANONICAL_CLASSES,
     DEFECT_CLASSES,
@@ -35,7 +36,6 @@ from staging_dataset import (
 )
 from train_resnet5 import (
     _parse_maps,
-    decide_one,
     verify_preprocessing_sha256,
 )
 
@@ -83,6 +83,8 @@ def authenticate_model_dir(model_dir: Path) -> tuple[dict[str, object], dict[str
         raise ManifestError("run.json does not preserve the exact five-class taxonomy")
     if tuple(run.get("defect_classes", ())) != DEFECT_CLASSES:
         raise ManifestError("run.json does not preserve the exact defect taxonomy")
+    if run.get("decision_policy_version") != POLICY_VERSION:
+        raise ManifestError("run.json does not identify the canonical decision policy")
     _require_hash(model_path, run.get("model_pt_sha256"), "model.pt")
     _require_hash(threshold_path, run.get("thresholds_sha256"), "thresholds.json")
     if run.get("test_rows_loaded") != 0 or run.get("test_images_used") != 0:
@@ -97,6 +99,8 @@ def authenticate_model_dir(model_dir: Path) -> tuple[dict[str, object], dict[str
         raise ManifestError("run.json has invalid unsupported_classes")
     if thresholds.get("unsupported_classes") != unsupported:
         raise ManifestError("threshold/model unsupported-class provenance differs")
+    if thresholds.get("decision_policy_version") != POLICY_VERSION:
+        raise ManifestError("threshold/model decision-policy provenance differs")
     threshold = thresholds.get("t_defect")
     if not isinstance(threshold, (int, float)) or not math.isfinite(float(threshold)):
         raise ManifestError("thresholds.json has no finite t_defect")
@@ -446,6 +450,7 @@ def _build_report(
             "numpy": np.__version__,
         },
         "readiness": {
+            "decision_policy_version": POLICY_VERSION,
             "five_class_model_ready": ready,
             "unsupported_classes": unsupported,
             "safety_note": run.get("safety_note"),

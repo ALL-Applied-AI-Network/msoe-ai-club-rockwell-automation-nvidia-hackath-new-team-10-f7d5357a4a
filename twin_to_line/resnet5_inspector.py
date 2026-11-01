@@ -17,9 +17,9 @@ import numpy as np
 
 import positions as P
 from rules import Inspector, Observation
+from staging5_decision_policy import POLICY_VERSION, decide_one
 from staging_dataset import CANONICAL_CLASSES, DEFECT_CLASSES
 from train_resnet import to_tensor_array
-from train_resnet5 import decide_one
 
 
 DEFAULT_MODEL_DIR = os.path.join(P.HERE, "results", "train", "resnet18_staging5")
@@ -44,6 +44,8 @@ class ResNet5Inspector(Inspector):
             raise ValueError(
                 f"{model_dir}: classes {self.run.get('classes')} != {CANONICAL_CLASSES}"
             )
+        if self.run.get("decision_policy_version") != POLICY_VERSION:
+            raise ValueError(f"{run_path}: decision policy is not {POLICY_VERSION}")
         if self.run.get("final_test_used") is not False or self.run.get("test_rows_loaded") != 0:
             raise ValueError(f"{model_dir}: training provenance does not prove test isolation")
         if sha256(model_path) != self.run.get("model_pt_sha256"):
@@ -53,6 +55,8 @@ class ResNet5Inspector(Inspector):
         threshold = json.load(open(threshold_path, encoding="utf-8"))
         if threshold.get("threshold_source") != "validation_only":
             raise ValueError(f"{threshold_path}: threshold is not validation-only")
+        if threshold.get("decision_policy_version") != POLICY_VERSION:
+            raise ValueError(f"{threshold_path}: decision policy is not {POLICY_VERSION}")
         self.threshold = float(threshold["t_defect"])
         self.unsupported = tuple(self.run.get("unsupported_classes", ()))
         unknown = set(self.unsupported) - set(CANONICAL_CLASSES)
@@ -80,13 +84,20 @@ class ResNet5Inspector(Inspector):
             return self.torch.softmax(self.model(tensor), dim=1).cpu().numpy()
 
     def observations(self, probabilities):
+        values = np.asarray(probabilities, dtype=np.float32)
+        if values.ndim != 2 or values.shape[1] != len(CANONICAL_CLASSES):
+            raise ValueError(
+                f"probabilities must have shape (batch, {len(CANONICAL_CLASSES)})"
+            )
         output = []
-        for probability in probabilities:
+        for probability in values:
             predicted, score, reason_code = decide_one(
                 probability, self.threshold, self.unsupported
             )
             features = {
-                f"p_{name}": round(float(value), 8)
+                f"p_{name}": (
+                    round(float(value), 8) if np.isfinite(float(value)) else None
+                )
                 for name, value in zip(CANONICAL_CLASSES, probability)
             }
             features.update(
@@ -94,14 +105,22 @@ class ResNet5Inspector(Inspector):
                     "t_defect": self.threshold,
                     "reason_code": reason_code,
                     "unsupported_classes": list(self.unsupported),
+                    "decision_policy_version": POLICY_VERSION,
                 }
             )
             reason = (
-                "unsupported damaged-vial evidence; manual review required"
+                "unresolved visual evidence; manual review required; automatic pass prohibited"
                 if predicted == "unknown"
-                else f"defect score {score:.6f}; threshold {self.threshold:.6f}"
+                else f"defect score {float(score):.6f}; threshold {self.threshold:.6f}"
             )
-            output.append(Observation(predicted, round(score, 8), features, reason))
+            output.append(
+                Observation(
+                    predicted,
+                    None if score is None else round(score, 8),
+                    features,
+                    reason,
+                )
+            )
         return output
 
     def inspect_batch(self, crops):
@@ -122,6 +141,7 @@ class ResNet5Inspector(Inspector):
             "defect_classes": list(DEFECT_CLASSES),
             "threshold": self.threshold,
             "threshold_source": "validation_only",
+            "decision_policy_version": POLICY_VERSION,
             "unsupported_classes": list(self.unsupported),
             "five_class_model_ready": self.run.get("five_class_model_ready"),
             "evaluation_scope": self.run.get("evaluation_scope"),

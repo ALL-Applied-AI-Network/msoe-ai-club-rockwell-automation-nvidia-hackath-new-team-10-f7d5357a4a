@@ -30,6 +30,7 @@ import numpy as np
 
 import frame_warp as FW
 import positions as P
+from staging5_decision_policy import POLICY_VERSION, decide_one
 from staging_dataset import (
     CANONICAL_CLASSES,
     DEFECT_CLASSES,
@@ -150,6 +151,7 @@ def choose_threshold(
             float(np.mean(scores[mask] >= threshold)) if mask.any() else None
         )
     return {
+        "decision_policy_version": POLICY_VERSION,
         "rule": (
             "s=P(missing_cap)+P(crooked_cap)+P(damaged_vial); t is the highest "
             "common validation-only threshold meeting the recall target for every "
@@ -170,22 +172,6 @@ def choose_threshold(
         "n_validation": int(len(labels)),
         "n_validation_supported_defects": int(defect_mask.sum()),
     }
-
-
-def decide_one(
-    probabilities: np.ndarray,
-    threshold: float,
-    unsupported_classes: Sequence[str] = (),
-) -> tuple[str, float, str]:
-    score = float(probabilities[list(DEFECT_INDICES)].sum())
-    if score < threshold:
-        index = max(NON_DEFECT_INDICES, key=lambda value: float(probabilities[value]))
-        return CANONICAL_CLASSES[index], score, "below_defect_threshold"
-    defect_index = max(DEFECT_INDICES, key=lambda value: float(probabilities[value]))
-    predicted = CANONICAL_CLASSES[defect_index]
-    if predicted in set(unsupported_classes):
-        return "unknown", score, "unsupported_class_has_highest_defect_probability"
-    return predicted, score, "at_or_above_defect_threshold"
 
 
 def final_decision(predicted: str, row: ManifestRow) -> tuple[str, str]:
@@ -255,6 +241,9 @@ def preprocessing_sha256(
     """
     paths = {
         "train_resnet5.py": Path(__file__),
+        "staging5_decision_policy.py": Path(__file__).with_name(
+            "staging5_decision_policy.py"
+        ),
         "staging_dataset.py": Path(__file__).with_name("staging_dataset.py"),
         "positions.py": Path(P.__file__),
         "frame_warp.py": Path(FW.__file__),
@@ -506,7 +495,7 @@ def main(argv: list[str] | None = None) -> int:
                 "expected_occupancy": row.expected_occupancy,
                 "ground_truth_visual_class": row.visual_class,
                 "predicted_visual_class": predicted,
-                "defect_score": round(score, 8),
+                "defect_score": None if score is None else round(score, 8),
                 "applicable_threshold": threshold["t_defect"],
                 "inspection_decision": decision,
                 "reason_code": f"{visual_reason};{decision_reason}",
@@ -523,6 +512,7 @@ def main(argv: list[str] | None = None) -> int:
 
     run = {
         "model": "torchvision ResNet-18 with five-output head",
+        "decision_policy_version": POLICY_VERSION,
         "classes": list(CANONICAL_CLASSES),
         "defect_classes": list(DEFECT_CLASSES),
         "unsupported_classes": unsupported,

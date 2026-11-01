@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import csv
 import hashlib
+import json
 import os
 from pathlib import Path
 import subprocess
@@ -46,6 +47,75 @@ EXPECTED_LIVE_FIELDS = EXPECTED_GOLDEN_FIELDS + (
 
 def _sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def _write_json(path: Path, value: dict) -> None:
+    path.write_text(json.dumps(value, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
+
+def _write_policy_v2_candidate(
+    root: Path, *, unsupported: tuple[str, ...] = ("damaged_vial",)
+) -> tuple[Path, Path]:
+    """Create a byte-authenticated, metadata-compatible synthetic candidate."""
+    model_dir = root / "model"
+    onnx_dir = root / "onnx"
+    model_dir.mkdir(parents=True)
+    onnx_dir.mkdir()
+
+    model = model_dir / "model.pt"
+    model.write_bytes(b"synthetic candidate model")
+    threshold = {
+        "decision_policy_version": B.POLICY_VERSION,
+        "t_defect": 0.9,
+        "unsupported_classes": list(unsupported),
+    }
+    threshold_path = model_dir / "thresholds.json"
+    _write_json(threshold_path, threshold)
+    run = {
+        "decision_policy_version": B.POLICY_VERSION,
+        "classes": ["pass", "missing_cap", "crooked_cap", "damaged_vial", "no_vial"],
+        "unsupported_classes": list(unsupported),
+        "five_class_model_ready": not unsupported,
+        "final_test_used": False,
+        "test_rows_loaded": 0,
+        "model_pt_sha256": _sha256(model),
+        "thresholds_sha256": _sha256(threshold_path),
+        "preprocessing_sha256": {
+            "staging5_decision_policy.py": _sha256(TTL / "staging5_decision_policy.py")
+        },
+        "training_code_sha256": _sha256(TTL / "train_resnet5.py"),
+    }
+    run_path = model_dir / "run.json"
+    _write_json(run_path, run)
+
+    onnx = onnx_dir / "model.onnx"
+    onnx.write_bytes(b"synthetic candidate ONNX")
+    export = {
+        "classes": run["classes"],
+        "model_onnx_sha256": _sha256(onnx),
+        "source": {
+            "model_pt_sha256": run["model_pt_sha256"],
+            "run_json_sha256": _sha256(run_path),
+            "thresholds_sha256": _sha256(threshold_path),
+        },
+        "verification": {
+            "status": "passed",
+            "scope": "train_and_validation_only",
+            "protected_test_used": False,
+            "test_rows_loaded": 0,
+            "decision_mismatches": 0,
+            "rows_total": 510,
+        },
+        "tools": {"numpy": "2.1.0", "opencv": "4.10.0"},
+        "readiness": {
+            "decision_policy_version": B.POLICY_VERSION,
+            "unsupported_classes": list(unsupported),
+            "five_class_model_ready": not unsupported,
+        },
+        "export_code_sha256": _sha256(TTL / "export_resnet5_onnx.py"),
+    }
+    _write_json(onnx_dir / "onnx_export.json", export)
+    return model_dir, onnx_dir
 
 
 def _prediction_rows() -> list[dict[str, str]]:
@@ -231,36 +301,97 @@ def test_arm64_wheel_allowlist_rejects_missing_or_unexpected_files(tmp_path):
     assert "unexpected=" in str(error.value)
 
 
-def test_real_frozen_model_and_onnx_inputs_authenticate_when_present():
-    """Exercise the actual downloaded artifacts without making them a CI fixture."""
+@pytest.mark.parametrize("unsupported", [(), ("damaged_vial",)])
+def test_policy_v2_synthetic_model_and_onnx_inputs_authenticate(tmp_path, unsupported):
+    model_dir, onnx_dir = _write_policy_v2_candidate(tmp_path, unsupported=unsupported)
+    run, threshold, export = B.authenticate_inputs(model_dir, onnx_dir)
+    assert run["decision_policy_version"] == B.POLICY_VERSION
+    assert threshold["decision_policy_version"] == B.POLICY_VERSION
+    assert export["readiness"]["decision_policy_version"] == B.POLICY_VERSION
+
+
+@pytest.mark.parametrize(
+    "attestation",
+    ["run", "threshold", "export", "policy_source", "training_source", "export_source"],
+)
+def test_candidate_authentication_requires_all_policy_attestations(
+    tmp_path, attestation
+):
+    model_dir, onnx_dir = _write_policy_v2_candidate(tmp_path)
+    path = {
+        "run": model_dir / "run.json",
+        "threshold": model_dir / "thresholds.json",
+        "export": onnx_dir / "onnx_export.json",
+        "policy_source": model_dir / "run.json",
+        "training_source": model_dir / "run.json",
+        "export_source": onnx_dir / "onnx_export.json",
+    }[attestation]
+    value = json.loads(path.read_text(encoding="utf-8"))
+    if attestation == "export":
+        value["readiness"]["decision_policy_version"] = "legacy-policy"
+    elif attestation == "policy_source":
+        value["preprocessing_sha256"]["staging5_decision_policy.py"] = "0" * 64
+    elif attestation == "training_source":
+        value["training_code_sha256"] = "0" * 64
+    elif attestation == "export_source":
+        value["export_code_sha256"] = "0" * 64
+    else:
+        value["decision_policy_version"] = "legacy-policy"
+    _write_json(path, value)
+
+    with pytest.raises(
+        ValueError,
+        match="use existing sealed \\.run; new build requires policy-v2 artifacts",
+    ):
+        B.authenticate_inputs(model_dir, onnx_dir)
+
+
+def test_real_legacy_frozen_inputs_are_rejected_before_large_bytes_when_present(monkeypatch):
+    """Legacy artifacts remain usable only through their existing sealed kit."""
     model_dir = (
         REPO
         / "data/yaad-results/3c875c39-3bb5-4f17-bb07-46e30679c520/out/resnet18_staging5"
     )
     onnx_dir = REPO / "data/onnx-export-staging5-2026-10-28"
     required = [
-        model_dir / "model.pt",
         model_dir / "run.json",
         model_dir / "thresholds.json",
-        onnx_dir / "model.onnx",
         onnx_dir / "onnx_export.json",
     ]
     if not all(path.is_file() for path in required):
-        pytest.skip("large frozen training/ONNX artifacts are not installed")
+        pytest.skip("legacy frozen metadata is not installed")
 
-    run, threshold, export = B.authenticate_inputs(model_dir, onnx_dir)
-    assert run["classes"] == [
-        "pass",
-        "missing_cap",
-        "crooked_cap",
-        "damaged_vial",
-        "no_vial",
-    ]
-    assert run["unsupported_classes"] == ["damaged_vial"]
-    assert run["final_test_used"] is False
-    assert export["verification"]["rows_total"] == 510
-    assert export["verification"]["protected_test_used"] is False
-    assert threshold["t_defect"] == pytest.approx(0.9292464256286621)
+    real_sha256 = B.sha256
+
+    def refuse_large_artifact_hash(path):
+        if Path(path).name in {"model.pt", "model.onnx"}:
+            raise AssertionError("legacy rejection must precede large-artifact access")
+        return real_sha256(path)
+
+    monkeypatch.setattr(B, "sha256", refuse_large_artifact_hash)
+
+    with pytest.raises(
+        ValueError,
+        match="use existing sealed \\.run; new build requires policy-v2 artifacts",
+    ):
+        B.authenticate_inputs(model_dir, onnx_dir)
+
+
+def test_builder_identity_and_docs_are_new_candidate_without_legacy_claims(tmp_path):
+    assert B.PACKAGE_VERSION == "staging5-policy-v2-candidate-r1"
+    assert B.KIT_BASENAME == "ttl_kit_staging5_policy_v2_candidate_r1"
+    assert "2026-10-28" not in B.PACKAGE_VERSION
+    assert "RESULT_2026-10-28.md" not in B.DOC_FILES
+    assert "PROTOCOL_2026-10-28.md" not in B.DOC_FILES
+    assert "STAGING_TRAINING.md" not in B.DOC_FILES
+
+    B._write_payload_docs(tmp_path, {"operation_mode": "shadow_evaluation_only"})
+    safety = (tmp_path / "SAFETY_AND_LIMITATIONS.txt").read_text(encoding="utf-8")
+    assert "bundles no protected-performance claim" in safety
+    assert "its own frozen artifacts complete a sealed evaluation" in safety
+    assert "98%" not in safety
+    assert "5/8" not in safety
+    assert "62.5%" not in safety
 
 
 def test_self_extractor_checks_embedded_bytes_and_refuses_existing_target(tmp_path):
@@ -305,9 +436,67 @@ def test_live_launcher_is_fixed_to_authenticated_shadow_configuration():
     assert "SHADOW / EVALUATION ONLY" in script
     assert "No PLC actuation" in script
     assert "not a product-release signal" in script
+    assert 'cat "$ROOT/MODEL_SUPPORT.txt"' in script
+    assert "damaged_vial has no training examples" not in script
     assert "--inspector \"$" not in script
     assert "--model-dir \"$MODEL" not in script
     assert "--fixture \"$" not in script
+
+
+def test_payload_docs_ship_runtime_health_and_source_freshness_warnings(tmp_path):
+    B._write_payload_docs(tmp_path, {"operation_mode": "shadow_evaluation_only"})
+    readme = (tmp_path / "README.txt").read_text(encoding="utf-8")
+    safety = (tmp_path / "SAFETY_AND_LIMITATIONS.txt").read_text(encoding="utf-8")
+
+    assert "LIVE_RUNBOOK.md" in B.DOC_FILES
+    assert "runtime_status.json" in readme
+    assert "input_processing" in readme
+    assert "session_closing" in readme
+    assert "processing-runtime state only, not camera/source" in readme
+    for required in (
+        "INSPECTION_UNAVAILABLE",
+        "session_closing",
+        "status_updated_utc",
+        "source-specific maximum age or heartbeat",
+        "last successful event",
+        "no PASS or release authority",
+    ):
+        assert required in safety
+
+
+@pytest.mark.parametrize(
+    ("unsupported", "expected", "absent"),
+    [
+        (
+            [],
+            "development support for all five visual classes",
+            "declares these visual classes unsupported",
+        ),
+        (
+            ["damaged_vial"],
+            "declares these visual classes unsupported: damaged_vial",
+            "development support for all five visual classes",
+        ),
+    ],
+)
+def test_payload_safety_and_launcher_notice_match_authenticated_support_state(
+    tmp_path, unsupported, expected, absent
+):
+    B._write_payload_docs(
+        tmp_path,
+        {
+            "operation_mode": "shadow_evaluation_only",
+            "unsupported_classes": unsupported,
+        },
+    )
+    safety = (tmp_path / "SAFETY_AND_LIMITATIONS.txt").read_text(encoding="utf-8")
+    banner = (tmp_path / "MODEL_SUPPORT.txt").read_text(encoding="utf-8")
+    deployment = json.loads((tmp_path / "deployment.json").read_text(encoding="utf-8"))
+    assert expected in safety
+    assert expected in banner
+    assert absent not in safety
+    assert absent not in banner
+    assert deployment["unsupported_classes"] == unsupported
 
 
 def test_bootstrap_is_arm64_only_and_installs_dependencies_offline():

@@ -24,7 +24,8 @@ EXPECTED_CODE = {
     "evaluate_resnet5_test.py", "frame_warp.py", "frame_warp_1080.json",
     "position_map_G.json", "positions.py", "registration_dev.json",
     "requirements_train_resnet5.txt", "resnet5_inspector.py", "rules.py",
-    "staging_dataset.py", "tests/test_yaad_test_preflight.py",
+    "staging5_decision_policy.py", "staging_dataset.py",
+    "tests/test_yaad_test_preflight.py",
     "train_resnet.py", "train_resnet5.py", "yaad_evaluate_resnet5.sh",
 }
 
