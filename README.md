@@ -1,57 +1,124 @@
-# Rockwell Automation + NVIDIA Innovation Lab · Fall 2026
+# Twin-to-Line: Commissioning Final Vial Inspection from the Digital Twin
 
-This is your team's repository for the four-week physical AI hackathon run by Rockwell Automation, NVIDIA, the MSOE AI Club and UWM's Connected Systems Institute. Build everything here. Sponsors can follow your work as it progresses, and your final submission links straight to this repository.
+**Code Crusaders** · Rockwell Automation + NVIDIA Physical AI Innovation Lab, Fall 2026 · Challenge 1, Dataset 1 (Final Vial Inspection)
 
-**Full event guide** (datasets, compute, rules, judging, prizes): <https://msoe-maic.com/library/?article=Rockwell-NVIDIA-Fall-2026>
-**Your team workspace** (team, repository access, submissions): <https://dashboard.all-ai-network.org/j/L36HEH>
-**Questions:** [join the hackathon Slack](https://join.slack.com/t/rockwellnvidi-wq82211/shared_invite/zt-4bp05nsn9-UW3afFtM9wjzWtZiQoJBHg) and ask in the channel that matches your question. The event guide's "Getting help" section says who to ping for what.
+Twin-to-Line sets up the overhead inspection at CSI's final vial station from the digital twin instead of from
+hand-teaching and real defect images. On a hand-staged test at CSI it located all 30 fixture holes with no
+hand-teaching and caught 14 of 14 missed placements. Its twin-trained cap checks did not handle crooked caps; we
+traced why (see [Results](#results)).
 
-## Key dates
+## Problem
 
-| When | What |
-|---|---|
-| Thu Oct 8, 4:00–6:00 PM | Kickoff at Rockwell Automation HQ, 1201 S 2nd St, Milwaukee |
-| **Wed Oct 14, 11:59 PM CT** | **Team plan due:** [submit it here](https://dashboard.all-ai-network.org/s/V28NHK) |
-| **Sun Nov 1, 11:59 PM CT** | **Final submission due:** [submit it here](https://dashboard.all-ai-network.org/s/V28NHK) |
-| Thu Nov 5, 5:00–8:00 PM | Finals at MSOE Diercks Hall: live presentations and prizes |
+At CSI's final station the robot places vials into a 30-hole Good fixture (G). The side inspection misses some cap
+defects, caps can move after inspection, and the robot can miss a placement. On a high-mix, low-volume line the
+overhead inspection has to be re-commissioned at every changeover: hole positions taught by hand, and real defect
+images that only exist once someone makes defects on purpose. Our question: how much of that commissioning can the
+digital twin do? A missed defect counts more than a false alarm.
 
-## First week
+## Approach
 
-- [ ] Everyone on the team has an ALL AI Network account and has joined this team in the [workspace](https://dashboard.all-ai-network.org/j/L36HEH).
-- [ ] Everyone has connected GitHub and accepted the repository invitation (check your GitHub email, or open the workspace and press the check button).
-- [ ] Pick your dataset. We recommend one strong solution around a single dataset.
-- [ ] Download the data and make sure everyone who needs it can open it.
-- [ ] Read the compute guide and decide what you'll need.
-- [ ] Join Slack, open `#hackathon-announcements`, and find your dataset's channel.
-- [ ] Submit the [team plan](https://dashboard.all-ai-network.org/s/V28NHK) by Wednesday, October 14. It's a short resource request, not a graded paper, and any teammate can update it before the deadline.
+| Part | What it does | Code |
+|---|---|---|
+| Position map from the twin | Projects G01–G30 through the twin's solved cap_seal camera; no per-hole teaching. 640×480 practice runs: 30/30 holes, ~1.68 px median error. CSI's 1920×1080 stream is warped into the same grid (D039). | `twin_to_line/positions.py`, `capsealcam.py`, `frame_warp.py`, `position_map_G.json` |
+| Synthetic data | Isaac Sim renders from USD override layers over the untouched twin: pass, missing cap, crooked cap, no vial, leaning vials (568 scenes, 17,040 crops). Labels are read back from the composed stage. | `gen_scenes.py`, `render_batch.py`, `cut_train_crops.py` |
+| Inspectors (frozen Oct 25) | **A:** ResNet-18 trained only on renders (zero real images). **B / B′ / B″:** a three-threshold colour rule as the baseline, with thresholds from renders (B), practice runs 1–3 (B′, ran live) or good practice images only (B″). | `train_resnet.py`, `resnet_inspector.py`, `rules.py`, `rule_thresholds*.json` |
+| Fill-order logic | An empty hole before the last filled one is MISSED, after it WAITING. No PLC or robot signal needed. | `fill_state.py` |
+| Live runtime | Reads camera images from a folder, waits for the arm to clear, scores all 30 holes, writes predictions and a trial log. | `live_inspect.py`, `events.py`, `LIVE_RUNBOOK.md` |
+| AI-run CSI session | An AI agent in a terminal on CSI's GB10 ran setup, staging, sealing, the live run and export from a written guide; the team only placed vials. | `csi_day2/`, `monday/` |
+| Operator UI | Read-only web view of the checker's output. | `ignite_core/operator_ui/` |
 
-## The three datasets
+Every decision, with its reason and date, is in [`twin_to_line/DECISIONS.md`](twin_to_line/DECISIONS.md) (D001–D045).
 
-1. **[Final Vial Inspection](https://msoe-maic.com/library?article=Rockwell-NVIDIA-Fall-2026-Vial-Inspection):** find missing caps, crooked caps, damaged vials and unexpected empty positions after the robot fills a fixture.
-2. **[Fluid Mixing Station 3](https://msoe-maic.com/library?article=Rockwell-NVIDIA-Fall-2026-Fluid-Mixing):** use synchronized camera views to detect fill and color problems caused by recipes and fluid carryover.
-3. **[Grasping and Sorting](https://msoe-maic.com/library?article=Rockwell-NVIDIA-Fall-2026-Grasping-Sorting):** use a digital twin and multiple cameras to make a standalone FANUC arm grasp and sort objects more reliably.
+## Results
 
-## Read before your team plan
+**Test set.** On Oct 27, with the robot stopped, we hand-placed 22 fixture setups at CSI (17 crooked caps, 14 missing
+caps, 14 missed placements, 65 waiting holes, 550 good positions). The AI agent captured each from the live cap_seal
+camera on CSI's GB10 and sealed the set. Code, models and thresholds were frozen on Oct 25 (tag `freeze-2026-10-25`).
+Labels were drafted from the staging log, checked against every image, confirmed by a teammate and locked by checksum
+before any model ran (D043). The set was scored once.
 
-- **[Compute: Brev, DGX Spark and build.nvidia.com](https://msoe-maic.com/library?article=Rockwell-NVIDIA-Fall-2026-Compute).** Brev credits are spent whenever an instance is running, so stop instances you aren't using.
-- **[Collect and test your own data](https://msoe-maic.com/library?article=Rockwell-NVIDIA-Fall-2026-Data-Collection):** visits, extra data, digital twins, and booking a supervised test on the real equipment.
-- **[Tools and resources](https://msoe-maic.com/library?article=Rockwell-NVIDIA-Fall-2026-Resources):** AI coding tools, vision-language models, NVIDIA Cosmos and more. Start with a simple baseline.
+**Pre-registered result (D043).** The frozen arm check mistook a yellow strip beside the fixture for the robot arm and
+skipped 16 of 22 frames. On the 6 it kept, the live rule (B′) caught 7 of 7 missed placements and 1 of 1 missing cap,
+and missed 3 of 4 crooked caps.
 
-## Final submission (Sun Nov 1)
+**After fixing only the arm check (D044/D045, v1.1 built without the test images; post-hoc), all 22 frames:**
 
-- A video of about five minutes
-- A one-page project summary
-- A link to this repository
-- References and credits for data, models, code and tools
+| Inspector | Crooked caps caught (/17) | Missing caps caught (/14) | Missed placements caught (/14) | Good holes flagged (/550) | Waiting holes flagged (/65) |
+|---|---|---|---|---|---|
+| B′ rule, practice-fit (ran live) | 5 | 12 | 14 | 109 | 13 |
+| B″ rule, good images only | 3 | 12 | 14 | 41 | 13 |
+| A ResNet-18, twin only (D038 threshold) | 17 | 14 | 14 | 412 | 54 |
+| A ResNet-18, pre-registered threshold | 8 | 8 | 9 | 57 | 37 |
+| B rule, twin-set thresholds | 17 | 11 | 6 | 538 | 18 |
 
-## Working in this repository
+Rule flags go to a person as UNSURE; ResNet flags are rejects. False-alarm rate at the threshold that catches every
+cap defect: 63.8% (A), 81.5% (rules).
+
+**What worked:** the twin's geometry carried over to a new camera with no teaching, and fill-order logic told missed
+placements from waiting holes 14/14. **What failed:** crooked caps. The twin-trained ResNet catches all 17 only by
+flagging 75% of good holes.
+
+**Why (diagnosis after scoring, not a result).**
+- A tilted cap pivots about the vial mouth, so its yellow centre moves a median 0.9 px from a good reference and the
+  rule's position feature cannot see it. Its orange side does show: a hue check against one all-good image of the
+  fixture separated all 17 crooked caps from most good caps (threshold set on the test images, so optimistic).
+- On the 1080 view each hole has a fixed offset (0.8–4.9 px), so one global threshold flags the same good holes.
+- The 1080 stream's warm tint makes empty holes and open vial rims read partly yellow; the ResNet learned the twin's
+  lighting.
+
+Takeaway: the twin carries geometry and fill order; appearance needs one reference image of a good fixture per camera,
+not a defect set.
+
+**On hardware.** On Oct 27 the frozen live inspector ran for about an hour on CSI's GB10 off the real camera. The line
+was not filling, so every hole read waiting: no live defect was caught. A second session on Oct 29 was lost to a line
+fault.
+
+**Not part of these results:** the `staging5` ResNet (PR #7) was trained and thresholded on the sealed Oct 27 images,
+so it cannot be scored on them; it is reported separately if at all.
+
+## How to run
+
+Requirements: Python 3.11+, `pip install -r twin_to_line/requirements.txt` (NumPy, OpenCV, pytest; usd-core only for
+twin authoring), plus PyTorch/torchvision for the ResNet arm. Data is not in git: get the Dataset 1 images and the
+digital twin from the Innovation Lab data folder (see the event guide) and keep them outside the repo.
 
 ```bash
-git clone <this repository's URL from the green "Code" button>
+cd twin_to_line
+python -m pytest tests -q                          # unit tests (a few need git-ignored data and skip or fail without it)
+
+# Live/replay inspection: folder of cap_seal images in, predictions + trial log out
+python live_inspect.py --source folder:/path/to/incoming_images --out results/live/run_$(date +%Y%m%d_%H%M%S) --inspector rule
+python live_inspect.py --source replay:/path/to/saved_frames   --out results/live/replay_test --inspector rule
+
+# Operator UI on the checker's output folder (from the repo root)
+python -m ignite_core.operator_ui --output-dir twin_to_line/results/live/<run> --port 8765
+
+# Score a labelled image folder (once-only lock ledger; see D043)
+python score_sealed.py <image_folder> --labels <labels.csv> --labels-sha256 <sha256> --out <out_dir>
 ```
 
-- Commit early and push often. Mentors and judges see what's here.
-- **Don't commit large datasets or model weights.** Keep them out with `.gitignore` and note in this README where to download them.
-- Before the finals, replace this README with your project: the problem, your approach, results, how to run it, and credits.
+Full start/stop procedure with expected output for each step: [`twin_to_line/LIVE_RUNBOOK.md`](twin_to_line/LIVE_RUNBOOK.md).
+Rendering on Brev and the sim-to-real gate: [`twin_to_line/README.md`](twin_to_line/README.md) and `GATE_v2.0.2.md`.
 
-**Can't push or see this repository?** Open the [team workspace](https://dashboard.all-ai-network.org/j/L36HEH) and press the GitHub check button. If it still doesn't work, ping Brett Storoe in `#hackathon-general` on Slack.
+## Repository map
+
+- `twin_to_line/`: position map, scene generation and rendering, inspectors, fill-order logic, live runtime, scoring,
+  decisions, freeze record (`FREEZE_2026-10-25.md`) and CSI session guides (`csi_day2/`).
+- `ignite_core/`: operator UI, fill-state and position modules, CSI staging plan and report tools.
+- Not in git (by design): raw CSI images, twin renders, model weights, results.
+
+## Team
+
+Code Crusaders: Prabhnoor (Noor) Bal, Matthew Vang, Anthony Harvey, Zara Omosun (captain).
+
+## Credits and references
+
+- **Data and digital twin:** Dataset 1 (Final Vial Inspection) and the CSI digital twin, provided by UWM's Connected
+  Systems Institute, NVIDIA, Rockwell Automation and the MSOE AI Club. Staged test images collected at CSI on Oct 27,
+  2026, with CSI staff supervision (Shamar Webster).
+- **Software:** NVIDIA Isaac Sim 6.0.1 (on NVIDIA Brev), OpenUSD (`usd-core`), PyTorch and torchvision (ResNet-18 with
+  ImageNet-1K weights), OpenCV, NumPy, pytest.
+- **Compute:** NVIDIA Brev (L40S), CSI's YAAD DGX Spark lab and the CSI GB10 at the line.
+- **AI coding tools:** Claude (Claude Code), OpenAI Codex and ChatGPT were used for code, reviews, documents and to run
+  the CSI session.
+- **Event guide:** <https://msoe-maic.com/library?article=Rockwell-NVIDIA-Fall-2026>
